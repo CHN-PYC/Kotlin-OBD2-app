@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="就绪"
+        android:textSize="16sp"
+        android:padding="8dp"/>
+
+    <Button
+        android:id="@+id/scanButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="扫描已配对设备"/>
+
+    <Button
+        android:id="@+id/connectButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="连接第一个 ELM327"/>
+
+    <Button
+        android:id="@+id/sendAtzButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="发送 ATZ (复位)"/>
+
+    <TextView
+        android:id="@+id/deviceList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="设备列表"
+        android:textSize="14sp"
+        android:padding="8dp"/>
+    <Button
+        android:id="@+id/startReadButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="开始读取数据"/>
+
+    <TextView
+        android:id="@+id/dataDisplay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="数据将显示在这里"
+        android:padding="8dp"
+        android:textSize="14sp"/>
+
+</LinearLayout>
