@@ -1,3 +1,68 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">OBD2 Monitor</string>
+    
+    <!-- Navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_history">History</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_connection">Connection</string>
+    
+    <!-- Dashboard -->
+    <string name="dashboard_title">OBD2 Diagnostics</string>
+    <string name="dashboard_live">Live</string>
+    <string name="rpm_label">RPM</string>
+    <string name="coolant_temp_label">Coolant Temp</string>
+    <string name="battery_label">Battery Voltage</string>
+    <string name="intake_temp_label">Intake Temp</string>
+    <string name="throttle_label">Throttle Position</string>
+    <string name="speed_label">Speed</string>
+    <string name="rpm_history">RPM History</string>
+    
+    <!-- Connection -->
+    <string name="connection_title">Bluetooth Connection</string>
+    <string name="connected_section">Connected</string>
+    <string name="available_devices">Available Devices</string>
+    <string name="scan_devices">Scan for Devices</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="connect">Connect</string>
+    <string name="connection_tips_title">Connection Tips</string>
+    <string name="connection_tip_1">• Ensure your OBD-II device is plugged in</string>
+    <string name="connection_tip_2">• Turn ignition to ON (don\'t start engine)</string>
+    <string name="connection_tip_3">• Check Bluetooth is enabled</string>
+    <string name="signal_excellent">Excellent</string>
+    <string name="signal_good">Good</string>
+    <string name="signal_fair">Fair</string>
+    <string name="signal_weak">Weak</string>
+    <string name="paired">Paired</string>
+    
+    <!-- History -->
+    <string name="history_title">Trip History</string>
+    <string name="history_subtitle">Your driving records</string>
+    <string name="export">Export</string>
+    <string name="no_trips">No trips recorded yet</string>
+    <string name="no_trips_hint">Connect to OBD2 and start driving!</string>
+    <string name="view_details">View Details →</string>
+    <string name="duration_min">%d min</string>
+    <string name="distance_km">Distance (km)</string>
+    <string name="avg_speed">Avg Speed (km/h)</string>
+    <string name="max_rpm">Max RPM</string>
+    
+    <!-- Status -->
+    <string name="status_connected">Connected</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="status_connecting">Connecting…</string>
+    <string name="status_scanning">Scanning…</string>
+    
+    <!-- Units -->
+    <string name="unit_rpm">rpm</string>
+    <string name="unit_celsius">°C</string>
+    <string name="unit_volts">V</string>
+    <string name="unit_percent">%</string>
+    <string name="unit_kmh">km/h</string>
+    
+    <!-- Errors -->
+    <string name="error_bluetooth_not_enabled">Bluetooth is not enabled</string>
+    <string name="error_no_devices">No devices found</string>
+    <string name="error_connection_failed">Connection failed</string>
+    <string name="error_permission_denied">Permission denied</string>
 </resources>
