@@ -6,20 +6,24 @@ import com.example.myapplication.data.repository.VehicleRepository
 
 class MyApplication : Application() {
 
-    // 全局 Repository 实例
+    // Global Repository instance
     lateinit var repository: VehicleRepository
+        private set
+    
+    // Global Bluetooth Manager instance (for ConnectionActivity)
+    lateinit var bluetoothManager: ObdBluetoothManager
         private set
 
     override fun onCreate() {
         super.onCreate()
 
-        // 初始化数据库
+        // Initialize database
         val database = AppDatabase.getDatabase(this)
 
-        // 初始化蓝牙管理器
-        val obdbluetoothManager = ObdBluetoothManager(this)
+        // Initialize bluetooth manager
+        bluetoothManager = ObdBluetoothManager(this)
 
-        // 初始化 Repository
-        repository = VehicleRepository(obdbluetoothManager, database.vehicleDataDao())
+        // Initialize Repository
+        repository = VehicleRepository(bluetoothManager, database.vehicleDataDao())
     }
 }

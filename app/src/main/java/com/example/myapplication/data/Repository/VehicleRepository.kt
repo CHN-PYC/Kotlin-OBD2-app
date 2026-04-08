@@ -18,6 +18,15 @@ class VehicleRepository(
 ) {
 
     /**
+     * Connect to OBD2 device
+     * @param device Bluetooth device to connect to
+     * @return true if connection successful
+     */
+    suspend fun connectToDevice(device: android.bluetooth.BluetoothDevice): Boolean {
+        return bluetoothManager.connect(device.address)
+    }
+
+    /**
      * 请求一次完整的车辆数据
      * @return VehicleData 对象，若任何参数失败则返回 null
      */
