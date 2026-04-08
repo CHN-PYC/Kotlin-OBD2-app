@@ -59,6 +59,12 @@ class MainActivity : AppCompatActivity() {
         binding.cardHistory.setOnClickListener {
             startActivity(Intent(this, HistoryActivity::class.java))
         }
+        
+        // Add long press for detailed diagnostics
+        binding.cardConnect.setOnLongClickListener {
+            startActivity(Intent(this, com.example.myapplication.ui.dashboard.DetailedDiagnosticsActivity::class.java))
+            true
+        }
 
         // Setup bottom navigation
         binding.bottomNavigation.selectedItemId = R.id.nav_home
