@@ -32,9 +32,10 @@ class MainActivity : AppCompatActivity() {
     ) { permissions ->
         val allGranted = permissions.entries.all { it.value }
         if (allGranted) {
-            checkBluetoothAndShow()
+            initializeBluetooth()
         } else {
             Toast.makeText(this, "Bluetooth permissions required", Toast.LENGTH_SHORT).show()
+            binding.tvStatus.text = "Permissions denied"
         }
     }
 
@@ -42,10 +43,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // Initialize Bluetooth
-        val manager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        bluetoothAdapter = manager.adapter
 
         // Setup card clicks
         binding.cardConnect.setOnClickListener {
@@ -72,7 +69,11 @@ class MainActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.nav_home -> true
                 R.id.nav_connection -> {
-                    startActivity(Intent(this, ConnectionActivity::class.java))
+                    if (checkPermissions()) {
+                        startActivity(Intent(this, ConnectionActivity::class.java))
+                    } else {
+                        requestPermissions()
+                    }
                     true
                 }
                 R.id.nav_history -> {
@@ -86,11 +87,22 @@ class MainActivity : AppCompatActivity() {
         // Start time update
         startTimeUpdate()
 
-        // Check permissions
+        // Check and request permissions FIRST
         if (checkPermissions()) {
-            checkBluetoothAndShow()
+            initializeBluetooth()
         } else {
             requestPermissions()
+        }
+    }
+
+    private fun initializeBluetooth() {
+        // Only access Bluetooth adapter after permissions are granted
+        try {
+            val manager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+            bluetoothAdapter = manager.adapter
+            checkBluetoothAndShow()
+        } catch (e: SecurityException) {
+            binding.tvStatus.text = "Bluetooth access denied"
         }
     }
 
@@ -117,20 +129,26 @@ class MainActivity : AppCompatActivity() {
     private fun requestPermissions() {
         val permissions = mutableListOf(
             Manifest.permission.BLUETOOTH_SCAN,
-            Manifest.permission.BLUETOOTH_CONNECT,
-            Manifest.permission.ACCESS_FINE_LOCATION
+            Manifest.permission.BLUETOOTH_CONNECT
         )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            permissions.remove(Manifest.permission.ACCESS_FINE_LOCATION)
+        // Add location permission for older Android versions
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
         requestPermissionLauncher.launch(permissions.toTypedArray())
     }
 
     private fun checkBluetoothAndShow() {
-        if (bluetoothAdapter?.isEnabled == false) {
-            binding.tvStatus.text = "Bluetooth is disabled"
-        } else {
-            binding.tvStatus.text = "Ready to connect"
+        try {
+            if (bluetoothAdapter == null) {
+                binding.tvStatus.text = "Bluetooth not supported"
+            } else if (bluetoothAdapter?.isEnabled == false) {
+                binding.tvStatus.text = "Bluetooth is disabled"
+            } else {
+                binding.tvStatus.text = "Ready to connect"
+            }
+        } catch (e: SecurityException) {
+            binding.tvStatus.text = "Bluetooth access denied"
         }
     }
 

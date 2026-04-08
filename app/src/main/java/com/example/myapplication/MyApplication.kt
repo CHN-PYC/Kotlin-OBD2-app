@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.app.Application
 import com.example.myapplication.data.bluetooth.ObdBluetoothManager
+import com.example.myapplication.data.local.AppDatabase
 import com.example.myapplication.data.repository.VehicleRepository
 
 class MyApplication : Application() {
@@ -17,13 +18,18 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // Initialize database
-        val database = AppDatabase.getDatabase(this)
+        try {
+            // Initialize database
+            val database = AppDatabase.getDatabase(this)
 
-        // Initialize bluetooth manager
-        bluetoothManager = ObdBluetoothManager(this)
+            // Initialize bluetooth manager
+            bluetoothManager = ObdBluetoothManager(this)
 
-        // Initialize Repository
-        repository = VehicleRepository(bluetoothManager, database.vehicleDataDao())
+            // Initialize Repository
+            repository = VehicleRepository(bluetoothManager, database.vehicleDataDao())
+        } catch (e: Exception) {
+            // Log error but don't crash
+            e.printStackTrace()
+        }
     }
 }
