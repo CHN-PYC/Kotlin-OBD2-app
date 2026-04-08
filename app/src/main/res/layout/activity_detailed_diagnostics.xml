@@ -263,11 +263,11 @@
                 </androidx.cardview.widget.CardView>
             </GridLayout>
 
-            <!-- Engine & Intake Parameters -->
+            <!-- Engine &amp; Intake Parameters -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Engine & Intake"
+                android:text="Engine &amp; Intake"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
@@ -687,11 +687,11 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Ignition & A/F -->
+            <!-- Ignition &amp; A/F -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ignition & Air/Fuel"
+                android:text="Ignition &amp; Air/Fuel"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
