@@ -10,10 +10,12 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.myapplication.R
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.ui.connection.ConnectionActivity
 import com.example.myapplication.ui.history.HistoryActivity
@@ -26,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private var bluetoothAdapter: BluetoothAdapter? = null
     private val handler = Handler(Looper.getMainLooper())
     private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    private var isConnected = false
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -35,7 +38,7 @@ class MainActivity : AppCompatActivity() {
             initializeBluetooth()
         } else {
             Toast.makeText(this, "Bluetooth permissions required", Toast.LENGTH_SHORT).show()
-            binding.tvStatus.text = "Permissions denied"
+            updateConnectionStatus(false, "Permissions denied")
         }
     }
 
@@ -44,45 +47,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Setup card clicks
-        binding.cardConnect.setOnClickListener {
-            if (checkPermissions()) {
-                startActivity(Intent(this, ConnectionActivity::class.java))
-            } else {
-                requestPermissions()
-            }
-        }
-
-        binding.cardHistory.setOnClickListener {
-            startActivity(Intent(this, HistoryActivity::class.java))
-        }
-        
-        // Add long press for detailed diagnostics
-        binding.cardConnect.setOnLongClickListener {
-            startActivity(Intent(this, com.example.myapplication.ui.dashboard.DetailedDiagnosticsActivity::class.java))
-            true
-        }
+        // Setup card clicks with animation
+        setupCardAnimations()
 
         // Setup bottom navigation
-        binding.bottomNavigation.selectedItemId = R.id.nav_home
-        binding.bottomNavigation.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_home -> true
-                R.id.nav_connection -> {
-                    if (checkPermissions()) {
-                        startActivity(Intent(this, ConnectionActivity::class.java))
-                    } else {
-                        requestPermissions()
-                    }
-                    true
-                }
-                R.id.nav_history -> {
-                    startActivity(Intent(this, HistoryActivity::class.java))
-                    true
-                }
-                else -> false
-            }
-        }
+        setupBottomNavigation()
 
         // Start time update
         startTimeUpdate()
@@ -95,14 +64,55 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initializeBluetooth() {
-        // Only access Bluetooth adapter after permissions are granted
-        try {
-            val manager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-            bluetoothAdapter = manager.adapter
-            checkBluetoothAndShow()
-        } catch (e: SecurityException) {
-            binding.tvStatus.text = "Bluetooth access denied"
+    private fun setupCardAnimations() {
+        val fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in)
+
+        binding.cardConnect.setOnClickListener {
+            it.startAnimation(fadeIn)
+            if (checkPermissions()) {
+                startActivity(Intent(this, ConnectionActivity::class.java))
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+            } else {
+                requestPermissions()
+            }
+        }
+
+        binding.cardHistory.setOnClickListener {
+            it.startAnimation(fadeIn)
+            startActivity(Intent(this, HistoryActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+        }
+        
+        // Long press for detailed diagnostics
+        binding.cardConnect.setOnLongClickListener {
+            Toast.makeText(this, "Opening detailed diagnostics...", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, com.example.myapplication.ui.dashboard.DetailedDiagnosticsActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+            true
+        }
+    }
+
+    private fun setupBottomNavigation() {
+        binding.bottomNavigation.selectedItemId = R.id.nav_home
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> true
+                R.id.nav_connection -> {
+                    if (checkPermissions()) {
+                        startActivity(Intent(this, ConnectionActivity::class.java))
+                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+                    } else {
+                        requestPermissions()
+                    }
+                    true
+                }
+                R.id.nav_history -> {
+                    startActivity(Intent(this, HistoryActivity::class.java))
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+                    true
+                }
+                else -> false
+            }
         }
     }
 
@@ -113,6 +123,47 @@ class MainActivity : AppCompatActivity() {
                 handler.postDelayed(this, 1000)
             }
         })
+    }
+
+    private fun initializeBluetooth() {
+        try {
+            val manager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+            bluetoothAdapter = manager.adapter
+            checkBluetoothAndShow()
+        } catch (e: SecurityException) {
+            updateConnectionStatus(false, "Bluetooth access denied")
+        }
+    }
+
+    private fun checkBluetoothAndShow() {
+        try {
+            when {
+                bluetoothAdapter == null -> {
+                    updateConnectionStatus(false, "Bluetooth not supported")
+                }
+                bluetoothAdapter?.isEnabled == false -> {
+                    updateConnectionStatus(false, "Bluetooth is disabled")
+                }
+                else -> {
+                    updateConnectionStatus(false, "Ready to connect")
+                }
+            }
+        } catch (e: SecurityException) {
+            updateConnectionStatus(false, "Bluetooth access denied")
+        }
+    }
+
+    private fun updateConnectionStatus(connected: Boolean, message: String) {
+        isConnected = connected
+        binding.tvConnectionStatus.text = if (connected) {
+            "● Connected"
+        } else {
+            "● Disconnected"
+        }
+        binding.tvConnectionStatus.setTextColor(
+            if (connected) getColor(R.color.success) else getColor(R.color.text_hint)
+        )
+        binding.tvStatus.text = message
     }
 
     private fun checkPermissions(): Boolean {
@@ -131,25 +182,16 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.BLUETOOTH_SCAN,
             Manifest.permission.BLUETOOTH_CONNECT
         )
-        // Add location permission for older Android versions
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
         requestPermissionLauncher.launch(permissions.toTypedArray())
     }
 
-    private fun checkBluetoothAndShow() {
-        try {
-            if (bluetoothAdapter == null) {
-                binding.tvStatus.text = "Bluetooth not supported"
-            } else if (bluetoothAdapter?.isEnabled == false) {
-                binding.tvStatus.text = "Bluetooth is disabled"
-            } else {
-                binding.tvStatus.text = "Ready to connect"
-            }
-        } catch (e: SecurityException) {
-            binding.tvStatus.text = "Bluetooth access denied"
-        }
+    override fun onResume() {
+        super.onResume()
+        // Refresh connection status when returning to app
+        checkBluetoothAndShow()
     }
 
     override fun onDestroy() {
