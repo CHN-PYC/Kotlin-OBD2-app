@@ -11,6 +11,7 @@ import com.example.myapplication.MyApplication
 import com.example.myapplication.R
 import com.example.myapplication.databinding.ActivityHistoryBinding
 import com.example.myapplication.ui.adapter.TripAdapter
+import com.example.myapplication.utils.FileExporter
 import kotlinx.coroutines.launch
 
 class HistoryActivity : AppCompatActivity() {
@@ -87,6 +88,7 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun showTripDetails(tripItem: TripAdapter.TripItem) {
+        val dateFormat = java.text.SimpleDateFormat("MMM d, yyyy HH:mm", java.util.Locale.getDefault())
         // Show dialog with trip details
         android.app.AlertDialog.Builder(this)
             .setTitle("Trip Details")
