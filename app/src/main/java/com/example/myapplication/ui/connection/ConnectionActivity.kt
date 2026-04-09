@@ -124,15 +124,65 @@ class ConnectionActivity : AppCompatActivity() {
             deviceAdapter?.submitList(devices)
             binding.tvStatus.text = "Found ${pairedDevices.size} paired device(s)"
             
-            // Show hint about OBD2 requirement
-            if (pairedDevices.none { it.name?.contains("OBD", true) == true }) {
+            // Check if any OBD2 device is found
+            val hasObdDevice = pairedDevices.any { it.name?.contains("OBD", true) == true }
+            
+            // Show hint if no OBD2 device found
+            if (!hasObdDevice) {
                 Toast.makeText(
                     this, 
                     "💡 Tip: For best experience, use an OBD2 Bluetooth adapter (ELM327)", 
                     Toast.LENGTH_LONG
                 ).show()
+                
+                // Show additional warning if trying to connect non-OBD device
+                showNonObdDeviceWarning()
             }
         }
+    }
+    
+    /**
+     * Show warning when user tries to connect non-OBD device
+     */
+    private fun showNonObdDeviceWarning() {
+        android.app.AlertDialog.Builder(this)
+            .setTitle("⚠️ Non-OBD2 Device Detected")
+            .setMessage(
+                "The paired devices appear to be non-OBD2 Bluetooth devices (e.g., headphones, speakers).\n\n" +
+                "⚠️ Connection will fail because:\n" +
+                "• This app requires an OBD2 Bluetooth adapter\n" +
+                "• Non-OBD2 devices don't support OBD2 protocols\n\n" +
+                "✅ Recommended options:\n" +
+                "1. Use 'Try Demo Mode' from home screen (no device needed)\n" +
+                "2. Purchase an OBD2 adapter (ELM327, Vgate, etc.)\n\n" +
+                "Do you still want to try connecting?"
+            )
+            .setPositiveButton("Try Anyway") { _, _ ->
+                // User wants to try anyway, continue with connection
+            }
+            .setNegativeButton("Use Demo Mode") { _, _ ->
+                // Redirect to demo mode
+                val intent = Intent(this, com.example.myapplication.ui.dashboard.DashboardActivity::class.java)
+                intent.putExtra("simulation_mode", true)
+                startActivity(intent)
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+            }
+            .setNeutralButton("Learn More") { _, _ ->
+                // Show info about OBD2 adapters
+                android.app.AlertDialog.Builder(this)
+                    .setTitle("About OBD2 Adapters")
+                    .setMessage(
+                        "OBD2 Bluetooth adapters are small devices that plug into your car's OBD2 port.\n\n" +
+                        "Recommended models:\n" +
+                        "• ELM327 Bluetooth (~$10-20)\n" +
+                        "• Vgate iCar Pro (~$25-35)\n" +
+                        "• OBDLink MX+ (~$100+)\n\n" +
+                        "Available on Amazon, eBay, or local auto parts stores."
+                    )
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+            .show()
     }
 
     @SuppressLint("MissingPermission")
