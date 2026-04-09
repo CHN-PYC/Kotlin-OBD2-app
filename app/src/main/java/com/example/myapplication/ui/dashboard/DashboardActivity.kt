@@ -14,6 +14,7 @@ import com.example.myapplication.MyApplication
 import com.example.myapplication.R
 import com.example.myapplication.data.local.VehicleData
 import com.example.myapplication.databinding.DashboardBinding
+import com.example.myapplication.utils.SimulatedDataManager
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -40,6 +41,9 @@ class DashboardActivity : AppCompatActivity() {
     private var sessionStartTime: Long = 0
     private val rpmValues = mutableListOf<Int>()
     private var maxRpm = 0
+    
+    // Simulation mode
+    private var isSimulationMode = false
     
     // Status thresholds
     private val rpmNormalRange = 600..4000
@@ -73,11 +77,22 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun setupToolbar() {
         binding.btnRefresh.setOnClickListener {
-            refreshData()
+            if (isSimulationMode) {
+                // Toggle simulation mode
+                toggleSimulationMode()
+            } else {
+                refreshData()
+            }
         }
 
         binding.btnExport.setOnClickListener {
             exportData()
+        }
+        
+        // Long press to toggle simulation
+        binding.btnRefresh.setOnLongClickListener {
+            toggleSimulationMode()
+            true
         }
     }
 
@@ -111,7 +126,14 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun observeData() {
         lifecycleScope.launch {
-            repository.startLiveDataStream().collect { data ->
+            // Use simulated data if not connected to real device
+            val dataFlow = if (isSimulationMode) {
+                SimulatedDataManager.startSimulation()
+            } else {
+                repository.startLiveDataStream()
+            }
+            
+            dataFlow.collect { data ->
                 updateUI(data)
                 updateChart(data)
                 updateSessionStats(data)
@@ -257,15 +279,43 @@ class DashboardActivity : AppCompatActivity() {
         // Data refreshes automatically every 500ms
     }
 
+    private fun toggleSimulationMode() {
+        isSimulationMode = !isSimulationMode
+        SimulatedDataManager.setSimulationMode(SimulatedDataManager.SimulationMode.IDLE)
+        
+        val modeText = if (isSimulationMode) "SIMULATION ON" else "LIVE DATA"
+        Toast.makeText(this, modeText, Toast.LENGTH_SHORT).show()
+        
+        // Update UI to show simulation status
+        binding.tvTitle.text = if (isSimulationMode) {
+            "OBD2 Demo Mode"
+        } else {
+            "OBD2 Diagnostics"
+        }
+    }
+
     private fun exportData() {
         Toast.makeText(this, "Export feature coming soon", Toast.LENGTH_SHORT).show()
     }
 
     private fun showConnectionBanner() {
         binding.cardConnectionBanner.visibility = View.VISIBLE
-        binding.tvConnectedDevice.text = "OBD-II Scanner"
-        binding.tvConnectionQuality.text = "Signal: Excellent"
-        binding.tvConnectionQuality.setTextColor(resources.getColor(R.color.signal_excellent, null))
+        binding.tvConnectedDevice.text = if (isSimulationMode) {
+            "Demo Mode - Simulated Data"
+        } else {
+            "OBD-II Scanner"
+        }
+        binding.tvConnectionQuality.text = if (isSimulationMode) {
+            "📊 Simulation Active"
+        } else {
+            "Signal: Excellent"
+        }
+        binding.tvConnectionQuality.setTextColor(
+            resources.getColor(
+                if (isSimulationMode) R.color.info else R.color.signal_excellent,
+                null
+            )
+        )
     }
 
     private fun setupBottomNavigation() {
@@ -302,7 +352,11 @@ class DashboardActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacksAndMessages(null)
-        repository.disconnect() // Clean up Bluetooth connection
+        if (!isSimulationMode) {
+            repository.disconnect() // Clean up Bluetooth connection
+        } else {
+            SimulatedDataManager.stopSimulation()
+        }
     }
 }
 
