@@ -41,31 +41,31 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <!-- Text Styles -->
-    <style name="Widget.OBD2.Text.Title">
+    <!-- Text Styles with proper parent -->
+    <style name="Widget.OBD2.Text.Title" parent="android:style/TextAppearance">
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/text_primary</item>
     </style>
 
-    <style name="Widget.OBD2.Text.Subtitle">
+    <style name="Widget.OBD2.Text.Subtitle" parent="android:style/TextAppearance">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/text_secondary</item>
     </style>
 
-    <style name="Widget.OBD2.Text.Caption">
+    <style name="Widget.OBD2.Text.Caption" parent="android:style/TextAppearance">
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/text_hint</item>
     </style>
 
-    <style name="Widget.OBD2.Text.Metric">
+    <style name="Widget.OBD2.Text.Metric" parent="android:style/TextAppearance">
         <item name="android:textSize">28sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
-    <style name="Widget.OBD2.Text.Status">
+    <style name="Widget.OBD2.Text.Status" parent="android:style/TextAppearance">
         <item name="android:textSize">11sp</item>
         <item name="android:textStyle">bold</item>
     </style>
