@@ -71,6 +71,9 @@ class DashboardActivity : AppCompatActivity() {
             // Start session tracking
             sessionStartTime = System.currentTimeMillis()
             
+            // Check if launched in simulation mode from MainActivity
+            isSimulationMode = intent.getBooleanExtra("simulation_mode", false)
+            
             // Setup UI components
             setupToolbar()
             setupChart()
@@ -84,6 +87,11 @@ class DashboardActivity : AppCompatActivity() {
             
             // Show demo mode hint on first launch
             showDemoHint()
+            
+            // If launched in simulation mode, show confirmation
+            if (isSimulationMode) {
+                Toast.makeText(this, "🎉 Demo Mode Enabled", Toast.LENGTH_SHORT).show()
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
@@ -393,6 +401,20 @@ class DashboardActivity : AppCompatActivity() {
                 }
                 else -> false
             }
+        }
+    }
+    
+    /**
+     * Show hint about demo mode on first launch
+     */
+    private fun showDemoHint() {
+        // Only show if no data received yet and not in simulation mode
+        if (rpmValues.isEmpty() && !isSimulationMode) {
+            Toast.makeText(
+                this, 
+                "💡 Tip: Tap the ℹ️ button to enable demo mode without OBD2 device", 
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 

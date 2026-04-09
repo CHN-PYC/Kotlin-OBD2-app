@@ -83,6 +83,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.cardHistory.setOnClickListener {
+        
+        // Demo Mode Card - Direct access to Dashboard with simulation
+        binding.cardDemoMode.setOnClickListener {
+            // Launch Dashboard with simulation mode enabled
+            val intent = Intent(this, com.example.myapplication.ui.dashboard.DashboardActivity::class.java)
+            intent.putExtra("simulation_mode", true)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+        }
             it.startAnimation(fadeIn)
             startActivity(Intent(this, HistoryActivity::class.java))
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
