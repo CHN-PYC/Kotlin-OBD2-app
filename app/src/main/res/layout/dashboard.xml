@@ -43,44 +43,30 @@
 
                     <TextView
                         android:id="@+id/tvTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        style="@style/Widget.OBD2.Text.Title"
                         android:text="OBD2 Diagnostics"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary"
                         android:layout_marginStart="8dp" />
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/tvTimestamp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/Widget.OBD2.Text.Subtitle"
                     android:text="Live • --:--:--"
-                    android:textSize="12sp"
                     android:textColor="@color/accent"
                     android:layout_marginTop="4dp" />
             </LinearLayout>
 
             <ImageButton
                 android:id="@+id/btnRefresh"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                style="@style/Widget.OBD2.Button.Icon"
                 android:src="@drawable/ic_refresh"
-                android:contentDescription="Refresh"
-                android:padding="8dp"
-                app:tint="@color/accent" />
+                android:contentDescription="Refresh" />
 
             <ImageButton
                 android:id="@+id/btnExport"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                style="@style/Widget.OBD2.Button.Icon"
                 android:src="@drawable/ic_export"
-                android:contentDescription="Export"
-                android:padding="8dp"
-                app:tint="@color/accent" />
+                android:contentDescription="Export" />
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -104,12 +90,8 @@
             <!-- Connection Status Banner -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardConnectionBanner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                style="@style/Widget.OBD2.Card"
                 android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/card_background"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
                 android:visibility="gone">
 
                 <LinearLayout
@@ -134,20 +116,14 @@
 
                         <TextView
                             android:id="@+id/tvConnectedDevice"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Title"
                             android:text="OBD-II Scanner"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_primary" />
+                            android:textSize="16sp" />
 
                         <TextView
                             android:id="@+id/tvConnectionQuality"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Status"
                             android:text="Signal: Excellent"
-                            android:textSize="12sp"
-                            android:textColor="@color/signal_excellent"
                             android:layout_marginTop="2dp" />
                     </LinearLayout>
                 </LinearLayout>
@@ -169,9 +145,7 @@
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
-                    app:cardBackgroundColor="@color/card_background"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp">
+                    style="@style/Widget.OBD2.Card">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -187,30 +161,20 @@
                             android:contentDescription="RPM" />
 
                         <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Subtitle"
                             android:text="RPM"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_secondary"
                             android:layout_marginTop="8dp" />
 
                         <TextView
                             android:id="@+id/tvRpm"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Metric"
                             android:text="--"
-                            android:textSize="28sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_primary"
                             android:layout_marginTop="4dp" />
 
                         <TextView
                             android:id="@+id/tvRpmStatus"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Status"
                             android:text="Normal"
-                            android:textSize="11sp"
-                            android:textColor="@color/success"
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -221,9 +185,7 @@
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
-                    app:cardBackgroundColor="@color/card_background"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp">
+                    style="@style/Widget.OBD2.Card">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -239,30 +201,20 @@
                             android:contentDescription="Coolant" />
 
                         <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Subtitle"
                             android:text="Coolant"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_secondary"
                             android:layout_marginTop="8dp" />
 
                         <TextView
                             android:id="@+id/tvCoolantTemp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Metric"
                             android:text="-- °C"
-                            android:textSize="28sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_primary"
                             android:layout_marginTop="4dp" />
 
                         <TextView
                             android:id="@+id/tvCoolantStatus"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Status"
                             android:text="Normal"
-                            android:textSize="11sp"
-                            android:textColor="@color/success"
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -273,9 +225,7 @@
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
-                    app:cardBackgroundColor="@color/card_background"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp">
+                    style="@style/Widget.OBD2.Card">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -291,30 +241,20 @@
                             android:contentDescription="Battery" />
 
                         <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Subtitle"
                             android:text="Battery"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_secondary"
                             android:layout_marginTop="8dp" />
 
                         <TextView
                             android:id="@+id/tvBattery"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Metric"
                             android:text="-- V"
-                            android:textSize="28sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_primary"
                             android:layout_marginTop="4dp" />
 
                         <TextView
                             android:id="@+id/tvBatteryStatus"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Status"
                             android:text="Normal"
-                            android:textSize="11sp"
-                            android:textColor="@color/success"
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -325,9 +265,7 @@
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
-                    app:cardBackgroundColor="@color/card_background"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp">
+                    style="@style/Widget.OBD2.Card">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -343,30 +281,20 @@
                             android:contentDescription="Intake" />
 
                         <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Subtitle"
                             android:text="Intake"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_secondary"
                             android:layout_marginTop="8dp" />
 
                         <TextView
                             android:id="@+id/tvIntakeTemp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Metric"
                             android:text="-- °C"
-                            android:textSize="28sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_primary"
                             android:layout_marginTop="4dp" />
 
                         <TextView
                             android:id="@+id/tvIntakeStatus"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Status"
                             android:text="Normal"
-                            android:textSize="11sp"
-                            android:textColor="@color/success"
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -377,9 +305,7 @@
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
-                    app:cardBackgroundColor="@color/card_background"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp">
+                    style="@style/Widget.OBD2.Card">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -395,30 +321,20 @@
                             android:contentDescription="Throttle" />
 
                         <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Subtitle"
                             android:text="Throttle"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_secondary"
                             android:layout_marginTop="8dp" />
 
                         <TextView
                             android:id="@+id/tvThrottle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Metric"
                             android:text="-- %"
-                            android:textSize="28sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_primary"
                             android:layout_marginTop="4dp" />
 
                         <TextView
                             android:id="@+id/tvThrottleStatus"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Status"
                             android:text="Normal"
-                            android:textSize="11sp"
-                            android:textColor="@color/success"
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -429,9 +345,7 @@
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
-                    app:cardBackgroundColor="@color/card_background"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp">
+                    style="@style/Widget.OBD2.Card">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -447,29 +361,19 @@
                             android:contentDescription="Speed" />
 
                         <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Subtitle"
                             android:text="Speed"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_secondary"
                             android:layout_marginTop="8dp" />
 
                         <TextView
                             android:id="@+id/tvSpeed"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Metric"
                             android:text="-- km/h"
-                            android:textSize="28sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_primary"
                             android:layout_marginTop="4dp" />
 
                         <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Widget.OBD2.Text.Caption"
                             android:text="Estimated"
-                            android:textSize="11sp"
-                            android:textColor="@color/text_hint"
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -477,21 +381,15 @@
 
             <!-- RPM Chart -->
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/Widget.OBD2.Text.Title"
                 android:text="RPM History (Last 30s)"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="8dp" />
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
-                app:cardBackgroundColor="@color/card_background"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                style="@style/Widget.OBD2.Card">
 
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/lineChart"
@@ -500,14 +398,10 @@
                     android:padding="8dp" />
             </androidx.cardview.widget.CardView>
 
-            <!-- Quick Stats -->
+            <!-- Session Stats -->
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/Widget.OBD2.Text.Title"
                 android:text="Session Stats"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="8dp" />
 
@@ -525,20 +419,14 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Avg RPM"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_hint" />
+                        style="@style/Widget.OBD2.Text.Caption"
+                        android:text="Avg RPM" />
 
                     <TextView
                         android:id="@+id/tvAvgRpm"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        style="@style/Widget.OBD2.Text.Metric"
                         android:text="--"
                         android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary"
                         android:layout_marginTop="4dp" />
                 </LinearLayout>
 
@@ -555,20 +443,14 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Max RPM"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_hint" />
+                        style="@style/Widget.OBD2.Text.Caption"
+                        android:text="Max RPM" />
 
                     <TextView
                         android:id="@+id/tvMaxRpm"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        style="@style/Widget.OBD2.Text.Metric"
                         android:text="--"
                         android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary"
                         android:layout_marginTop="4dp" />
                 </LinearLayout>
 
@@ -585,20 +467,14 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Duration"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_hint" />
+                        style="@style/Widget.OBD2.Text.Caption"
+                        android:text="Duration" />
 
                     <TextView
                         android:id="@+id/tvDuration"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        style="@style/Widget.OBD2.Text.Metric"
                         android:text="00:00"
                         android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary"
                         android:layout_marginTop="4dp" />
                 </LinearLayout>
             </LinearLayout>
