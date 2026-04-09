@@ -33,16 +33,12 @@
                     android:id="@+id/tvAppTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:text="OBD2 Monitor" />
 
                 <TextView
                     android:id="@+id/tvConnectionStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="12sp"
@@ -53,9 +49,8 @@
             <TextView
                 android:id="@+id/tvCurrentTime"
                 android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
                 android:text="--:--"
                 android:textColor="@color/accent" />
         </LinearLayout>
@@ -82,10 +77,12 @@
             <!-- Connection Status Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardConnectionStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="@color/card_background"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
-                android:layout_marginBottom="16dp"
                 android:visibility="gone">
 
                 <LinearLayout
@@ -112,21 +109,16 @@
                         <TextView
                             android:id="@+id/tvStatusTitle"
                             android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary"
-                            android:text="Connected"
-                            android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp" />
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:text="Connected" />
 
                         <TextView
                             android:id="@+id/tvStatusSubtitle"
                             android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary"
+                            android:layout_height="wrap_content"
+                            android:textSize="14sp"
                             android:text="OBD-II Scanner"
                             android:layout_marginTop="2dp" />
                     </LinearLayout>
@@ -142,10 +134,12 @@
             <!-- Connect to Car Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardConnect"
-                app:cardBackgroundColor="@color/card_background"
-app:cardCornerRadius="16dp"
-app:cardElevation="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground">
@@ -174,17 +168,15 @@ app:cardElevation="4dp"
 
                         <TextView
                             android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary"
+                            android:layout_height="wrap_content"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
                             android:text="Connect to Car" />
 
                         <TextView
                             android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary"
+                            android:layout_height="wrap_content"
+                            android:textSize="14sp"
                             android:text="Connect to your vehicle's OBD2 adapter"
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
@@ -197,129 +189,7 @@ app:cardElevation="4dp"
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- View History Card -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardHistory"
-                app:cardBackgroundColor="@color/card_background"
-app:cardCornerRadius="16dp"
-app:cardElevation="4dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="24dp"
-                    android:gravity="center_vertical">
-
-                    <ImageView
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:src="@drawable/ic_history"
-                        android:padding="12dp"
-                        android:contentDescription="History"
-                        android:background="@drawable/badge_background" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="16dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary"
-                            android:text="View History" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary"
-                            android:text="Review past trip data and diagnostics"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_chevron_right"
-                        android:contentDescription="Go" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Quick Tips Card -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardTips"
-                app:cardBackgroundColor="@color/card_background"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                android:layout_marginTop="24dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_info"
-                            android:contentDescription="Info" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary"
-                            android:text="Quick Tips"
-                            android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                            android:layout_marginStart="12dp" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary"
-                        android:text="• Plug in OBD2 adapter before starting car\n• Pair device in Bluetooth settings first\n• Turn ignition to ON (don't start engine)\n• Long-press 'Connect' for detailed diagnostics"
-                        android:layout_marginTop="12dp"
-                        android:lineSpacingExtra="6dp" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Status Info -->
-            <TextView
-                android:id="@+id/tvStatus"
-                android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_hint"
-                android:text="Ready to connect"
-                android:layout_marginTop="24dp" />
-
-            <!-- Bottom Spacing -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="16dp" />
-        </LinearLayout>
-            <!-- Demo Mode Card (NEW) -->
+            <!-- Demo Mode Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardDemoMode"
                 android:layout_width="match_parent"
@@ -357,17 +227,15 @@ app:cardElevation="4dp"
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Try Demo Mode"
                             android:textSize="20sp"
                             android:textStyle="bold"
-                            android:textColor="@color/text_primary" />
+                            android:text="Try Demo Mode" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Explore the app with simulated data (no device needed)"
                             android:textSize="14sp"
-                            android:textColor="@color/text_secondary"
+                            android:text="Explore the app with simulated data (no device needed)"
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
 
@@ -378,6 +246,125 @@ app:cardElevation="4dp"
                         android:contentDescription="Go" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
+            <!-- View History Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardHistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="24dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:src="@drawable/ic_history"
+                        android:padding="12dp"
+                        android:contentDescription="History"
+                        android:background="@drawable/badge_background" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:text="View History" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="14sp"
+                            android:text="Review past trip data and diagnostics"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:contentDescription="Go" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Quick Tips Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardTips"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_info"
+                            android:contentDescription="Info" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:text="Quick Tips"
+                            android:layout_marginStart="12dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:text="• Plug in OBD2 adapter before starting car\n• Pair device in Bluetooth settings first\n• Turn ignition to ON (don't start engine)\n• Long-press 'Connect' for detailed diagnostics"
+                        android:layout_marginTop="12dp"
+                        android:lineSpacingExtra="6dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Status Info -->
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:text="Ready to connect"
+                android:layout_marginTop="24dp" />
+
+            <!-- Bottom Spacing -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="16dp" />
+        </LinearLayout>
     </ScrollView>
 
     <!-- Bottom Navigation -->
