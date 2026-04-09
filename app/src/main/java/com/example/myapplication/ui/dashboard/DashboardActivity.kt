@@ -1,7 +1,6 @@
 package com.example.myapplication.ui.dashboard
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -27,23 +26,34 @@ import java.util.*
 /**
  * Dashboard Activity - Real-time OBD2 monitoring
  * Displays 6 key metrics with status indicators and RPM chart
+ * 
+ * Features:
+ * - Real-time data streaming (500ms interval)
+ * - Status indicators with color coding
+ * - RPM history chart (30 seconds)
+ * - Session statistics tracking
+ * - Simulation mode for demo
  */
 class DashboardActivity : AppCompatActivity() {
 
     private lateinit var binding: DashboardBinding
     private val repository by lazy { (application as MyApplication).repository }
+    
+    // Chart data
     private val rpmEntries = mutableListOf<Entry>()
     private var xIndex = 0
-    private val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-    private val handler = Handler(Looper.getMainLooper())
     
-    // Session statistics
+    // Session tracking
     private var sessionStartTime: Long = 0
     private val rpmValues = mutableListOf<Int>()
     private var maxRpm = 0
     
     // Simulation mode
     private var isSimulationMode = false
+    
+    // UI helpers
+    private val handler = Handler(Looper.getMainLooper())
+    private val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
     
     // Status thresholds
     private val rpmNormalRange = 600..4000
@@ -54,37 +64,36 @@ class DashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         try {
+            // Initialize ViewBinding
             binding = DashboardBinding.inflate(layoutInflater)
             setContentView(binding.root)
 
-            // Initialize session
+            // Start session tracking
             sessionStartTime = System.currentTimeMillis()
             
-            // Setup toolbar
+            // Setup UI components
             setupToolbar()
-
-            // Setup chart
             setupChart()
-
-            // Observe data with animation
-            observeData()
-
-            // Setup bottom navigation
             setupBottomNavigation()
             
-            // Show connection banner
+            // Start data observation
+            observeData()
+            
+            // Show connection status
             showConnectionBanner()
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(this, "Error loading dashboard: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             finish()
         }
     }
 
+    /**
+     * Setup toolbar buttons
+     */
     private fun setupToolbar() {
         binding.btnRefresh.setOnClickListener {
             if (isSimulationMode) {
-                // Toggle simulation mode
                 toggleSimulationMode()
             } else {
                 refreshData()
@@ -95,13 +104,16 @@ class DashboardActivity : AppCompatActivity() {
             exportData()
         }
         
-        // Long press to toggle simulation
+        // Long press to toggle simulation mode
         binding.btnRefresh.setOnLongClickListener {
             toggleSimulationMode()
             true
         }
     }
 
+    /**
+     * Configure RPM chart with optimal settings
+     */
     private fun setupChart() {
         binding.lineChart.apply {
             description.isEnabled = false
@@ -110,29 +122,36 @@ class DashboardActivity : AppCompatActivity() {
             setScaleEnabled(true)
             setPinchZoom(true)
 
+            // X-axis configuration
             xAxis.position = XAxis.XAxisPosition.BOTTOM
             xAxis.setDrawGridLines(false)
             xAxis.granularity = 1f
             xAxis.textColor = resources.getColor(R.color.text_secondary, null)
 
+            // Y-axis configuration
             axisLeft.setDrawGridLines(true)
             axisLeft.textColor = resources.getColor(R.color.text_secondary, null)
             axisLeft.axisMinimum = 0f
             axisLeft.axisMaximum = 8000f
             axisRight.isEnabled = false
+            
+            // Legend and styling
             legend.isEnabled = false
             
+            // Empty state
             setNoDataText("Waiting for OBD2 data...")
             setNoDataTextColor(resources.getColor(R.color.text_secondary, null))
             
-            // Animate on first data
+            // Initial animation
             animateY(1000)
         }
     }
 
+    /**
+     * Observe data stream from repository or simulation
+     */
     private fun observeData() {
         lifecycleScope.launch {
-            // Use simulated data if not connected to real device
             val dataFlow = if (isSimulationMode) {
                 SimulatedDataManager.startSimulation()
             } else {
@@ -147,8 +166,11 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Update all UI elements with new data
+     */
     private fun updateUI(data: VehicleData) {
-        // Update values with animation
+        // Update metric values with fade animation
         animateTextView(binding.tvRpm, data.rpm.toString())
         animateTextView(binding.tvCoolantTemp, "${data.coolantTemp} °C")
         animateTextView(binding.tvIntakeTemp, "${data.intakeTemp} °C")
@@ -156,7 +178,7 @@ class DashboardActivity : AppCompatActivity() {
         animateTextView(binding.tvBattery, "${String.format("%.2f", data.batteryVoltage)} V")
         animateTextView(binding.tvSpeed, "${calculateSpeed(data.rpm)} km/h")
         
-        // Update status indicators
+        // Update status indicators with color coding
         updateStatusIndicator(binding.tvRpmStatus, checkRpmStatus(data.rpm))
         updateStatusIndicator(binding.tvCoolantStatus, checkCoolantStatus(data.coolantTemp))
         updateStatusIndicator(binding.tvBatteryStatus, checkBatteryStatus(data.batteryVoltage))
@@ -168,6 +190,9 @@ class DashboardActivity : AppCompatActivity() {
         pulseAnimation(binding.connectionIndicator)
     }
 
+    /**
+     * Update RPM chart with new data point
+     */
     private fun updateChart(data: VehicleData) {
         rpmEntries.add(Entry(xIndex.toFloat(), data.rpm.toFloat()))
         xIndex++
@@ -175,13 +200,14 @@ class DashboardActivity : AppCompatActivity() {
         // Keep last 60 points (30 seconds at 500ms interval)
         if (rpmEntries.size > 60) {
             rpmEntries.removeAt(0)
-            // Re-index x values for smooth scrolling
+            // Re-index for smooth scrolling
             for (i in rpmEntries.indices) {
                 rpmEntries[i] = Entry(i.toFloat(), rpmEntries[i].y)
             }
             xIndex = rpmEntries.size
         }
 
+        // Configure chart dataset
         val dataSet = LineDataSet(rpmEntries, "RPM").apply {
             color = resources.getColor(R.color.accent, null)
             setCircleColor(resources.getColor(R.color.accent, null))
@@ -201,6 +227,9 @@ class DashboardActivity : AppCompatActivity() {
         binding.lineChart.invalidate()
     }
 
+    /**
+     * Update session statistics
+     */
     private fun updateSessionStats(data: VehicleData) {
         rpmValues.add(data.rpm)
         if (data.rpm > maxRpm) maxRpm = data.rpm
@@ -282,7 +311,10 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun refreshData() {
         Toast.makeText(this, "Refreshing data...", Toast.LENGTH_SHORT).show()
-        // Data refreshes automatically every 500ms
+    }
+
+    private fun exportData() {
+        Toast.makeText(this, "Export coming soon", Toast.LENGTH_SHORT).show()
     }
 
     private fun toggleSimulationMode() {
@@ -292,16 +324,7 @@ class DashboardActivity : AppCompatActivity() {
         val modeText = if (isSimulationMode) "SIMULATION ON" else "LIVE DATA"
         Toast.makeText(this, modeText, Toast.LENGTH_SHORT).show()
         
-        // Update UI to show simulation status
-        binding.tvTitle.text = if (isSimulationMode) {
-            "OBD2 Demo Mode"
-        } else {
-            "OBD2 Diagnostics"
-        }
-    }
-
-    private fun exportData() {
-        Toast.makeText(this, "Export feature coming soon", Toast.LENGTH_SHORT).show()
+        binding.tvTitle.text = if (isSimulationMode) "OBD2 Demo Mode" else "OBD2 Diagnostics"
     }
 
     private fun showConnectionBanner() {
@@ -345,7 +368,6 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun calculateSpeed(rpm: Int): Int {
-        // Simplified speed calculation
         return (rpm * 0.03).toInt()
     }
 
@@ -359,14 +381,14 @@ class DashboardActivity : AppCompatActivity() {
         super.onDestroy()
         handler.removeCallbacksAndMessages(null)
         if (!isSimulationMode) {
-            repository.disconnect() // Clean up Bluetooth connection
+            repository.disconnect()
         } else {
             SimulatedDataManager.stopSimulation()
         }
     }
 }
 
-// Status sealed class
+// Status sealed class for type-safe status handling
 sealed class Status(val text: String) {
     class Normal(text: String) : Status(text)
     class Warning(text: String) : Status(text)
