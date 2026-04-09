@@ -13,6 +13,7 @@ import com.example.myapplication.databinding.ActivityHistoryBinding
 import com.example.myapplication.ui.adapter.TripAdapter
 import com.example.myapplication.utils.FileExporter
 import kotlinx.coroutines.launch
+import com.example.myapplication.R
 
 class HistoryActivity : AppCompatActivity() {
 

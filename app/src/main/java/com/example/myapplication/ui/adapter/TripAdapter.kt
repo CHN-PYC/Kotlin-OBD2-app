@@ -14,7 +14,7 @@ import java.util.*
 
 class TripAdapter(
     private val onViewDetailsClick: (TripItem) -> Unit
-) : ListAdapter<TripItem, TripAdapter.TripViewHolder>(TripDiffCallback()) {
+) : ListAdapter<TripAdapter.TripItem, TripAdapter.TripViewHolder>(TripDiffCallback()) {
 
     data class TripItem(
         val id: Long,

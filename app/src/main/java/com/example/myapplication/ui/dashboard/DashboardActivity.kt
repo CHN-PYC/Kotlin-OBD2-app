@@ -341,7 +341,7 @@ class DashboardActivity : AppCompatActivity() {
         // Update UI
         binding.tvTitle.text = if (isSimulationMode) "OBD2 Demo Mode" else "OBD2 Diagnostics"
         binding.btnSimulation.setImageResource(
-            if (isSimulationMode) R.drawable.ic_check_circle else R.drawable/ic_info
+            if (isSimulationMode) R.drawable.ic_check_circle else R.drawable.ic_info
         )
         
         // Update connection banner
