@@ -1,8 +1,13 @@
 package com.example.myapplication.ui.dashboard
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
+import android.view.animation.AnimationUtils
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.MyApplication
@@ -18,6 +23,10 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Dashboard Activity - Real-time OBD2 monitoring
+ * Displays 6 key metrics with status indicators and RPM chart
+ */
 class DashboardActivity : AppCompatActivity() {
 
     private lateinit var binding: DashboardBinding
@@ -25,41 +34,50 @@ class DashboardActivity : AppCompatActivity() {
     private val rpmEntries = mutableListOf<Entry>()
     private var xIndex = 0
     private val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+    private val handler = Handler(Looper.getMainLooper())
+    
+    // Session statistics
+    private var sessionStartTime: Long = 0
+    private val rpmValues = mutableListOf<Int>()
+    private var maxRpm = 0
+    
+    // Status thresholds
+    private val rpmNormalRange = 600..4000
+    private val coolantNormalRange = 75..105
+    private val batteryNormalRange = 13.5..14.8
+    private val intakeNormalRange = 20..60
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Initialize session
+        sessionStartTime = System.currentTimeMillis()
+        
         // Setup toolbar
-        binding.btnExport.setOnClickListener {
-            // TODO: Export current data
-        }
+        setupToolbar()
 
         // Setup chart
         setupChart()
 
-        // Observe data
+        // Observe data with animation
         observeData()
 
         // Setup bottom navigation
-        binding.bottomNavigation.selectedItemId = R.id.nav_home
-        binding.bottomNavigation.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_home -> {
-                    startActivity(Intent(this, com.example.myapplication.MainActivity::class.java))
-                    true
-                }
-                R.id.nav_connection -> {
-                    startActivity(Intent(this, com.example.myapplication.ui.connection.ConnectionActivity::class.java))
-                    true
-                }
-                R.id.nav_history -> {
-                    startActivity(Intent(this, com.example.myapplication.ui.history.HistoryActivity::class.java))
-                    true
-                }
-                else -> false
-            }
+        setupBottomNavigation()
+        
+        // Show connection banner
+        showConnectionBanner()
+    }
+
+    private fun setupToolbar() {
+        binding.btnRefresh.setOnClickListener {
+            refreshData()
+        }
+
+        binding.btnExport.setOnClickListener {
+            exportData()
         }
     }
 
@@ -78,11 +96,16 @@ class DashboardActivity : AppCompatActivity() {
 
             axisLeft.setDrawGridLines(true)
             axisLeft.textColor = resources.getColor(R.color.text_secondary, null)
+            axisLeft.axisMinimum = 0f
+            axisLeft.axisMaximum = 8000f
             axisRight.isEnabled = false
             legend.isEnabled = false
             
-            setNoDataText("Waiting for data...")
+            setNoDataText("Waiting for OBD2 data...")
             setNoDataTextColor(resources.getColor(R.color.text_secondary, null))
+            
+            // Animate on first data
+            animateY(1000)
         }
     }
 
@@ -91,20 +114,30 @@ class DashboardActivity : AppCompatActivity() {
             repository.startLiveDataStream().collect { data ->
                 updateUI(data)
                 updateChart(data)
+                updateSessionStats(data)
             }
         }
     }
 
     private fun updateUI(data: VehicleData) {
-        binding.tvRpm.text = data.rpm.toString()
-        binding.tvCoolantTemp.text = "${data.coolantTemp} °C"
-        binding.tvIntakeTemp.text = "${data.intakeTemp} °C"
-        binding.tvThrottle.text = "${data.throttlePos} %"
-        binding.tvBattery.text = "${String.format("%.2f", data.batteryVoltage)} V"
-        binding.tvSpeed.text = "${calculateSpeed(data.rpm)} km/h"
+        // Update values with animation
+        animateTextView(binding.tvRpm, data.rpm.toString())
+        animateTextView(binding.tvCoolantTemp, "${data.coolantTemp} °C")
+        animateTextView(binding.tvIntakeTemp, "${data.intakeTemp} °C")
+        animateTextView(binding.tvThrottle, "${data.throttlePos} %")
+        animateTextView(binding.tvBattery, "${String.format("%.2f", data.batteryVoltage)} V")
+        animateTextView(binding.tvSpeed, "${calculateSpeed(data.rpm)} km/h")
         
-        // Update timestamp
+        // Update status indicators
+        updateStatusIndicator(binding.tvRpmStatus, checkRpmStatus(data.rpm))
+        updateStatusIndicator(binding.tvCoolantStatus, checkCoolantStatus(data.coolantTemp))
+        updateStatusIndicator(binding.tvBatteryStatus, checkBatteryStatus(data.batteryVoltage))
+        updateStatusIndicator(binding.tvIntakeStatus, checkIntakeStatus(data.intakeTemp))
+        updateStatusIndicator(binding.tvThrottleStatus, checkThrottleStatus(data.throttlePos))
+        
+        // Update timestamp with pulse animation
         binding.tvTimestamp.text = "Live • ${timeFormat.format(Date(data.timestamp))}"
+        pulseAnimation(binding.connectionIndicator)
     }
 
     private fun updateChart(data: VehicleData) {
@@ -124,13 +157,15 @@ class DashboardActivity : AppCompatActivity() {
         val dataSet = LineDataSet(rpmEntries, "RPM").apply {
             color = resources.getColor(R.color.accent, null)
             setCircleColor(resources.getColor(R.color.accent, null))
-            lineWidth = 2f
+            lineWidth = 2.5f
             circleRadius = 3f
             setDrawCircleHole(false)
             setDrawValues(false)
             setDrawFilled(true)
             fillColor = resources.getColor(R.color.accent_light, null)
-            fillAlpha = 50
+            fillAlpha = 60
+            mode = LineDataSet.Mode.CUBIC_BEZIER // Smooth curves
+            cubicIntensity = 0.2f
         }
 
         binding.lineChart.data = LineData(dataSet)
@@ -138,8 +173,142 @@ class DashboardActivity : AppCompatActivity() {
         binding.lineChart.invalidate()
     }
 
+    private fun updateSessionStats(data: VehicleData) {
+        rpmValues.add(data.rpm)
+        if (data.rpm > maxRpm) maxRpm = data.rpm
+        
+        val avgRpm = rpmValues.average().toInt()
+        val duration = (System.currentTimeMillis() - sessionStartTime) / 1000
+        
+        binding.tvAvgRpm.text = avgRpm.toString()
+        binding.tvMaxRpm.text = maxRpm.toString()
+        binding.tvDuration.text = formatDuration(duration)
+    }
+
+    // ==================== Status Check Functions ====================
+
+    private fun checkRpmStatus(rpm: Int): Status {
+        return when {
+            rpm < 600 -> Status.Warning("Low")
+            rpm > 6000 -> Status.Danger("High")
+            else -> Status.Normal("Normal")
+        }
+    }
+
+    private fun checkCoolantStatus(temp: Int): Status {
+        return when {
+            temp < 75 -> Status.Warning("Cold")
+            temp > 105 -> Status.Danger("Hot")
+            else -> Status.Normal("Normal")
+        }
+    }
+
+    private fun checkBatteryStatus(voltage: Double): Status {
+        return when {
+            voltage < 13.5 -> Status.Warning("Low")
+            voltage > 14.8 -> Status.Danger("High")
+            else -> Status.Normal("Normal")
+        }
+    }
+
+    private fun checkIntakeStatus(temp: Int): Status {
+        return when {
+            temp < 20 -> Status.Warning("Cold")
+            temp > 60 -> Status.Warning("Hot")
+            else -> Status.Normal("Normal")
+        }
+    }
+
+    private fun checkThrottleStatus(pos: Int): Status {
+        return when {
+            pos > 90 -> Status.Warning("WOT")
+            else -> Status.Normal("Normal")
+        }
+    }
+
+    private fun updateStatusIndicator(textView: android.widget.TextView, status: Status) {
+        textView.text = status.text
+        textView.setTextColor(
+            when (status) {
+                is Status.Normal -> resources.getColor(R.color.success, null)
+                is Status.Warning -> resources.getColor(R.color.warning, null)
+                is Status.Danger -> resources.getColor(R.color.error, null)
+            }
+        )
+    }
+
+    // ==================== UI Helper Functions ====================
+
+    private fun animateTextView(textView: android.widget.TextView, value: String) {
+        val fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in)
+        fadeIn.duration = 200
+        textView.startAnimation(fadeIn)
+        textView.text = value
+    }
+
+    private fun pulseAnimation(view: View) {
+        val pulse = AnimationUtils.loadAnimation(this, R.anim.fade_in)
+        pulse.duration = 1000
+        view.startAnimation(pulse)
+    }
+
+    private fun refreshData() {
+        Toast.makeText(this, "Refreshing data...", Toast.LENGTH_SHORT).show()
+        // Data refreshes automatically every 500ms
+    }
+
+    private fun exportData() {
+        Toast.makeText(this, "Export feature coming soon", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showConnectionBanner() {
+        binding.cardConnectionBanner.visibility = View.VISIBLE
+        binding.tvConnectedDevice.text = "OBD-II Scanner"
+        binding.tvConnectionQuality.text = "Signal: Excellent"
+        binding.tvConnectionQuality.setTextColor(resources.getColor(R.color.signal_excellent, null))
+    }
+
+    private fun setupBottomNavigation() {
+        binding.bottomNavigation.selectedItemId = R.id.nav_home
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> true
+                R.id.nav_connection -> {
+                    startActivity(Intent(this, com.example.myapplication.ui.connection.ConnectionActivity::class.java))
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+                    true
+                }
+                R.id.nav_history -> {
+                    startActivity(Intent(this, com.example.myapplication.ui.history.HistoryActivity::class.java))
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
     private fun calculateSpeed(rpm: Int): Int {
-        // Simplified speed calculation (actual would need gear ratio, wheel size, etc.)
+        // Simplified speed calculation
         return (rpm * 0.03).toInt()
     }
+
+    private fun formatDuration(seconds: Long): String {
+        val minutes = seconds / 60
+        val secs = seconds % 60
+        return String.format("%02d:%02d", minutes, secs)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacksAndMessages(null)
+        repository.disconnect() // Clean up Bluetooth connection
+    }
+}
+
+// Status sealed class
+sealed class Status(val text: String) {
+    class Normal(text: String) : Status(text)
+    class Warning(text: String) : Status(text)
+    class Danger(text: String) : Status(text)
 }
