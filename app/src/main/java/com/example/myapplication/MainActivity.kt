@@ -63,6 +63,10 @@ class MainActivity : AppCompatActivity() {
         } else {
             requestPermissions()
         }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setupCardAnimations() {

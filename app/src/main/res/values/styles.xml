@@ -8,7 +8,6 @@
         <item name="android:paddingVertical">12dp</item>
         <item name="android:background">@drawable/btn_primary</item>
         <item name="android:textColor">@color/white</item>
-        <item name="cornerRadius">12dp</item>
     </style>
 
     <style name="Widget.OBD2.Button.Primary" parent="Widget.OBD2.Button">
@@ -42,46 +41,32 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <!-- Card Styles - Use CardView directly without parent style -->
-    <style name="Widget.OBD2.Card">
-        <item name="cardBackgroundColor">@color/card_background</item>
-        <item name="cardCornerRadius">12dp</item>
-        <item name="cardElevation">2dp</item>
-    </style>
-
-    <style name="Widget.OBD2.Card.Elevated">
-        <item name="cardBackgroundColor">@color/card_background</item>
-        <item name="cardCornerRadius">16dp</item>
-        <item name="cardElevation">4dp</item>
-    </style>
-
     <!-- Text Styles -->
-    <style name="Widget.OBD2.Text.Title" parent="TextAppearance.AppCompat.Title">
+    <style name="Widget.OBD2.Text.Title">
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/text_primary</item>
     </style>
 
-    <style name="Widget.OBD2.Text.Subtitle" parent="TextAppearance.AppCompat.Subhead">
+    <style name="Widget.OBD2.Text.Subtitle">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/text_secondary</item>
     </style>
 
-    <style name="Widget.OBD2.Text.Caption" parent="TextAppearance.AppCompat.Caption">
+    <style name="Widget.OBD2.Text.Caption">
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/text_hint</item>
     </style>
 
-    <style name="Widget.OBD2.Text.Metric" parent="TextAppearance.AppCompat.Display1">
+    <style name="Widget.OBD2.Text.Metric">
         <item name="android:textSize">28sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
-    <style name="Widget.OBD2.Text.Status" parent="TextAppearance.AppCompat.Caption">
+    <style name="Widget.OBD2.Text.Status">
         <item name="android:textSize">11sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/success</item>
     </style>
 </resources>
