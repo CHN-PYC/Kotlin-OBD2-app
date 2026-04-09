@@ -18,6 +18,16 @@ class DeviceAdapter(
     private val onConnectClick: (BluetoothDevice) -> Unit
 ) : ListAdapter<DeviceAdapter.DeviceItem, DeviceAdapter.DeviceViewHolder>(DeviceDiffCallback()) {
 
+    class DeviceDiffCallback : DiffUtil.ItemCallback<DeviceItem>() {
+        override fun areItemsTheSame(oldItem: DeviceItem, newItem: DeviceItem): Boolean {
+            return oldItem.device.address == newItem.device.address
+        }
+
+        override fun areContentsTheSame(oldItem: DeviceItem, newItem: DeviceItem): Boolean {
+            return oldItem == newItem
+        }
+    }
+
     data class DeviceItem(
         val device: BluetoothDevice,
         val isPaired: Boolean,
@@ -67,10 +77,10 @@ class DeviceAdapter(
                     onConnectClick(device)
                 } else {
                     // Show tooltip explaining why connect is disabled
-                    Toast.makeText(
+                    android.widget.Toast.makeText(
                         itemView.context,
                         "This appears to be a non-OBD2 device. Connection will fail.",
-                        Toast.LENGTH_LONG
+                        android.widget.Toast.LENGTH_LONG
                     ).show()
                 }
             }
@@ -93,11 +103,11 @@ class DeviceAdapter(
             
             val obdKeywords = listOf(
                 "obd", "obd2", "obdii", "elm327", "elm",
-                "vgate", "vgate", "icar", "blue",
+                "vgate", "icar", "blue",
                 "adapter", "scanner", "diagnostic"
             )
             
-            val lowerName = deviceName.lowercase()
+            val lowerName = deviceName?.lowercase() ?: ""
             
             // If it contains OBD keywords, it's likely an OBD2 device
             if (obdKeywords.any { lowerName.contains(it) }) {

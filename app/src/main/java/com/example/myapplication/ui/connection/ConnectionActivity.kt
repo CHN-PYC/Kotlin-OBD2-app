@@ -187,6 +187,14 @@ class ConnectionActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun connectToDevice(device: BluetoothDevice) {
+        // First, check if this is likely an OBD2 device
+        if (isNonObdDevice(device.name)) {
+            // Show warning before attempting connection
+            showNonObdDeviceConnectionWarning(device)
+            return
+        }
+
+        // Proceed with connection
         lifecycleScope.launch {
             binding.tvStatus.text = "Connecting to ${device.name}..."
             binding.progressBar.visibility = View.VISIBLE
@@ -210,6 +218,108 @@ class ConnectionActivity : AppCompatActivity() {
                 binding.tvStatus.text = "Connection failed. Try again."
             }
         }
+    }
+    
+    /**
+     * Check if device name suggests it's NOT an OBD2 adapter
+     */
+    private fun isNonObdDevice(deviceName: String?): Boolean {
+        if (deviceName == null) return false
+        
+        val nonObdKeywords = listOf(
+            "headphone", "headset", "earbud", "airpod",
+            "speaker", "audio", "music", "sound",
+            "watch", "band", "fitbit", "garmin",
+            "tv", "display", "monitor",
+            "keyboard", "mouse", "trackpad",
+            "phone", "galaxy", "iphone", "pixel",
+            "tablet", "ipad", "ipod", "computer"
+        )
+        
+        val obdKeywords = listOf(
+            "obd", "obd2", "obdii", "elm327", "elm",
+            "vgate", "icar", "blue", "scanner",
+            "diagnostic", "adapter", "link", "mx+",
+            "icar", "car", "vehicle"
+        )
+        
+        val lowerName = deviceName.lowercase()
+        
+        // If it contains OBD keywords, it's likely an OBD2 device
+        if (obdKeywords.any { lowerName.contains(it) }) {
+            return false
+        }
+        
+        // If it contains non-OBD keywords, it's likely NOT an OBD2 device
+        return nonObdKeywords.any { lowerName.contains(it) }
+    }
+    
+    /**
+     * Show warning when user tries to connect to non-OBD device
+     */
+    private fun showNonObdDeviceConnectionWarning(device: BluetoothDevice) {
+        android.app.AlertDialog.Builder(this)
+            .setTitle("⚠️ Non-OBD2 Device Detected")
+            .setMessage(
+                "The selected device '${device.name}' appears to be a non-OBD2 Bluetooth device " +
+                "(e.g., headphones, speakers, etc.).\n\n" +
+                "⚠️ Connection will likely fail because:\n" +
+                "• This app requires an OBD2 Bluetooth adapter\n" +
+                "• Non-OBD2 devices don't support OBD2 protocols\n\n" +
+                "✅ Recommended options:\n" +
+                "1. Use 'Try Demo Mode' from home screen (no device needed)\n" +
+                "2. Purchase an OBD2 adapter (ELM327, Vgate, etc.)\n\n" +
+                "Do you still want to attempt connection?"
+            )
+            .setPositiveButton("Try Anyway") { _, _ ->
+                // User wants to try anyway, proceed with connection
+                lifecycleScope.launch {
+                    binding.tvStatus.text = "Connecting to ${device.name}..."
+                    binding.progressBar.visibility = View.VISIBLE
+                    binding.btnScan.isEnabled = false
+
+                    val repository = (application as MyApplication).repository
+                    val connected = repository.connectToDevice(device)
+
+                    binding.progressBar.visibility = View.GONE
+                    binding.btnScan.isEnabled = true
+
+                    if (connected) {
+                        Toast.makeText(this@ConnectionActivity, "Connected to ${device.name}", Toast.LENGTH_SHORT).show()
+                        
+                        // Navigate to dashboard
+                        val intent = Intent(this@ConnectionActivity, DashboardActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        Toast.makeText(this@ConnectionActivity, "Connection failed", Toast.LENGTH_SHORT).show()
+                        binding.tvStatus.text = "Connection failed. Try again."
+                    }
+                }
+            }
+            .setNegativeButton("Use Demo Mode") { _, _ ->
+                // Redirect to demo mode
+                val intent = Intent(this, com.example.myapplication.ui.dashboard.DashboardActivity::class.java)
+                intent.putExtra("simulation_mode", true)
+                startActivity(intent)
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+            }
+            .setNeutralButton("Learn More") { _, _ ->
+                // Show info about OBD2 adapters
+                android.app.AlertDialog.Builder(this)
+                    .setTitle("About OBD2 Adapters")
+                    .setMessage(
+                        "OBD2 Bluetooth adapters are small devices that plug into your car's OBD2 port.\n\n" +
+                        "Recommended models:\n" +
+                        "• ELM327 Bluetooth (~\$10-20)\n" +
+                        "• Vgate iCar Pro (~\$25-35)\n" +
+                        "• OBDLink MX+ (~\$100+)\n\n" +
+                        "Available on Amazon, eBay, or local auto parts stores."
+                    )
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+            .show()
     }
 
     private fun checkPermissions(): Boolean {
