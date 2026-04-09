@@ -9,6 +9,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.MyApplication
 import com.example.myapplication.R
+import com.example.myapplication.data.local.VehicleData
+import com.example.myapplication.R
 import com.example.myapplication.databinding.ActivityHistoryBinding
 import com.example.myapplication.ui.adapter.TripAdapter
 import com.example.myapplication.utils.FileExporter
@@ -69,7 +71,7 @@ class HistoryActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val repository = (application as MyApplication).repository
             
-            repository.getHistory().collect { vehicleDataList ->
+            repository.getHistory().collect { vehicleDataList: kotlin.collections.List<VehicleData> ->
                 if (vehicleDataList.isEmpty()) {
                     // Show empty state
                     binding.recyclerTrips.visibility = View.GONE
