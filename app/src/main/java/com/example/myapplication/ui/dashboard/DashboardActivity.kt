@@ -81,6 +81,9 @@ class DashboardActivity : AppCompatActivity() {
             
             // Show connection status
             showConnectionBanner()
+            
+            // Show demo mode hint on first launch
+            showDemoHint()
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
@@ -92,19 +95,22 @@ class DashboardActivity : AppCompatActivity() {
      * Setup toolbar buttons
      */
     private fun setupToolbar() {
+        // Simulation toggle button
+        binding.btnSimulation.setOnClickListener {
+            toggleSimulationMode()
+        }
+        
+        // Refresh button
         binding.btnRefresh.setOnClickListener {
-            if (isSimulationMode) {
-                toggleSimulationMode()
-            } else {
-                refreshData()
-            }
+            refreshData()
         }
 
+        // Export button
         binding.btnExport.setOnClickListener {
             exportData()
         }
         
-        // Long press to toggle simulation mode
+        // Long press refresh to toggle simulation (alternative method)
         binding.btnRefresh.setOnLongClickListener {
             toggleSimulationMode()
             true
@@ -316,6 +322,20 @@ class DashboardActivity : AppCompatActivity() {
     private fun exportData() {
         Toast.makeText(this, "Export coming soon", Toast.LENGTH_SHORT).show()
     }
+    
+    /**
+     * Show hint about demo mode on first launch
+     */
+    private fun showDemoHint() {
+        // Only show if no data received yet
+        if (rpmValues.isEmpty()) {
+            Toast.makeText(
+                this, 
+                "💡 Tip: Tap the ℹ️ button to enable demo mode without OBD2 device", 
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
 
     private fun toggleSimulationMode() {
         isSimulationMode = !isSimulationMode
@@ -324,27 +344,36 @@ class DashboardActivity : AppCompatActivity() {
         val modeText = if (isSimulationMode) "SIMULATION ON" else "LIVE DATA"
         Toast.makeText(this, modeText, Toast.LENGTH_SHORT).show()
         
+        // Update UI
         binding.tvTitle.text = if (isSimulationMode) "OBD2 Demo Mode" else "OBD2 Diagnostics"
+        binding.btnSimulation.setImageResource(
+            if (isSimulationMode) R.drawable.ic_check_circle else R.drawable/ic_info
+        )
+        
+        // Update connection banner
+        showConnectionBanner()
     }
 
     private fun showConnectionBanner() {
         binding.cardConnectionBanner.visibility = View.VISIBLE
-        binding.tvConnectedDevice.text = if (isSimulationMode) {
-            "Demo Mode - Simulated Data"
-        } else {
-            "OBD-II Scanner"
-        }
-        binding.tvConnectionQuality.text = if (isSimulationMode) {
-            "📊 Simulation Active"
-        } else {
-            "Signal: Excellent"
-        }
-        binding.tvConnectionQuality.setTextColor(
-            resources.getColor(
-                if (isSimulationMode) R.color.info else R.color.signal_excellent,
-                null
+        
+        if (isSimulationMode) {
+            binding.tvConnectedDevice.text = "Demo Mode - Simulated Data"
+            binding.tvConnectionQuality.text = "📊 Simulation Active"
+            binding.tvConnectionQuality.setTextColor(
+                resources.getColor(R.color.info, null)
             )
-        )
+            binding.connectionIndicator.visibility = View.GONE
+            binding.simulationIndicator.visibility = View.VISIBLE
+        } else {
+            binding.tvConnectedDevice.text = "OBD-II Scanner"
+            binding.tvConnectionQuality.text = "Signal: Excellent"
+            binding.tvConnectionQuality.setTextColor(
+                resources.getColor(R.color.signal_excellent, null)
+            )
+            binding.connectionIndicator.visibility = View.VISIBLE
+            binding.simulationIndicator.visibility = View.GONE
+        }
     }
 
     private fun setupBottomNavigation() {

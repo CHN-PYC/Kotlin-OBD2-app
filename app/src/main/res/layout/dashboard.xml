@@ -65,6 +65,13 @@
             </LinearLayout>
 
             <ImageButton
+                android:id="@+id/btnSimulation"
+                style="@style/Widget.OBD2.Button.Icon"
+                android:src="@drawable/ic_info"
+                android:contentDescription="Toggle Simulation"
+                android:visibility="visible" />
+
+            <ImageButton
                 android:id="@+id/btnRefresh"
                 style="@style/Widget.OBD2.Button.Icon"
                 android:src="@drawable/ic_refresh"
