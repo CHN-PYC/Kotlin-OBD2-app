@@ -10,7 +10,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
-import java.util.List
 
 class VehicleRepository(
     private val bluetoothManager: ObdBluetoothManager,
@@ -171,7 +170,7 @@ class VehicleRepository(
     /**
      * 获取历史数据
      */
-    fun getHistory(): Flow<kotlin.collections.List<VehicleData>> = dao.getAllHistory()
+    fun getHistory(): Flow<List<VehicleData>> = dao.getAllHistory()
 
     /**
      * 断开蓝牙连接

@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
-import java.util.List
 
 @Dao
 interface VehicleDataDao {
@@ -18,7 +17,7 @@ interface VehicleDataDao {
      * 获取所有的历史记录，按时间戳降序
      */
     @Query("SELECT * FROM vehicle_data ORDER BY timestamp DESC")
-    fun getAllHistory(): Flow<List<VehicleData>>
+    fun getAllHistory(): Flow<kotlin.collections.List<VehicleData>>
 
     /**
      * 删除早于指定时间戳的记录
@@ -39,5 +38,5 @@ interface VehicleDataDao {
      * @param endTime 结束时间戳
      */
     @Query("SELECT * FROM vehicle_data WHERE timestamp BETWEEN :startTime AND :endTime ORDER BY timestamp ASC")
-    fun getRecordsInTimeRange(startTime: Long, endTime: Long): Flow<List<VehicleData>>
+    fun getRecordsInTimeRange(startTime: Long, endTime: Long): Flow<kotlin.collections.List<VehicleData>>
 }
