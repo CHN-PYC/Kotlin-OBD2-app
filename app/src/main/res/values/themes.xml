@@ -9,14 +9,6 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/background_dark</item>
         <item name="android:navigationBarColor">@color/background_dark</item>
-        
-        <!-- Background color. -->
-        <item name="android:colorBackground">@color/background_dark</item>
-        <item name="colorSurface">@color/card_background</item>
-        <item name="android:textColorPrimary">@color/text_primary</item>
-        
-        <!-- Error color. -->
-        <item name="colorError">@color/error</item>
     </style>
 
     <style name="Theme.MyApplication" parent="Base.Theme.MyApplication" />

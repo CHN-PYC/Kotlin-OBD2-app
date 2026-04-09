@@ -53,26 +53,32 @@ class DashboardActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DashboardBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        try {
+            binding = DashboardBinding.inflate(layoutInflater)
+            setContentView(binding.root)
 
-        // Initialize session
-        sessionStartTime = System.currentTimeMillis()
-        
-        // Setup toolbar
-        setupToolbar()
+            // Initialize session
+            sessionStartTime = System.currentTimeMillis()
+            
+            // Setup toolbar
+            setupToolbar()
 
-        // Setup chart
-        setupChart()
+            // Setup chart
+            setupChart()
 
-        // Observe data with animation
-        observeData()
+            // Observe data with animation
+            observeData()
 
-        // Setup bottom navigation
-        setupBottomNavigation()
-        
-        // Show connection banner
-        showConnectionBanner()
+            // Setup bottom navigation
+            setupBottomNavigation()
+            
+            // Show connection banner
+            showConnectionBanner()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Error loading dashboard: ${e.message}", Toast.LENGTH_LONG).show()
+            finish()
+        }
     }
 
     private fun setupToolbar() {
