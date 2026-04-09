@@ -8,9 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.MyApplication
-import com.example.myapplication.R
 import com.example.myapplication.data.local.VehicleData
-import com.example.myapplication.R
 import com.example.myapplication.databinding.ActivityHistoryBinding
 import com.example.myapplication.ui.adapter.TripAdapter
 import com.example.myapplication.utils.FileExporter
@@ -92,7 +90,7 @@ class HistoryActivity : AppCompatActivity() {
     private fun showTripDetails(tripItem: TripAdapter.TripItem) {
         val dateFormat = java.text.SimpleDateFormat("MMM d, yyyy HH:mm", java.util.Locale.getDefault())
         // Show dialog with trip details
-        android.app.AlertDialog.Builder(this)
+        androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Trip Details")
             .setMessage(
                 "Date: ${java.text.SimpleDateFormat("MMM d, yyyy HH:mm", java.util.Locale.getDefault()).format(java.util.Date(tripItem.date))}\n\n" +
