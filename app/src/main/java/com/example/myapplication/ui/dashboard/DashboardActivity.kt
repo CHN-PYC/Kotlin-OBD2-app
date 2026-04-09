@@ -330,20 +330,6 @@ class DashboardActivity : AppCompatActivity() {
     private fun exportData() {
         Toast.makeText(this, "Export coming soon", Toast.LENGTH_SHORT).show()
     }
-    
-    /**
-     * Show hint about demo mode on first launch
-     */
-    private fun showDemoHint() {
-        // Only show if no data received yet
-        if (rpmValues.isEmpty()) {
-            Toast.makeText(
-                this, 
-                "💡 Tip: Tap the ℹ️ button to enable demo mode without OBD2 device", 
-                Toast.LENGTH_LONG
-            ).show()
-        }
-    }
 
     private fun toggleSimulationMode() {
         isSimulationMode = !isSimulationMode
@@ -412,7 +398,7 @@ class DashboardActivity : AppCompatActivity() {
         if (rpmValues.isEmpty() && !isSimulationMode) {
             Toast.makeText(
                 this, 
-                "💡 Tip: Tap the ℹ️ button to enable demo mode without OBD2 device", 
+                "💡 Tip: Tap the button to enable demo mode without OBD2 device", 
                 Toast.LENGTH_LONG
             ).show()
         }
