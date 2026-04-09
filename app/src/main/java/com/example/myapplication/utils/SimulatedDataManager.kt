@@ -19,6 +19,12 @@ object SimulatedDataManager {
     private const val INTAKE_NORMAL = 35
     private const val THROTTLE_IDLE = 0
     private const val BATTERY_NORMAL = 14.2
+    private const val SPEED_IDLE = 0
+    private const val SPEED_CRUISING = 60
+    private const val SPEED_HIGH = 100
+    private const val SPEED_IDLE = 0
+    private const val SPEED_CRUISING = 60
+    private const val SPEED_HIGH = 100
 
     // 模拟状态
     private var isSimulating = false
@@ -42,9 +48,9 @@ object SimulatedDataManager {
         isSimulating = true
         sessionStartTime = System.currentTimeMillis()
         
-        var rpm = RPM_IDLE
+        var rpm = RPM_IDLE.toDouble()
         var coolantTemp = 20.0 // 冷启动
-        var targetRpm = RPM_IDLE
+        var targetRpm = RPM_IDLE.toDouble()
         
         while (isSimulating) {
             // 模拟 RPM 变化
@@ -95,10 +101,10 @@ object SimulatedDataManager {
                     SimulationMode.HIGH_RPM -> 85.0 + Random.nextDouble(-5.0, 5.0)
                 },
                 speed = when (simulationMode) {
-                    SimulationMode.IDLE -> 0
-                    SimulationMode.DRIVING -> 60 + Random.nextInt(-5, 5)
+                    SimulationMode.IDLE -> SPEED_IDLE
+                    SimulationMode.DRIVING -> SPEED_CRUISING + Random.nextInt(-5, 5)
                     SimulationMode.ACCELERATING -> minOf(120, (rpm * 0.03).toInt())
-                    SimulationMode.HIGH_RPM -> 100 + Random.nextInt(-5, 5)
+                    SimulationMode.HIGH_RPM -> SPEED_HIGH + Random.nextInt(-5, 5)
                 },
                 intakeManifoldPressure = when (simulationMode) {
                     SimulationMode.IDLE -> 35.0 + Random.nextDouble(-2.0, 2.0)
@@ -148,6 +154,18 @@ object SimulatedDataManager {
      */
     fun stopSimulation() {
         isSimulating = false
+    }
+
+    /**
+     * 获取当前模拟模式名称
+     */
+    fun getCurrentModeName(): String {
+        return when (simulationMode) {
+            SimulationMode.IDLE -> "Idle"
+            SimulationMode.DRIVING -> "Cruising"
+            SimulationMode.ACCELERATING -> "Accelerating"
+            SimulationMode.HIGH_RPM -> "High RPM"
+        }
     }
 
     /**
