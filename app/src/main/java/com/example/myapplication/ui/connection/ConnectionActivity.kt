@@ -108,7 +108,7 @@ class ConnectionActivity : AppCompatActivity() {
         if (pairedDevices.isEmpty()) {
             binding.recyclerDevices.visibility = View.GONE
             binding.btnScan.visibility = View.VISIBLE
-            binding.tvStatus.text = "No paired devices found. Please pair your OBD2 adapter in Bluetooth settings."
+            binding.tvStatus.text = "No paired devices found. Please pair your device in Bluetooth settings."
         } else {
             binding.btnScan.visibility = View.GONE
             binding.recyclerDevices.visibility = View.VISIBLE
@@ -123,6 +123,15 @@ class ConnectionActivity : AppCompatActivity() {
 
             deviceAdapter?.submitList(devices)
             binding.tvStatus.text = "Found ${pairedDevices.size} paired device(s)"
+            
+            // Show hint about OBD2 requirement
+            if (pairedDevices.none { it.name?.contains("OBD", true) == true }) {
+                Toast.makeText(
+                    this, 
+                    "💡 Tip: For best experience, use an OBD2 Bluetooth adapter (ELM327)", 
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
     }
 
