@@ -31,19 +31,23 @@
 
                 <TextView
                     android:id="@+id/tvAppTitle"
-                    style="@style/Widget.OBD2.Text.Title"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
                     android:text="OBD2 Monitor" />
 
                 <TextView
                     android:id="@+id/tvConnectionStatus"
-                    style="@style/Widget.OBD2.Text.Caption"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_hint"
                     android:text="● Disconnected"
                     android:layout_marginTop="4dp" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/tvCurrentTime"
-                style="@style/Widget.OBD2.Text.Subtitle"
+                android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
                 android:text="--:--"
                 android:textColor="@color/accent" />
         </LinearLayout>
@@ -70,7 +74,9 @@
             <!-- Connection Status Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardConnectionStatus"
-                style="@style/Widget.OBD2.Card"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
                 android:layout_marginBottom="16dp"
                 android:visibility="gone">
 
@@ -97,13 +103,16 @@
 
                         <TextView
                             android:id="@+id/tvStatusTitle"
-                            style="@style/Widget.OBD2.Text.Title"
+                            android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
                             android:text="Connected"
                             android:textSize="16sp" />
 
                         <TextView
                             android:id="@+id/tvStatusSubtitle"
-                            style="@style/Widget.OBD2.Text.Subtitle"
+                            android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
                             android:text="OBD-II Scanner"
                             android:layout_marginTop="2dp" />
                     </LinearLayout>
@@ -150,11 +159,14 @@
                         android:layout_marginStart="16dp">
 
                         <TextView
-                            style="@style/Widget.OBD2.Text.Title"
+                            android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
                             android:text="Connect to Car" />
 
                         <TextView
-                            style="@style/Widget.OBD2.Text.Subtitle"
+                            android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
                             android:text="Connect to your vehicle's OBD2 adapter"
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
@@ -200,11 +212,14 @@
                         android:layout_marginStart="16dp">
 
                         <TextView
-                            style="@style/Widget.OBD2.Text.Title"
+                            android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
                             android:text="View History" />
 
                         <TextView
-                            style="@style/Widget.OBD2.Text.Subtitle"
+                            android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
                             android:text="Review past trip data and diagnostics"
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
@@ -220,7 +235,9 @@
             <!-- Quick Tips Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardTips"
-                style="@style/Widget.OBD2.Card"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
                 android:layout_marginTop="24dp">
 
                 <LinearLayout
@@ -242,14 +259,17 @@
                             android:contentDescription="Info" />
 
                         <TextView
-                            style="@style/Widget.OBD2.Text.Title"
+                            android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
                             android:text="Quick Tips"
                             android:textSize="16sp"
                             android:layout_marginStart="12dp" />
                     </LinearLayout>
 
                     <TextView
-                        style="@style/Widget.OBD2.Text.Subtitle"
+                        android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
                         android:text="• Plug in OBD2 adapter before starting car\n• Pair device in Bluetooth settings first\n• Turn ignition to ON (don't start engine)\n• Long-press 'Connect' for detailed diagnostics"
                         android:layout_marginTop="12dp"
                         android:lineSpacingExtra="6dp" />
@@ -259,7 +279,8 @@
             <!-- Status Info -->
             <TextView
                 android:id="@+id/tvStatus"
-                style="@style/Widget.OBD2.Text.Caption"
+                android:textSize="12sp"
+                    android:textColor="@color/text_hint"
                 android:text="Ready to connect"
                 android:layout_marginTop="24dp" />
 
