@@ -13,7 +13,7 @@ import com.example.myapplication.MyApplication
 import com.example.myapplication.R
 import com.example.myapplication.data.local.VehicleData
 import com.example.myapplication.databinding.DashboardBinding
-import com.example.myapplication.utils.SimulatedDataManager
+import com.example.myapplication.utils.SimulatedOBD2Manager
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -168,15 +168,18 @@ class DashboardActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val dataFlow = if (isSimulationMode) {
-                    // 确保模拟模式已设置
-                    SimulatedDataManager.setSimulationMode(SimulatedDataManager.SimulationMode.IDLE)
-                    SimulatedDataManager.startSimulation()
+                    // 使用 SimulatedOBD2Manager 发送原始 PID 命令并用 ObdDecoder 解析
+                    SimulatedOBD2Manager.setMode(SimulatedOBD2Manager.SimulationMode.IDLE)
+                    SimulatedOBD2Manager.startSimulation()
                 } else {
                     repository.startLiveDataStream()
                 }
 
                 // 收集数据流并更新UI
                 dataFlow.collect { data ->
+                    // 保存到数据库 (both real OBD2 and simulation mode)
+                    repository.saveVehicleData(data)
+                    
                     // 确保在主线程更新UI
                     runOnUiThread {
                         updateUI(data)
@@ -344,7 +347,7 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun toggleSimulationMode() {
         isSimulationMode = !isSimulationMode
-        SimulatedDataManager.setSimulationMode(SimulatedDataManager.SimulationMode.IDLE)
+        SimulatedOBD2Manager.setMode(SimulatedOBD2Manager.SimulationMode.IDLE)
         
         val modeText = if (isSimulationMode) "SIMULATION ON" else "LIVE DATA"
         Toast.makeText(this, modeText, Toast.LENGTH_SHORT).show()
@@ -431,7 +434,7 @@ class DashboardActivity : AppCompatActivity() {
         if (!isSimulationMode) {
             repository.disconnect()
         } else {
-            SimulatedDataManager.stopSimulation()
+            SimulatedOBD2Manager.stopSimulation()
         }
     }
 }

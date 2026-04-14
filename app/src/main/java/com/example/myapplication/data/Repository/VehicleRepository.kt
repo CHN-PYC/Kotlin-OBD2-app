@@ -168,6 +168,13 @@ class VehicleRepository(
     }
 
     /**
+     * 保存车辆数据到数据库
+     */
+    suspend fun saveVehicleData(data: VehicleData) {
+        dao.insert(data)
+    }
+
+    /**
      * 获取历史数据
      */
     fun getHistory(): Flow<List<VehicleData>> = dao.getAllHistory()
