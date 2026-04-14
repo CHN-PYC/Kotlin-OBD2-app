@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,16 +11,16 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/card_background"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="16dp"
-            android:gravity="center_vertical">
+            android:padding="16dp">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -32,8 +31,8 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
                     <View
                         android:id="@+id/connectionIndicator"
@@ -44,44 +43,54 @@
                     <TextView
                         android:id="@+id/tvTitle"
                         style="@style/Widget.OBD2.Text.Title"
-                        android:text="OBD2 Diagnostics"
-                        android:layout_marginStart="8dp" />
-                        
+                        android:layout_marginStart="8dp"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="OBD2 Diagnostics" />
+
                     <View
                         android:id="@+id/simulationIndicator"
                         android:layout_width="8dp"
                         android:layout_height="8dp"
-                        android:background="@drawable/bg_simulation"
                         android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_simulation"
                         android:visibility="gone" />
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/tvTimestamp"
                     style="@style/Widget.OBD2.Text.Subtitle"
+                    android:layout_marginTop="4dp"
                     android:text="Live • --:--:--"
-                    android:textColor="@color/accent"
-                    android:layout_marginTop="4dp" />
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:textColor="@color/accent" />
             </LinearLayout>
 
             <ImageButton
                 android:id="@+id/btnSimulation"
                 style="@style/Widget.OBD2.Button.Icon"
-                android:src="@drawable/ic_info"
                 android:contentDescription="Toggle Simulation"
+                android:src="@drawable/ic_info"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
                 android:visibility="visible" />
 
             <ImageButton
                 android:id="@+id/btnRefresh"
                 style="@style/Widget.OBD2.Button.Icon"
-                android:src="@drawable/ic_refresh"
-                android:contentDescription="Refresh" />
+                android:contentDescription="Refresh"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:src="@drawable/ic_refresh" />
 
             <ImageButton
                 android:id="@+id/btnExport"
                 style="@style/Widget.OBD2.Button.Icon"
-                android:src="@drawable/ic_export"
-                android:contentDescription="Export" />
+                android:contentDescription="Export"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:src="@drawable/ic_export" />
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -91,10 +100,10 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavigation">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -107,43 +116,47 @@
                 android:id="@+id/cardConnectionBanner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
                 app:cardBackgroundColor="@color/card_background"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                android:layout_marginBottom="16dp"
-                android:visibility="gone">
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:gravity="center_vertical">
+                    android:padding="16dp">
 
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:src="@drawable/ic_bluetooth"
-                        android:contentDescription="Connected" />
+                        android:contentDescription="Connected"
+                        android:src="@drawable/ic_bluetooth" />
 
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
                         android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="12dp">
+                        android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/tvConnectedDevice"
                             style="@style/Widget.OBD2.Text.Title"
                             android:text="OBD-II Scanner"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
                             android:textSize="16sp" />
 
                         <TextView
                             android:id="@+id/tvConnectionQuality"
                             style="@style/Widget.OBD2.Text.Status"
-                            android:text="Signal: Excellent"
-                            android:layout_marginTop="2dp" />
+                            android:layout_marginTop="2dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="Signal: Excellent" />
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -153,10 +166,10 @@
                 android:id="@+id/metricsGrid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:columnCount="2"
-                android:rowCount="3"
                 android:alignmentMode="alignMargins"
-                android:columnOrderPreserved="false">
+                android:columnCount="2"
+                android:columnOrderPreserved="false"
+                android:rowCount="3">
 
                 <!-- RPM Card -->
                 <androidx.cardview.widget.CardView
@@ -165,38 +178,44 @@
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
                     app:cardBackgroundColor="@color/card_background"
-app:cardCornerRadius="12dp"
-app:cardElevation="2dp">
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
                         android:orientation="vertical"
-                        android:padding="16dp"
-                        android:gravity="center_horizontal">
+                        android:padding="16dp">
 
                         <ImageView
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:src="@drawable/ic_rpm"
-                            android:contentDescription="RPM" />
+                            android:contentDescription="RPM"
+                            android:src="@drawable/ic_rpm" />
 
                         <TextView
                             style="@style/Widget.OBD2.Text.Subtitle"
-                            android:text="RPM"
-                            android:layout_marginTop="8dp" />
+                            android:layout_marginTop="8dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="RPM" />
 
                         <TextView
                             android:id="@+id/tvRpm"
                             style="@style/Widget.OBD2.Text.Metric"
-                            android:text="--"
-                            android:layout_marginTop="4dp" />
+                            android:layout_marginTop="4dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="--" />
 
                         <TextView
                             android:id="@+id/tvRpmStatus"
                             style="@style/Widget.OBD2.Text.Status"
-                            android:text="Normal"
-                            android:layout_marginTop="4dp" />
+                            android:layout_marginTop="4dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="Normal" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -207,38 +226,45 @@ app:cardElevation="2dp">
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
                     app:cardBackgroundColor="@color/card_background"
-app:cardCornerRadius="12dp"
-app:cardElevation="2dp">
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
                         android:orientation="vertical"
-                        android:padding="16dp"
-                        android:gravity="center_horizontal">
+                        android:padding="16dp">
 
                         <ImageView
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:src="@drawable/ic_coolant"
-                            android:contentDescription="Coolant" />
+                            android:contentDescription="Coolant"
+                            android:src="@drawable/ic_coolant" />
 
                         <TextView
                             style="@style/Widget.OBD2.Text.Subtitle"
-                            android:text="Coolant"
-                            android:layout_marginTop="8dp" />
+                            android:layout_marginTop="8dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="Coolant" />
 
                         <TextView
                             android:id="@+id/tvCoolantTemp"
                             style="@style/Widget.OBD2.Text.Metric"
-                            android:text="-- °C"
-                            android:layout_marginTop="4dp" />
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+
+                            android:layout_marginTop="4dp"
+                            android:text="-- °C" />
 
                         <TextView
                             android:id="@+id/tvCoolantStatus"
                             style="@style/Widget.OBD2.Text.Status"
-                            android:text="Normal"
-                            android:layout_marginTop="4dp" />
+                            android:layout_marginTop="4dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="Normal" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -249,38 +275,45 @@ app:cardElevation="2dp">
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
                     app:cardBackgroundColor="@color/card_background"
-app:cardCornerRadius="12dp"
-app:cardElevation="2dp">
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
                         android:orientation="vertical"
-                        android:padding="16dp"
-                        android:gravity="center_horizontal">
+                        android:padding="16dp">
 
                         <ImageView
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:src="@drawable/ic_battery"
-                            android:contentDescription="Battery" />
+                            android:contentDescription="Battery"
+
+                            android:src="@drawable/ic_battery" />
 
                         <TextView
                             style="@style/Widget.OBD2.Text.Subtitle"
-                            android:text="Battery"
-                            android:layout_marginTop="8dp" />
+                            android:layout_marginTop="8dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="Battery" />
 
                         <TextView
                             android:id="@+id/tvBattery"
                             style="@style/Widget.OBD2.Text.Metric"
-                            android:text="-- V"
-                            android:layout_marginTop="4dp" />
+                            android:layout_marginTop="4dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="-- V" />
 
                         <TextView
                             android:id="@+id/tvBatteryStatus"
                             style="@style/Widget.OBD2.Text.Status"
-                            android:text="Normal"
-                            android:layout_marginTop="4dp" />
+                            android:layout_marginTop="4dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="Normal" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -291,38 +324,44 @@ app:cardElevation="2dp">
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
                     app:cardBackgroundColor="@color/card_background"
-app:cardCornerRadius="12dp"
-app:cardElevation="2dp">
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
                         android:orientation="vertical"
-                        android:padding="16dp"
-                        android:gravity="center_horizontal">
+                        android:padding="16dp">
 
                         <ImageView
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:src="@drawable/ic_intake"
-                            android:contentDescription="Intake" />
+                            android:contentDescription="Intake"
+                            android:src="@drawable/ic_intake" />
 
                         <TextView
                             style="@style/Widget.OBD2.Text.Subtitle"
-                            android:text="Intake"
-                            android:layout_marginTop="8dp" />
+                            android:layout_marginTop="8dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="Intake" />
 
                         <TextView
                             android:id="@+id/tvIntakeTemp"
                             style="@style/Widget.OBD2.Text.Metric"
-                            android:text="-- °C"
-                            android:layout_marginTop="4dp" />
+                            android:layout_marginTop="4dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="-- °C" />
 
                         <TextView
                             android:id="@+id/tvIntakeStatus"
                             style="@style/Widget.OBD2.Text.Status"
-                            android:text="Normal"
-                            android:layout_marginTop="4dp" />
+                            android:layout_marginTop="4dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="Normal" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -333,38 +372,44 @@ app:cardElevation="2dp">
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
                     app:cardBackgroundColor="@color/card_background"
-app:cardCornerRadius="12dp"
-app:cardElevation="2dp">
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
                         android:orientation="vertical"
-                        android:padding="16dp"
-                        android:gravity="center_horizontal">
+                        android:padding="16dp">
 
                         <ImageView
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:src="@drawable/ic_throttle"
-                            android:contentDescription="Throttle" />
+                            android:contentDescription="Throttle"
+                            android:src="@drawable/ic_throttle" />
 
                         <TextView
                             style="@style/Widget.OBD2.Text.Subtitle"
-                            android:text="Throttle"
-                            android:layout_marginTop="8dp" />
+                            android:layout_marginTop="8dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="Throttle" />
 
                         <TextView
                             android:id="@+id/tvThrottle"
                             style="@style/Widget.OBD2.Text.Metric"
-                            android:text="-- %"
-                            android:layout_marginTop="4dp" />
+                            android:layout_marginTop="4dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="-- %" />
 
                         <TextView
                             android:id="@+id/tvThrottleStatus"
                             style="@style/Widget.OBD2.Text.Status"
-                            android:text="Normal"
-                            android:layout_marginTop="4dp" />
+                            android:layout_marginTop="4dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="Normal" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -375,37 +420,43 @@ app:cardElevation="2dp">
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
                     app:cardBackgroundColor="@color/card_background"
-app:cardCornerRadius="12dp"
-app:cardElevation="2dp">
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
                         android:orientation="vertical"
-                        android:padding="16dp"
-                        android:gravity="center_horizontal">
+                        android:padding="16dp">
 
                         <ImageView
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:src="@drawable/ic_rpm"
-                            android:contentDescription="Speed" />
+                            android:contentDescription="Speed"
+                            android:src="@drawable/ic_rpm" />
 
                         <TextView
                             style="@style/Widget.OBD2.Text.Subtitle"
-                            android:text="Speed"
-                            android:layout_marginTop="8dp" />
+                            android:layout_marginTop="8dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="Speed" />
 
                         <TextView
                             android:id="@+id/tvSpeed"
                             style="@style/Widget.OBD2.Text.Metric"
-                            android:text="-- km/h"
-                            android:layout_marginTop="4dp" />
+                            android:layout_marginTop="4dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="-- km/h" />
 
                         <TextView
                             style="@style/Widget.OBD2.Text.Caption"
-                            android:text="Estimated"
-                            android:layout_marginTop="4dp" />
+                            android:layout_marginTop="4dp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:text="Estimated" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
             </GridLayout>
@@ -413,16 +464,18 @@ app:cardElevation="2dp">
             <!-- RPM Chart -->
             <TextView
                 style="@style/Widget.OBD2.Text.Title"
-                android:text="RPM History (Last 30s)"
                 android:layout_marginTop="20dp"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="8dp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="RPM History (Last 30s)" />
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 app:cardBackgroundColor="@color/card_background"
-app:cardCornerRadius="12dp"
-app:cardElevation="2dp">
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
 
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/lineChart"
@@ -434,15 +487,17 @@ app:cardElevation="2dp">
             <!-- Session Stats -->
             <TextView
                 style="@style/Widget.OBD2.Text.Title"
-                android:text="Session Stats"
                 android:layout_marginTop="20dp"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="8dp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="Session Stats" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:background="@drawable/card_background"
+                android:orientation="horizontal"
                 android:padding="16dp">
 
                 <LinearLayout
@@ -453,21 +508,25 @@ app:cardElevation="2dp">
 
                     <TextView
                         style="@style/Widget.OBD2.Text.Caption"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
                         android:text="Avg RPM" />
 
                     <TextView
                         android:id="@+id/tvAvgRpm"
                         style="@style/Widget.OBD2.Text.Metric"
+                        android:layout_marginTop="4dp"
                         android:text="--"
-                        android:textSize="18sp"
-                        android:layout_marginTop="4dp" />
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:textSize="18sp" />
                 </LinearLayout>
 
                 <View
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
-                    android:background="@color/card_border"
-                    android:layout_marginHorizontal="16dp" />
+                    android:layout_marginHorizontal="16dp"
+                    android:background="@color/card_border" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -477,21 +536,25 @@ app:cardElevation="2dp">
 
                     <TextView
                         style="@style/Widget.OBD2.Text.Caption"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
                         android:text="Max RPM" />
 
                     <TextView
                         android:id="@+id/tvMaxRpm"
                         style="@style/Widget.OBD2.Text.Metric"
+                        android:layout_marginTop="4dp"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
                         android:text="--"
-                        android:textSize="18sp"
-                        android:layout_marginTop="4dp" />
+                        android:textSize="18sp" />
                 </LinearLayout>
 
                 <View
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
-                    android:background="@color/card_border"
-                    android:layout_marginHorizontal="16dp" />
+                    android:layout_marginHorizontal="16dp"
+                    android:background="@color/card_border" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -501,14 +564,18 @@ app:cardElevation="2dp">
 
                     <TextView
                         style="@style/Widget.OBD2.Text.Caption"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
                         android:text="Duration" />
 
                     <TextView
                         android:id="@+id/tvDuration"
                         style="@style/Widget.OBD2.Text.Metric"
+                        android:layout_marginTop="4dp"
                         android:text="00:00"
-                        android:textSize="18sp"
-                        android:layout_marginTop="4dp" />
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:textSize="18sp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -527,9 +594,9 @@ app:cardElevation="2dp">
         android:background="@color/card_background"
         app:itemIconTint="@color/nav_item_color"
         app:itemTextColor="@color/nav_item_color"
-        app:menu="@menu/bottom_menu"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:menu="@menu/bottom_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

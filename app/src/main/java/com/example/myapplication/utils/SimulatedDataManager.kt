@@ -22,9 +22,6 @@ object SimulatedDataManager {
     private const val SPEED_IDLE = 0
     private const val SPEED_CRUISING = 60
     private const val SPEED_HIGH = 100
-    private const val SPEED_IDLE = 0
-    private const val SPEED_CRUISING = 60
-    private const val SPEED_HIGH = 100
 
     // 模拟状态
     private var isSimulating = false
@@ -47,105 +44,110 @@ object SimulatedDataManager {
     fun startSimulation(): Flow<VehicleData> = flow {
         isSimulating = true
         sessionStartTime = System.currentTimeMillis()
-        
-        var rpm = RPM_IDLE.toDouble()
+
+        var rpm = RPM_IDLE
         var coolantTemp = 20.0 // 冷启动
-        var targetRpm = RPM_IDLE.toDouble()
-        
-        while (isSimulating) {
-            // 模拟 RPM 变化
-            when (simulationMode) {
-                SimulationMode.IDLE -> {
-                    targetRpm = RPM_IDLE + Random.nextInt(-50, 50)
+        var targetRpm = RPM_IDLE
+
+        try {
+            while (isSimulating) {
+                // 模拟 RPM 变化
+                when (simulationMode) {
+                    SimulationMode.IDLE -> {
+                        targetRpm = RPM_IDLE + Random.nextInt(-50, 50)
+                    }
+                    SimulationMode.DRIVING -> {
+                        targetRpm = 2500 + Random.nextInt(-200, 200)
+                    }
+                    SimulationMode.ACCELERATING -> {
+                        targetRpm = minOf(RPM_MAX, rpm + Random.nextInt(200, 500))
+                    }
+                    SimulationMode.HIGH_RPM -> {
+                        targetRpm = 5500 + Random.nextInt(-200, 200)
+                    }
                 }
-                SimulationMode.DRIVING -> {
-                    targetRpm = 2500 + Random.nextInt(-200, 200)
+
+                // 平滑 RPM 变化
+                rpm += (targetRpm - rpm) / 10
+
+                // 模拟水温上升（冷启动到正常工作温度）
+                if (coolantTemp < COOLANT_NORMAL) {
+                    coolantTemp += 0.1
+                } else {
+                    coolantTemp = COOLANT_NORMAL + Random.nextDouble(-2.0, 2.0)
                 }
-                SimulationMode.ACCELERATING -> {
-                    targetRpm = minOf(RPM_MAX, rpm + Random.nextInt(200, 500))
-                }
-                SimulationMode.HIGH_RPM -> {
-                    targetRpm = 5500 + Random.nextInt(-200, 200)
+
+                // 生成模拟数据
+                val data = VehicleData(
+                    timestamp = System.currentTimeMillis(),
+                    rpm = rpm.toInt(),
+                    coolantTemp = coolantTemp.toInt(),
+                    intakeTemp = INTAKE_NORMAL + Random.nextInt(-5, 10),
+                    throttlePos = when (simulationMode) {
+                        SimulationMode.IDLE -> THROTTLE_IDLE
+                        SimulationMode.DRIVING -> 15 + Random.nextInt(0, 10)
+                        SimulationMode.ACCELERATING -> 50 + Random.nextInt(0, 30)
+                        SimulationMode.HIGH_RPM -> 80 + Random.nextInt(0, 20)
+                    },
+                    batteryVoltage = BATTERY_NORMAL + Random.nextDouble(-0.2, 0.2),
+
+                    // 扩展参数
+                    engineLoad = when (simulationMode) {
+                        SimulationMode.IDLE -> 15.0 + Random.nextDouble(-2.0, 2.0)
+                        SimulationMode.DRIVING -> 35.0 + Random.nextDouble(-5.0, 5.0)
+                        SimulationMode.ACCELERATING -> 70.0 + Random.nextDouble(-10.0, 10.0)
+                        SimulationMode.HIGH_RPM -> 85.0 + Random.nextDouble(-5.0, 5.0)
+                    },
+                    speed = when (simulationMode) {
+                        SimulationMode.IDLE -> SPEED_IDLE
+                        SimulationMode.DRIVING -> SPEED_CRUISING + Random.nextInt(-5, 5)
+                        SimulationMode.ACCELERATING -> minOf(120, (rpm * 0.03).toInt())
+                        SimulationMode.HIGH_RPM -> SPEED_HIGH + Random.nextInt(-5, 5)
+                    },
+                    intakeManifoldPressure = when (simulationMode) {
+                        SimulationMode.IDLE -> 35.0 + Random.nextDouble(-2.0, 2.0)
+                        SimulationMode.DRIVING -> 55.0 + Random.nextDouble(-5.0, 5.0)
+                        SimulationMode.ACCELERATING -> 80.0 + Random.nextDouble(-5.0, 5.0)
+                        SimulationMode.HIGH_RPM -> 90.0 + Random.nextDouble(-5.0, 5.0)
+                    },
+                    mafRate = when (simulationMode) {
+                        SimulationMode.IDLE -> 3.0 + Random.nextDouble(-0.5, 0.5)
+                        SimulationMode.DRIVING -> 25.0 + Random.nextDouble(-3.0, 3.0)
+                        SimulationMode.ACCELERATING -> 60.0 + Random.nextDouble(-5.0, 5.0)
+                        SimulationMode.HIGH_RPM -> 80.0 + Random.nextDouble(-5.0, 5.0)
+                    },
+                    fuelPressure = 350.0 + Random.nextDouble(-10.0, 10.0),
+                    fuelLevel = 75.0,
+                    shortTermFuelTrimBank1 = Random.nextDouble(-5.0, 5.0),
+                    longTermFuelTrimBank1 = Random.nextDouble(-3.0, 3.0),
+                    shortTermFuelTrimBank2 = Random.nextDouble(-5.0, 5.0),
+                    longTermFuelTrimBank2 = Random.nextDouble(-3.0, 3.0),
+                    timingAdvance = 25.0 + Random.nextDouble(-5.0, 5.0),
+                    equivalenceRatio = 1.0 + Random.nextDouble(-0.05, 0.05),
+                    acceleratorPedalPos = when (simulationMode) {
+                        SimulationMode.IDLE -> 0.0
+                        SimulationMode.DRIVING -> 20.0 + Random.nextDouble(-5.0, 5.0)
+                        SimulationMode.ACCELERATING -> 70.0 + Random.nextDouble(-10.0, 10.0)
+                        SimulationMode.HIGH_RPM -> 90.0 + Random.nextDouble(-5.0, 5.0)
+                    },
+                    runTime = ((System.currentTimeMillis() - sessionStartTime) / 1000.0),
+                    warmupsSinceCodesCleared = 15,
+                    timeSinceCodesCleared = 120.0
+                )
+
+                emit(data)
+
+                // 500ms 采样率
+                kotlinx.coroutines.delay(500)
+
+                // 自动切换模拟模式（演示用）
+                if (Random.nextInt(100) < 50) {
+                    changeSimulationMode()
                 }
             }
-
-            // 平滑 RPM 变化
-            rpm += (targetRpm - rpm) / 10
-
-            // 模拟水温上升（冷启动到正常工作温度）
-            if (coolantTemp < COOLANT_NORMAL) {
-                coolantTemp += 0.1
-            } else {
-                coolantTemp = COOLANT_NORMAL + Random.nextDouble(-2.0, 2.0)
-            }
-
-            // 生成模拟数据
-            val data = VehicleData(
-                timestamp = System.currentTimeMillis(),
-                rpm = rpm.toInt(),
-                coolantTemp = coolantTemp.toInt(),
-                intakeTemp = INTAKE_NORMAL + Random.nextInt(-5, 10),
-                throttlePos = when (simulationMode) {
-                    SimulationMode.IDLE -> THROTTLE_IDLE
-                    SimulationMode.DRIVING -> 15 + Random.nextInt(0, 10)
-                    SimulationMode.ACCELERATING -> 50 + Random.nextInt(0, 30)
-                    SimulationMode.HIGH_RPM -> 80 + Random.nextInt(0, 20)
-                },
-                batteryVoltage = BATTERY_NORMAL + Random.nextDouble(-0.2, 0.2),
-                
-                // 扩展参数
-                engineLoad = when (simulationMode) {
-                    SimulationMode.IDLE -> 15.0 + Random.nextDouble(-2.0, 2.0)
-                    SimulationMode.DRIVING -> 35.0 + Random.nextDouble(-5.0, 5.0)
-                    SimulationMode.ACCELERATING -> 70.0 + Random.nextDouble(-10.0, 10.0)
-                    SimulationMode.HIGH_RPM -> 85.0 + Random.nextDouble(-5.0, 5.0)
-                },
-                speed = when (simulationMode) {
-                    SimulationMode.IDLE -> SPEED_IDLE
-                    SimulationMode.DRIVING -> SPEED_CRUISING + Random.nextInt(-5, 5)
-                    SimulationMode.ACCELERATING -> minOf(120, (rpm * 0.03).toInt())
-                    SimulationMode.HIGH_RPM -> SPEED_HIGH + Random.nextInt(-5, 5)
-                },
-                intakeManifoldPressure = when (simulationMode) {
-                    SimulationMode.IDLE -> 35.0 + Random.nextDouble(-2.0, 2.0)
-                    SimulationMode.DRIVING -> 55.0 + Random.nextDouble(-5.0, 5.0)
-                    SimulationMode.ACCELERATING -> 80.0 + Random.nextDouble(-5.0, 5.0)
-                    SimulationMode.HIGH_RPM -> 90.0 + Random.nextDouble(-5.0, 5.0)
-                },
-                mafRate = when (simulationMode) {
-                    SimulationMode.IDLE -> 3.0 + Random.nextDouble(-0.5, 0.5)
-                    SimulationMode.DRIVING -> 25.0 + Random.nextDouble(-3.0, 3.0)
-                    SimulationMode.ACCELERATING -> 60.0 + Random.nextDouble(-5.0, 5.0)
-                    SimulationMode.HIGH_RPM -> 80.0 + Random.nextDouble(-5.0, 5.0)
-                },
-                fuelPressure = 350.0 + Random.nextDouble(-10.0, 10.0),
-                fuelLevel = 75.0,
-                shortTermFuelTrimBank1 = Random.nextDouble(-5.0, 5.0),
-                longTermFuelTrimBank1 = Random.nextDouble(-3.0, 3.0),
-                shortTermFuelTrimBank2 = Random.nextDouble(-5.0, 5.0),
-                longTermFuelTrimBank2 = Random.nextDouble(-3.0, 3.0),
-                timingAdvance = 25.0 + Random.nextDouble(-5.0, 5.0),
-                equivalenceRatio = 1.0 + Random.nextDouble(-0.05, 0.05),
-                acceleratorPedalPos = when (simulationMode) {
-                    SimulationMode.IDLE -> 0.0
-                    SimulationMode.DRIVING -> 20.0 + Random.nextDouble(-5.0, 5.0)
-                    SimulationMode.ACCELERATING -> 70.0 + Random.nextDouble(-10.0, 10.0)
-                    SimulationMode.HIGH_RPM -> 90.0 + Random.nextDouble(-5.0, 5.0)
-                },
-                runTime = ((System.currentTimeMillis() - sessionStartTime) / 1000.0),
-                warmupsSinceCodesCleared = 15,
-                timeSinceCodesCleared = 120.0
-            )
-
-            emit(data)
-            
-            // 500ms 采样率
-            kotlinx.coroutines.delay(500)
-            
-            // 自动切换模拟模式（演示用）
-            if (Random.nextInt(100) < 5) {
-                changeSimulationMode()
-            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            isSimulating = false
         }
     }
 

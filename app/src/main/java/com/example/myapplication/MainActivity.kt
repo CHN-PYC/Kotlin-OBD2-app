@@ -83,7 +83,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.cardHistory.setOnClickListener {
-        
+            it.startAnimation(fadeIn)
+            startActivity(Intent(this, HistoryActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+        }
+
         // Demo Mode Card - Direct access to Dashboard with simulation
         binding.cardDemoMode.setOnClickListener {
             // Launch Dashboard with simulation mode enabled
@@ -92,11 +96,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
-            it.startAnimation(fadeIn)
-            startActivity(Intent(this, HistoryActivity::class.java))
-            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
-        }
-        
+
         // Long press for detailed diagnostics
         binding.cardConnect.setOnLongClickListener {
             Toast.makeText(this, "Opening detailed diagnostics...", Toast.LENGTH_SHORT).show()

@@ -166,16 +166,27 @@ class DashboardActivity : AppCompatActivity() {
      */
     private fun observeData() {
         lifecycleScope.launch {
-            val dataFlow = if (isSimulationMode) {
-                SimulatedDataManager.startSimulation()
-            } else {
-                repository.startLiveDataStream()
-            }
-            
-            dataFlow.collect { data ->
-                updateUI(data)
-                updateChart(data)
-                updateSessionStats(data)
+            try {
+                val dataFlow = if (isSimulationMode) {
+                    // 确保模拟模式已设置
+                    SimulatedDataManager.setSimulationMode(SimulatedDataManager.SimulationMode.IDLE)
+                    SimulatedDataManager.startSimulation()
+                } else {
+                    repository.startLiveDataStream()
+                }
+
+                // 收集数据流并更新UI
+                dataFlow.collect { data ->
+                    // 确保在主线程更新UI
+                    runOnUiThread {
+                        updateUI(data)
+                        updateChart(data)
+                        updateSessionStats(data)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(this@DashboardActivity, "Data error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }

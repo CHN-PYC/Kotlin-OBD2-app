@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -50,38 +51,28 @@ class DeviceAdapter(
         private val tvDeviceAddress: TextView = itemView.findViewById(R.id.tvDeviceAddress)
         private val tvPairStatus: TextView = itemView.findViewById(R.id.tvPairStatus)
         private val btnConnect: Button = itemView.findViewById(R.id.btnConnect)
-
         fun bind(item: DeviceItem, onConnectClick: (BluetoothDevice) -> Unit) {
             val device = item.device
-            
             tvDeviceName.text = device.name ?: "Unknown Device"
             tvDeviceAddress.text = device.address
             tvPairStatus.text = if (item.isPaired) "Paired" else "Not Paired"
-            
-            // Check if device name suggests it's NOT an OBD2 adapter
+
             val isLikelyNonObd = isLikelyNonObdDevice(device.name)
-            
-            if (isLikelyNonObd) {
-                // Visual indicator that this is probably not an OBD2 device
-                itemView.alpha = 0.6f
-                btnConnect.text = "Not OBD2"
-                btnConnect.isEnabled = false
-            } else {
-                itemView.alpha = 1.0f
-                btnConnect.text = "Connect"
-                btnConnect.isEnabled = true
-            }
-            
+
+            // UI 样式（仅供参考，不用于逻辑控制）
+            itemView.alpha = if (isLikelyNonObd) 0.6f else 1.0f
+            btnConnect.text = if (isLikelyNonObd) "Not OBD2" else "Connect"
+            btnConnect.isEnabled = true   // 始终保持可点击，以便给出提示
+
             btnConnect.setOnClickListener {
-                if (btnConnect.isEnabled) {
-                    onConnectClick(device)
-                } else {
-                    // Show tooltip explaining why connect is disabled
-                    android.widget.Toast.makeText(
+                if (isLikelyNonObd) {
+                    Toast.makeText(
                         itemView.context,
                         "This appears to be a non-OBD2 device. Connection will fail.",
-                        android.widget.Toast.LENGTH_LONG
+                        Toast.LENGTH_LONG
                     ).show()
+                } else {
+                    onConnectClick(device)
                 }
             }
         }
@@ -102,8 +93,8 @@ class DeviceAdapter(
             )
             
             val obdKeywords = listOf(
-                "obd", "obd2", "obdii", "elm327", "elm",
-                "vgate", "icar", "blue",
+                "obd", "obdii", "elm327", "elm",
+                "vgate", "icar", "car",
                 "adapter", "scanner", "diagnostic"
             )
             
@@ -119,13 +110,4 @@ class DeviceAdapter(
         }
     }
 
-    class DeviceDiffCallback : DiffUtil.ItemCallback<DeviceItem>() {
-        override fun areItemsTheSame(oldItem: DeviceItem, newItem: DeviceItem): Boolean {
-            return oldItem.device.address == newItem.device.address
-        }
-
-        override fun areContentsTheSame(oldItem: DeviceItem, newItem: DeviceItem): Boolean {
-            return oldItem == newItem
-        }
-    }
 }

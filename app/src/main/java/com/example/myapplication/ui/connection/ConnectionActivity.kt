@@ -187,9 +187,14 @@ class ConnectionActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun connectToDevice(device: BluetoothDevice) {
+
         // First, check if this is likely an OBD2 device
-        if (isNonObdDevice(device.name)) {
-            // Show warning before attempting connection
+        val name = device.name?.lowercase() ?: ""
+
+        val looksLikeObd = listOf("obd", "elm", "vgate", "icar", "link")
+            .any { name.contains(it) }
+
+        if (!looksLikeObd) {
             showNonObdDeviceConnectionWarning(device)
             return
         }
@@ -217,41 +222,8 @@ class ConnectionActivity : AppCompatActivity() {
                 Toast.makeText(this@ConnectionActivity, "Connection failed", Toast.LENGTH_SHORT).show()
                 binding.tvStatus.text = "Connection failed. Try again."
             }
+
         }
-    }
-    
-    /**
-     * Check if device name suggests it's NOT an OBD2 adapter
-     */
-    private fun isNonObdDevice(deviceName: String?): Boolean {
-        if (deviceName == null) return false
-        
-        val nonObdKeywords = listOf(
-            "headphone", "headset", "earbud", "airpod",
-            "speaker", "audio", "music", "sound",
-            "watch", "band", "fitbit", "garmin",
-            "tv", "display", "monitor",
-            "keyboard", "mouse", "trackpad",
-            "phone", "galaxy", "iphone", "pixel",
-            "tablet", "ipad", "ipod", "computer"
-        )
-        
-        val obdKeywords = listOf(
-            "obd", "obd2", "obdii", "elm327", "elm",
-            "vgate", "icar", "blue", "scanner",
-            "diagnostic", "adapter", "link", "mx+",
-            "icar", "car", "vehicle"
-        )
-        
-        val lowerName = deviceName.lowercase()
-        
-        // If it contains OBD keywords, it's likely an OBD2 device
-        if (obdKeywords.any { lowerName.contains(it) }) {
-            return false
-        }
-        
-        // If it contains non-OBD keywords, it's likely NOT an OBD2 device
-        return nonObdKeywords.any { lowerName.contains(it) }
     }
     
     /**
