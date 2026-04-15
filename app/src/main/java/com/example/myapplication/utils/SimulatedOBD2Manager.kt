@@ -163,6 +163,117 @@ object SimulatedOBD2Manager {
     }
 
     /**
+     * Simulate a full vehicle data request — mirrors VehicleRepository.requestVehicleData()
+     * but requires NO Bluetooth connection.
+     *
+     * Pipeline: simulated hex response → ObdDecoder.parse() → VehicleData
+     * Use this to verify ObdDecoder can correctly parse hex into physical values
+     * without any real OBD2 device.
+     */
+    fun requestVehicleData(): VehicleData? {
+        val timestamp = System.currentTimeMillis()
+        updateState()
+
+        // ==================== Core params (must succeed) ====================
+
+        val rpmResponse = sendCommand(ObdCommand.RPM.pid)
+        val rpm = ObdDecoder.parse(rpmResponse, ObdCommand.RPM)?.toInt()
+            ?: return null  // core param failed
+
+        val coolantResponse = sendCommand(ObdCommand.COOLANT_TEMP.pid)
+        val coolantTemp = ObdDecoder.parse(coolantResponse, ObdCommand.COOLANT_TEMP)?.toInt()
+            ?: return null
+
+        val intakeResponse = sendCommand(ObdCommand.INTAKE_TEMP.pid)
+        val intakeTemp = ObdDecoder.parse(intakeResponse, ObdCommand.INTAKE_TEMP)?.toInt()
+            ?: return null
+
+        val throttleResponse = sendCommand(ObdCommand.THROTTLE_POS.pid)
+        val throttlePos = ObdDecoder.parse(throttleResponse, ObdCommand.THROTTLE_POS)?.toInt()
+            ?: return null
+
+        val voltageResponse = sendCommand(ObdCommand.BATTERY_VOLTAGE.pid)
+        val batteryVoltage = ObdDecoder.parse(voltageResponse, ObdCommand.BATTERY_VOLTAGE)
+            ?: return null
+
+        // ==================== Extended params (optional, fail → 0) ====================
+
+        val engineLoad = ObdDecoder.parse(sendCommand(ObdCommand.ENGINE_LOAD.pid), ObdCommand.ENGINE_LOAD) ?: 0.0
+        val speed = ObdDecoder.parse(sendCommand(ObdCommand.SPEED.pid), ObdCommand.SPEED)?.toInt() ?: 0
+        val intakeManifoldPressure = ObdDecoder.parse(sendCommand(ObdCommand.INTAKE_MANIFOLD_PRESSURE.pid), ObdCommand.INTAKE_MANIFOLD_PRESSURE) ?: 0.0
+        val mafRate = ObdDecoder.parse(sendCommand(ObdCommand.MAF_RATE.pid), ObdCommand.MAF_RATE) ?: 0.0
+        val fuelPressure = ObdDecoder.parse(sendCommand(ObdCommand.FUEL_PRESSURE.pid), ObdCommand.FUEL_PRESSURE) ?: 0.0
+        val fuelLevel = ObdDecoder.parse(sendCommand(ObdCommand.FUEL_LEVEL.pid), ObdCommand.FUEL_LEVEL) ?: 0.0
+        val stft1 = ObdDecoder.parse(sendCommand(ObdCommand.SHORT_TERM_FUEL_TRIM_BANK1.pid), ObdCommand.SHORT_TERM_FUEL_TRIM_BANK1) ?: 0.0
+        val ltft1 = ObdDecoder.parse(sendCommand(ObdCommand.LONG_TERM_FUEL_TRIM_BANK1.pid), ObdCommand.LONG_TERM_FUEL_TRIM_BANK1) ?: 0.0
+        val stft2 = ObdDecoder.parse(sendCommand(ObdCommand.SHORT_TERM_FUEL_TRIM_BANK2.pid), ObdCommand.SHORT_TERM_FUEL_TRIM_BANK2) ?: 0.0
+        val ltft2 = ObdDecoder.parse(sendCommand(ObdCommand.LONG_TERM_FUEL_TRIM_BANK2.pid), ObdCommand.LONG_TERM_FUEL_TRIM_BANK2) ?: 0.0
+        val timingAdvance = ObdDecoder.parse(sendCommand(ObdCommand.TIMING_ADVANCE.pid), ObdCommand.TIMING_ADVANCE) ?: 0.0
+        val equivalenceRatio = ObdDecoder.parse(sendCommand(ObdCommand.EQUIVALENCE_RATIO.pid), ObdCommand.EQUIVALENCE_RATIO) ?: 0.0
+        val acceleratorPedalPos = ObdDecoder.parse(sendCommand(ObdCommand.ACCELERATOR_PEDAL_POS_D.pid), ObdCommand.ACCELERATOR_PEDAL_POS_D) ?: 0.0
+        val runTime = ObdDecoder.parse(sendCommand(ObdCommand.RUN_TIME.pid), ObdCommand.RUN_TIME) ?: 0.0
+        val warmups = ObdDecoder.parse(sendCommand(ObdCommand.WARMUPS_SINCE_CODES_CLEARED.pid), ObdCommand.WARMUPS_SINCE_CODES_CLEARED)?.toInt() ?: 0
+        val timeSinceCleared = ObdDecoder.parse(sendCommand(ObdCommand.TIME_SINCE_CODES_CLEARED.pid), ObdCommand.TIME_SINCE_CODES_CLEARED) ?: 0.0
+
+        return VehicleData(
+            timestamp = timestamp,
+            rpm = rpm,
+            coolantTemp = coolantTemp,
+            intakeTemp = intakeTemp,
+            throttlePos = throttlePos,
+            batteryVoltage = batteryVoltage,
+            engineLoad = engineLoad,
+            speed = speed,
+            intakeManifoldPressure = intakeManifoldPressure,
+            mafRate = mafRate,
+            fuelPressure = fuelPressure,
+            fuelLevel = fuelLevel,
+            shortTermFuelTrimBank1 = stft1,
+            longTermFuelTrimBank1 = ltft1,
+            shortTermFuelTrimBank2 = stft2,
+            longTermFuelTrimBank2 = ltft2,
+            timingAdvance = timingAdvance,
+            equivalenceRatio = equivalenceRatio,
+            acceleratorPedalPos = acceleratorPedalPos,
+            runTime = runTime,
+            warmupsSinceCodesCleared = warmups,
+            timeSinceCodesCleared = timeSinceCleared
+        )
+    }
+
+    /**
+     * One-shot demo request: requestVehicleData() + raw hex logging
+     * Returns a debug string showing each PID's raw hex response and decoded value.
+     * Useful for verifying ObdDecoder correctness at a glance.
+     */
+    fun requestVehicleDataWithDebug(): Pair<VehicleData?, String> {
+        updateState()
+        val commands = listOf(
+            ObdCommand.ENGINE_LOAD, ObdCommand.COOLANT_TEMP, ObdCommand.RPM,
+            ObdCommand.SPEED, ObdCommand.INTAKE_MANIFOLD_PRESSURE, ObdCommand.INTAKE_TEMP,
+            ObdCommand.MAF_RATE, ObdCommand.FUEL_PRESSURE, ObdCommand.FUEL_LEVEL,
+            ObdCommand.SHORT_TERM_FUEL_TRIM_BANK1, ObdCommand.LONG_TERM_FUEL_TRIM_BANK1,
+            ObdCommand.SHORT_TERM_FUEL_TRIM_BANK2, ObdCommand.LONG_TERM_FUEL_TRIM_BANK2,
+            ObdCommand.TIMING_ADVANCE, ObdCommand.THROTTLE_POS, ObdCommand.BATTERY_VOLTAGE,
+            ObdCommand.ACCELERATOR_PEDAL_POS_D, ObdCommand.EQUIVALENCE_RATIO,
+            ObdCommand.RUN_TIME, ObdCommand.WARMUPS_SINCE_CODES_CLEARED,
+            ObdCommand.TIME_SINCE_CODES_CLEARED
+        )
+
+        val sb = StringBuilder("=== Simulated OBD2 Decode Test ===\n")
+        for (cmd in commands) {
+            val raw = sendCommand(cmd.pid)
+            val decoded = ObdDecoder.parse(raw, cmd)
+            sb.appendLine("${cmd.pid}  ${cmd.displayName}")
+            sb.appendLine("  raw:     $raw")
+            sb.appendLine("  decoded: $decoded ${cmd.unit}")
+            sb.appendLine()
+        }
+        val data = requestVehicleData()
+        return Pair(data, sb.toString())
+    }
+
+    /**
      * Generate response data bytes for a given PID
      */
     private fun generateResponse(pidBytes: String): String? {

@@ -13,12 +13,15 @@ import com.example.myapplication.databinding.ActivityHistoryBinding
 import com.example.myapplication.ui.adapter.TripAdapter
 import com.example.myapplication.utils.FileExporter
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.example.myapplication.R
 
 class HistoryActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityHistoryBinding
     private var tripAdapter: TripAdapter? = null
+    private var testSeedInserted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,6 +78,12 @@ class HistoryActivity : AppCompatActivity() {
                     // Show empty state
                     binding.recyclerTrips.visibility = View.GONE
                     binding.emptyState.visibility = View.VISIBLE
+
+                    // Auto-insert test data on first load to verify UI
+                    if (!testSeedInserted) {
+                        testSeedInserted = true
+                        injectTestData()
+                    }
                 } else {
                     // Show trip list
                     binding.emptyState.visibility = View.GONE
@@ -84,6 +93,56 @@ class HistoryActivity : AppCompatActivity() {
                     val tripItems = TripAdapter.createTripItems(vehicleDataList)
                     tripAdapter?.submitList(tripItems)
                 }
+            }
+        }
+    }
+
+    /**
+     * Insert a batch of test vehicle data to verify history activity renders correctly.
+     * Simulates ~15 min trip with varying RPM, speed, temps, etc.
+     */
+    private fun injectTestData() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val repository = (application as MyApplication).repository
+            val baseTime = System.currentTimeMillis() - 15 * 60 * 1000 // 15 min ago
+
+            // Generate ~20 data points across a 15-minute trip
+            val testData = List(20) { i ->
+                val elapsedMs = i * 45_000L // 45s between samples
+                val progress = i / 19.0 // 0.0 → 1.0 across the trip
+
+                VehicleData(
+                    timestamp = baseTime + elapsedMs,
+                    rpm = (800 + (1500 * kotlin.math.sin(progress * kotlin.math.PI * 2)) + 500).toInt(),
+                    coolantTemp = (85 + (10 * kotlin.math.sin(progress * kotlin.math.PI))).toInt(),
+                    intakeTemp = (25 + (5 * kotlin.math.cos(progress * kotlin.math.PI * 2))).toInt(),
+                    throttlePos = (15 + (40 * kotlin.math.sin(progress * kotlin.math.PI * 2))).toInt(),
+                    batteryVoltage = 13.8 + (0.3 * kotlin.math.sin(progress * kotlin.math.PI * 3)),
+
+                    // Extended diagnostics
+                    engineLoad = 35.0 + (25.0 * kotlin.math.sin(progress * kotlin.math.PI * 2)),
+                    speed = (30 + (60 * kotlin.math.sin(progress * kotlin.math.PI * 2) + 20)).toInt().coerceAtMost(120),
+                    intakeManifoldPressure = 45.0 + (15.0 * kotlin.math.sin(progress * kotlin.math.PI * 2)),
+                    mafRate = 5.0 + (8.0 * kotlin.math.sin(progress * kotlin.math.PI * 2)),
+                    fuelPressure = 350.0,
+                    fuelLevel = 68.0 - (3.0 * progress),
+                    shortTermFuelTrimBank1 = 1.5 + (0.5 * kotlin.math.sin(progress * kotlin.math.PI)),
+                    longTermFuelTrimBank1 = -0.8,
+                    shortTermFuelTrimBank2 = 0.0,
+                    longTermFuelTrimBank2 = 0.0,
+                    timingAdvance = 12.0 + (8.0 * kotlin.math.sin(progress * kotlin.math.PI * 2)),
+                    equivalenceRatio = 1.0 + (0.02 * kotlin.math.sin(progress * kotlin.math.PI * 2)),
+                    acceleratorPedalPos = 10.0 + (35.0 * kotlin.math.sin(progress * kotlin.math.PI * 2)),
+                    runTime = 3600.0 + (elapsedMs / 1000.0),
+                    warmupsSinceCodesCleared = 3,
+                    timeSinceCodesCleared = 1440.0
+                )
+            }
+
+            testData.forEach { repository.saveVehicleData(it) }
+
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@HistoryActivity, "🧪 Test data inserted — 15 min trip simulated", Toast.LENGTH_LONG).show()
             }
         }
     }
