@@ -25,14 +25,17 @@ class DiagnosticRepository(
     suspend fun getLatestReport(sessionId: Long): DiagnosticReport? =
         reportDao.getLatestBySession(sessionId)
 
+    suspend fun getReportById(reportId: Long): DiagnosticReport? =
+        reportDao.getById(reportId)
+
     suspend fun runRuleBasedDiagnosis(sessionId: Long): DiagnosticReport {
         val session = sessionDao.getById(sessionId)
             ?: throw IllegalArgumentException("Session not found: $sessionId")
         val stats = vehicleDataDao.getSessionStats(sessionId)
         val samples = vehicleDataDao.getBySessionOnce(sessionId)
         val report = RuleBasedDiagnosticEngine.analyze(session, stats, samples)
-        reportDao.insert(report)
-        return report
+        val reportId = reportDao.insert(report)
+        return report.copy(id = reportId)
     }
 
     suspend fun buildLlmInput(sessionId: Long): LlmDiagnosticInput =
@@ -53,7 +56,7 @@ class DiagnosticRepository(
             inputJson = inputJson,
             result = result
         )
-        reportDao.insert(report)
-        return report
+        val reportId = reportDao.insert(report)
+        return report.copy(id = reportId)
     }
 }

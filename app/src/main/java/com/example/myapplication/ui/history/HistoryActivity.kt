@@ -188,15 +188,11 @@ class HistoryActivity : AppCompatActivity() {
                     .diagnosticRepository
                     .runRuleBasedDiagnosis(sessionId)
 
-                androidx.appcompat.app.AlertDialog.Builder(this@HistoryActivity)
-                    .setTitle("Rule-Based Diagnosis")
-                    .setMessage(
-                        "Severity: ${report.severity}\n\n" +
-                        "Summary: ${report.summary}\n\n" +
-                        "Recommendations:\n${report.recommendationsJson}"
-                    )
-                    .setPositiveButton("OK", null)
-                    .show()
+                startActivity(
+                    Intent(this@HistoryActivity, DiagnosticReportActivity::class.java)
+                        .putExtra(DiagnosticReportActivity.EXTRA_REPORT_ID, report.id)
+                        .putExtra(DiagnosticReportActivity.EXTRA_REPORT_TYPE, "Rule-Based Diagnosis")
+                )
             } catch (e: Exception) {
                 Toast.makeText(this@HistoryActivity, "Diagnosis failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
@@ -261,15 +257,11 @@ class HistoryActivity : AppCompatActivity() {
                     .diagnosticRepository
                     .runLlmDiagnosis(sessionId)
 
-                androidx.appcompat.app.AlertDialog.Builder(this@HistoryActivity)
-                    .setTitle("LLM Diagnosis")
-                    .setMessage(
-                        "Severity: ${report.severity}\n\n" +
-                        "Summary: ${report.summary}\n\n" +
-                        "Raw Output:\n${report.rawOutputText?.take(8000) ?: "n/a"}"
-                    )
-                    .setPositiveButton("OK", null)
-                    .show()
+                startActivity(
+                    Intent(this@HistoryActivity, DiagnosticReportActivity::class.java)
+                        .putExtra(DiagnosticReportActivity.EXTRA_REPORT_ID, report.id)
+                        .putExtra(DiagnosticReportActivity.EXTRA_REPORT_TYPE, "LLM Diagnosis")
+                )
             } catch (e: Exception) {
                 Toast.makeText(this@HistoryActivity, "LLM diagnosis failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }

@@ -47,6 +47,7 @@
         
         <!-- History Activity -->
         <activity android:name=".ui.history.HistoryActivity" />
+        <activity android:name=".ui.history.DiagnosticReportActivity" />
         
         <!-- FileProvider for exporting CSV -->
         <provider
