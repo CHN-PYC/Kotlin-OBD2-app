@@ -10,7 +10,7 @@ class MyApplication : Application() {
     // Global Repository instance
     lateinit var repository: VehicleRepository
         private set
-    
+
     // Global Bluetooth Manager instance (for ConnectionActivity)
     lateinit var bluetoothManager: ObdBluetoothManager
         private set
@@ -18,18 +18,8 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        try {
-            // Initialize database
-            val database = AppDatabase.getDatabase(this)
-
-            // Initialize bluetooth manager
-            bluetoothManager = ObdBluetoothManager(this)
-
-            // Initialize Repository
-            repository = VehicleRepository(bluetoothManager, database.vehicleDataDao())
-        } catch (e: Exception) {
-            // Log error but don't crash
-            e.printStackTrace()
-        }
+        val database = AppDatabase.getDatabase(this)
+        bluetoothManager = ObdBluetoothManager(this)
+        repository = VehicleRepository(bluetoothManager, database.vehicleDataDao())
     }
 }

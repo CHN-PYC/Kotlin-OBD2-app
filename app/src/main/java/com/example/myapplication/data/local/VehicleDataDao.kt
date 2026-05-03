@@ -12,7 +12,7 @@ interface VehicleDataDao {
      * @param vehicleData 插入数据对象
      */
     @Insert
-    suspend fun insert(vehicleDataDao: VehicleData)
+    suspend fun insert(vehicleData: VehicleData)
     /**
      * 获取所有的历史记录，按时间戳降序
      */

@@ -204,7 +204,10 @@ class DashboardActivity : AppCompatActivity() {
         animateTextView(binding.tvIntakeTemp, "${data.intakeTemp} °C")
         animateTextView(binding.tvThrottle, "${data.throttlePos} %")
         animateTextView(binding.tvBattery, "${String.format("%.2f", data.batteryVoltage)} V")
-        animateTextView(binding.tvSpeed, "${calculateSpeed(data.rpm)} km/h")
+        animateTextView(binding.tvSpeed, "${data.speed} km/h")
+        animateTextView(binding.tvEngineLoad, "${String.format("%.1f", data.engineLoad)} %")
+        animateTextView(binding.tvMap, "${String.format("%.1f", data.intakeManifoldPressure)} kPa")
+        animateTextView(binding.tvConnectionQuality, buildSignalSummary(data))
         
         // Update status indicators with color coding
         updateStatusIndicator(binding.tvRpmStatus, checkRpmStatus(data.rpm))
@@ -212,6 +215,8 @@ class DashboardActivity : AppCompatActivity() {
         updateStatusIndicator(binding.tvBatteryStatus, checkBatteryStatus(data.batteryVoltage))
         updateStatusIndicator(binding.tvIntakeStatus, checkIntakeStatus(data.intakeTemp))
         updateStatusIndicator(binding.tvThrottleStatus, checkThrottleStatus(data.throttlePos))
+        updateStatusIndicator(binding.tvEngineLoadStatus, checkEngineLoadStatus(data.engineLoad))
+        updateStatusIndicator(binding.tvMapStatus, checkMapStatus(data.intakeManifoldPressure))
         
         // Update timestamp with pulse animation
         binding.tvTimestamp.text = "Live • ${timeFormat.format(Date(data.timestamp))}"
@@ -308,6 +313,30 @@ class DashboardActivity : AppCompatActivity() {
         return when {
             pos > 90 -> Status.Warning("WOT")
             else -> Status.Normal("Normal")
+        }
+    }
+
+    private fun checkEngineLoadStatus(load: Double): Status {
+        return when {
+            load > 85 -> Status.Warning("High")
+            load < 5 -> Status.Warning("Low")
+            else -> Status.Normal("Normal")
+        }
+    }
+
+    private fun checkMapStatus(map: Double): Status {
+        return when {
+            map > 100 -> Status.Warning("High")
+            map < 20 -> Status.Warning("Low")
+            else -> Status.Normal("Normal")
+        }
+    }
+
+    private fun buildSignalSummary(data: VehicleData): String {
+        return if (isSimulationMode) {
+            "📊 Demo • Speed ${data.speed} km/h • λ ${String.format("%.2f", data.equivalenceRatio)}"
+        } else {
+            "Signal: Live • Speed ${data.speed} km/h • Load ${String.format("%.0f", data.engineLoad)}%"
         }
     }
 

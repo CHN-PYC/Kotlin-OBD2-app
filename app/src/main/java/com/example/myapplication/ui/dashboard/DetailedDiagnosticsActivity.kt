@@ -1,15 +1,14 @@
 package com.example.myapplication.ui.dashboard
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.MyApplication
 import com.example.myapplication.R
 import com.example.myapplication.data.local.VehicleData
 import com.example.myapplication.databinding.ActivityDetailedDiagnosticsBinding
-import com.github.mikephil.charting.charts.LineChart
+import com.example.myapplication.utils.SimulatedOBD2Manager
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -30,6 +29,7 @@ class DetailedDiagnosticsActivity : AppCompatActivity() {
     private val stftEntries = mutableListOf<Entry>()  // 短期燃油修正
     private val ltftEntries = mutableListOf<Entry>()  // 长期燃油修正
     private var xIndex = 0
+    private var isSimulationMode = false
     private val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +39,12 @@ class DetailedDiagnosticsActivity : AppCompatActivity() {
 
         // Setup toolbar
         binding.btnBack.setOnClickListener { finish() }
+
+        isSimulationMode = intent.getBooleanExtra("simulation_mode", false)
+        if (isSimulationMode) {
+            binding.tvTitle.text = "Detailed Diagnostics • Demo"
+            Toast.makeText(this, "Detailed diagnostics in demo mode", Toast.LENGTH_SHORT).show()
+        }
 
         // Setup charts
         setupRpmChart()
@@ -101,7 +107,17 @@ class DetailedDiagnosticsActivity : AppCompatActivity() {
 
     private fun observeData() {
         lifecycleScope.launch {
-            repository.startLiveDataStream().collect { data ->
+            val dataFlow = if (isSimulationMode) {
+                SimulatedOBD2Manager.setMode(SimulatedOBD2Manager.SimulationMode.IDLE)
+                SimulatedOBD2Manager.startSimulation()
+            } else {
+                repository.startLiveDataStream()
+            }
+
+            dataFlow.collect { data ->
+                if (isSimulationMode) {
+                    repository.saveVehicleData(data)
+                }
                 updateUI(data)
                 updateCharts(data)
             }

@@ -32,21 +32,39 @@ object FileExporter {
         val file = File(context.cacheDir, fileName)
 
         FileWriter(file).use { writer ->
-            // Write header
-            writer.appendLine("Timestamp,RPM,CoolantTemp(°C),IntakeTemp(°C),ThrottlePos(%),BatteryVoltage(V)")
-            
-            // Write data rows
+            writer.appendLine(
+                "Timestamp,RPM,CoolantTempC,IntakeTempC,ThrottlePosPct,BatteryVoltageV,EngineLoadPct,SpeedKmh,MAPkPa,MAFgPerSec,FuelPressurekPa,FuelLevelPct,STFT1Pct,LTFT1Pct,STFT2Pct,LTFT2Pct,TimingAdvanceDeg,Lambda,PedalPosPct,RunTimeSec,Warmups,TimeSinceCodesClearedMin"
+            )
+
             data.sortedBy { it.timestamp }.forEach { vehicleData ->
                 val timeStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                     .format(Date(vehicleData.timestamp))
-                
+
                 writer.appendLine(
-                    "$timeStr," +
-                    "${vehicleData.rpm}," +
-                    "${vehicleData.coolantTemp}," +
-                    "${vehicleData.intakeTemp}," +
-                    "${vehicleData.throttlePos}," +
-                    "${String.format("%.2f", vehicleData.batteryVoltage)}"
+                    listOf(
+                        timeStr,
+                        vehicleData.rpm,
+                        vehicleData.coolantTemp,
+                        vehicleData.intakeTemp,
+                        vehicleData.throttlePos,
+                        String.format("%.2f", vehicleData.batteryVoltage),
+                        String.format("%.1f", vehicleData.engineLoad),
+                        vehicleData.speed,
+                        String.format("%.1f", vehicleData.intakeManifoldPressure),
+                        String.format("%.2f", vehicleData.mafRate),
+                        String.format("%.1f", vehicleData.fuelPressure),
+                        String.format("%.1f", vehicleData.fuelLevel),
+                        String.format("%.1f", vehicleData.shortTermFuelTrimBank1),
+                        String.format("%.1f", vehicleData.longTermFuelTrimBank1),
+                        String.format("%.1f", vehicleData.shortTermFuelTrimBank2),
+                        String.format("%.1f", vehicleData.longTermFuelTrimBank2),
+                        String.format("%.1f", vehicleData.timingAdvance),
+                        String.format("%.3f", vehicleData.equivalenceRatio),
+                        String.format("%.1f", vehicleData.acceleratorPedalPos),
+                        String.format("%.1f", vehicleData.runTime),
+                        vehicleData.warmupsSinceCodesCleared,
+                        String.format("%.1f", vehicleData.timeSinceCodesCleared)
+                    ).joinToString(",")
                 )
             }
         }

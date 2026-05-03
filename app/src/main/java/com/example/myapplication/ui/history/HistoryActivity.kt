@@ -16,6 +16,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.example.myapplication.R
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 class HistoryActivity : AppCompatActivity() {
 
@@ -35,6 +38,8 @@ class HistoryActivity : AppCompatActivity() {
         binding.btnExport.setOnClickListener {
             exportData()
         }
+
+        binding.tvSubtitle.text = "Trips, demo sessions, and saved diagnostics"
 
         // Setup bottom navigation
         binding.bottomNavigation.selectedItemId = R.id.nav_history
@@ -113,26 +118,26 @@ class HistoryActivity : AppCompatActivity() {
 
                 VehicleData(
                     timestamp = baseTime + elapsedMs,
-                    rpm = (800 + (1500 * kotlin.math.sin(progress * kotlin.math.PI * 2)) + 500).toInt(),
-                    coolantTemp = (85 + (10 * kotlin.math.sin(progress * kotlin.math.PI))).toInt(),
-                    intakeTemp = (25 + (5 * kotlin.math.cos(progress * kotlin.math.PI * 2))).toInt(),
-                    throttlePos = (15 + (40 * kotlin.math.sin(progress * kotlin.math.PI * 2))).toInt(),
-                    batteryVoltage = 13.8 + (0.3 * kotlin.math.sin(progress * kotlin.math.PI * 3)),
+                    rpm = (800 + (1500 * sin(progress * PI * 2)) + 500).toInt(),
+                    coolantTemp = (85 + (10 * sin(progress * PI))).toInt(),
+                    intakeTemp = (25 + (5 * cos(progress * PI * 2))).toInt(),
+                    throttlePos = (15 + (40 * sin(progress * PI * 2))).toInt().coerceIn(0, 100),
+                    batteryVoltage = 13.8 + (0.3 * sin(progress * PI * 3)),
 
                     // Extended diagnostics
-                    engineLoad = 35.0 + (25.0 * kotlin.math.sin(progress * kotlin.math.PI * 2)),
-                    speed = (30 + (60 * kotlin.math.sin(progress * kotlin.math.PI * 2) + 20)).toInt().coerceAtMost(120),
-                    intakeManifoldPressure = 45.0 + (15.0 * kotlin.math.sin(progress * kotlin.math.PI * 2)),
-                    mafRate = 5.0 + (8.0 * kotlin.math.sin(progress * kotlin.math.PI * 2)),
+                    engineLoad = (35.0 + (25.0 * sin(progress * PI * 2))).coerceIn(0.0, 100.0),
+                    speed = (30 + (60 * sin(progress * PI * 2) + 20)).toInt().coerceIn(0, 120),
+                    intakeManifoldPressure = 45.0 + (15.0 * sin(progress * PI * 2)),
+                    mafRate = 5.0 + (8.0 * sin(progress * PI * 2)),
                     fuelPressure = 350.0,
                     fuelLevel = 68.0 - (3.0 * progress),
-                    shortTermFuelTrimBank1 = 1.5 + (0.5 * kotlin.math.sin(progress * kotlin.math.PI)),
+                    shortTermFuelTrimBank1 = 1.5 + (0.5 * sin(progress * PI)),
                     longTermFuelTrimBank1 = -0.8,
                     shortTermFuelTrimBank2 = 0.0,
                     longTermFuelTrimBank2 = 0.0,
-                    timingAdvance = 12.0 + (8.0 * kotlin.math.sin(progress * kotlin.math.PI * 2)),
-                    equivalenceRatio = 1.0 + (0.02 * kotlin.math.sin(progress * kotlin.math.PI * 2)),
-                    acceleratorPedalPos = 10.0 + (35.0 * kotlin.math.sin(progress * kotlin.math.PI * 2)),
+                    timingAdvance = 12.0 + (8.0 * sin(progress * PI * 2)),
+                    equivalenceRatio = 1.0 + (0.02 * sin(progress * PI * 2)),
+                    acceleratorPedalPos = (10.0 + (35.0 * sin(progress * PI * 2))).coerceIn(0.0, 100.0),
                     runTime = 3600.0 + (elapsedMs / 1000.0),
                     warmupsSinceCodesCleared = 3,
                     timeSinceCodesCleared = 1440.0

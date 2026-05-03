@@ -217,6 +217,7 @@ class ConnectionActivity : AppCompatActivity() {
                 // Navigate to dashboard
                 val intent = Intent(this@ConnectionActivity, DashboardActivity::class.java)
                 startActivity(intent)
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                 finish()
             } else {
                 Toast.makeText(this@ConnectionActivity, "Connection failed", Toast.LENGTH_SHORT).show()
@@ -262,6 +263,7 @@ class ConnectionActivity : AppCompatActivity() {
                         // Navigate to dashboard
                         val intent = Intent(this@ConnectionActivity, DashboardActivity::class.java)
                         startActivity(intent)
+                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                         finish()
                     } else {
                         Toast.makeText(this@ConnectionActivity, "Connection failed", Toast.LENGTH_SHORT).show()

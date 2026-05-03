@@ -161,7 +161,7 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Metrics Grid (3 rows x 2 columns) -->
+            <!-- Metrics Grid (4 rows x 2 columns) -->
             <GridLayout
                 android:id="@+id/metricsGrid"
                 android:layout_width="match_parent"
@@ -169,7 +169,7 @@
                 android:alignmentMode="alignMargins"
                 android:columnCount="2"
                 android:columnOrderPreserved="false"
-                android:rowCount="3">
+                android:rowCount="4">
 
                 <!-- RPM Card -->
                 <androidx.cardview.widget.CardView
@@ -456,7 +456,103 @@
                             android:layout_marginTop="4dp"
                             android:layout_height="wrap_content"
                             android:layout_width="wrap_content"
-                            android:text="Estimated" />
+                            android:text="Live" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Engine Load Card -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardBackgroundColor="@color/card_background"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:contentDescription="Engine Load"
+                            android:src="@drawable/ic_info" />
+
+                        <TextView
+                            style="@style/Widget.OBD2.Text.Subtitle"
+                            android:layout_marginTop="8dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Load" />
+
+                        <TextView
+                            android:id="@+id/tvEngineLoad"
+                            style="@style/Widget.OBD2.Text.Metric"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="-- %" />
+
+                        <TextView
+                            android:id="@+id/tvEngineLoadStatus"
+                            style="@style/Widget.OBD2.Text.Status"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Normal" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- MAP Card -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardBackgroundColor="@color/card_background"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:contentDescription="MAP"
+                            android:src="@drawable/ic_info" />
+
+                        <TextView
+                            style="@style/Widget.OBD2.Text.Subtitle"
+                            android:layout_marginTop="8dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="MAP" />
+
+                        <TextView
+                            android:id="@+id/tvMap"
+                            style="@style/Widget.OBD2.Text.Metric"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="-- kPa" />
+
+                        <TextView
+                            android:id="@+id/tvMapStatus"
+                            style="@style/Widget.OBD2.Text.Status"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Normal" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
             </GridLayout>

@@ -41,6 +41,9 @@
         
         <!-- Dashboard Activity -->
         <activity android:name=".ui.dashboard.DashboardActivity" />
+
+        <!-- Detailed Diagnostics Activity -->
+        <activity android:name=".ui.dashboard.DetailedDiagnosticsActivity" />
         
         <!-- History Activity -->
         <activity android:name=".ui.history.HistoryActivity" />

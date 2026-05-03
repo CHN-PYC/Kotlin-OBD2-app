@@ -27,7 +27,7 @@ class TripAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.history, parent, false)
+            .inflate(R.layout.item_trip_history, parent, false)
         return TripViewHolder(view)
     }
 
@@ -91,28 +91,43 @@ class TripAdapter(
         fun createTripItems(data: List<VehicleData>): List<TripItem> {
             if (data.isEmpty()) return emptyList()
             
-            // Simplified: treat all data as one trip for now
-            // In production, you'd group by session gaps (>30 min gap = new trip)
             val sorted = data.sortedBy { it.timestamp }
-            val duration = (sorted.last().timestamp - sorted.first().timestamp) / 60000 // minutes
-            
-            // Calculate average speed (simplified from RPM)
-            val avgRpm = sorted.map { it.rpm }.average()
-            val avgSpeed = avgRpm * 0.01 // Simplified conversion
-            
-            // Calculate distance (simplified)
-            val distance = avgSpeed * (duration / 60.0)
-            
-            return listOf(
+            val trips = mutableListOf<List<VehicleData>>()
+            val currentTrip = mutableListOf<VehicleData>()
+            val tripGapMs = 30 * 60 * 1000L
+
+            for (point in sorted) {
+                if (currentTrip.isEmpty()) {
+                    currentTrip.add(point)
+                    continue
+                }
+
+                val previous = currentTrip.last()
+                if (point.timestamp - previous.timestamp > tripGapMs) {
+                    trips.add(currentTrip.toList())
+                    currentTrip.clear()
+                }
+                currentTrip.add(point)
+            }
+
+            if (currentTrip.isNotEmpty()) trips.add(currentTrip.toList())
+
+            return trips.map { trip ->
+                val duration = ((trip.last().timestamp - trip.first().timestamp) / 60000).coerceAtLeast(1)
+                val avgSpeed = trip.map { it.speed }.filter { it > 0 }.average().let { if (it.isNaN()) 0.0 else it }
+                val fallbackSpeed = trip.map { it.rpm }.average() * 0.01
+                val effectiveAvgSpeed = if (avgSpeed > 0) avgSpeed else fallbackSpeed
+                val distance = effectiveAvgSpeed * (duration / 60.0)
+
                 TripItem(
-                    id = sorted.first().id,
-                    date = sorted.first().timestamp,
+                    id = trip.first().id,
+                    date = trip.last().timestamp,
                     duration = duration,
                     distance = distance,
-                    avgSpeed = avgSpeed,
-                    maxRpm = sorted.maxOf { it.rpm }
+                    avgSpeed = effectiveAvgSpeed,
+                    maxRpm = trip.maxOf { it.rpm }
                 )
-            )
+            }.sortedByDescending { it.date }
         }
     }
 }
