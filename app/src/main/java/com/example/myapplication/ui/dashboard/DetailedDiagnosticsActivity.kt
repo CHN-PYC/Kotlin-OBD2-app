@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.MyApplication
 import com.example.myapplication.R
+import com.example.myapplication.data.local.DriveSession
 import com.example.myapplication.data.local.VehicleData
 import com.example.myapplication.databinding.ActivityDetailedDiagnosticsBinding
 import com.example.myapplication.utils.SimulatedOBD2Manager
@@ -30,6 +31,7 @@ class DetailedDiagnosticsActivity : AppCompatActivity() {
     private val ltftEntries = mutableListOf<Entry>()  // 长期燃油修正
     private var xIndex = 0
     private var isSimulationMode = false
+    private var sessionOpened = false
     private val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +46,15 @@ class DetailedDiagnosticsActivity : AppCompatActivity() {
         if (isSimulationMode) {
             binding.tvTitle.text = "Detailed Diagnostics • Demo"
             Toast.makeText(this, "Detailed diagnostics in demo mode", Toast.LENGTH_SHORT).show()
+        }
+
+        lifecycleScope.launch {
+            val source = if (isSimulationMode) DriveSession.SOURCE_DEMO else DriveSession.SOURCE_REAL
+            repository.startSession(
+                sourceType = source,
+                title = if (isSimulationMode) "Detailed Demo Session" else "Detailed Live Session"
+            )
+            sessionOpened = true
         }
 
         // Setup charts
@@ -111,12 +122,12 @@ class DetailedDiagnosticsActivity : AppCompatActivity() {
                 SimulatedOBD2Manager.setMode(SimulatedOBD2Manager.SimulationMode.IDLE)
                 SimulatedOBD2Manager.startSimulation()
             } else {
-                repository.startLiveDataStream()
+                repository.startLiveDataStream(sourceType = DriveSession.SOURCE_REAL)
             }
 
             dataFlow.collect { data ->
                 if (isSimulationMode) {
-                    repository.saveVehicleData(data)
+                    repository.saveVehicleData(data.copy(sourceType = DriveSession.SOURCE_DEMO))
                 }
                 updateUI(data)
                 updateCharts(data)
@@ -244,5 +255,17 @@ class DetailedDiagnosticsActivity : AppCompatActivity() {
         val minutes = ((seconds % 3600) / 60).toInt()
         val secs = (seconds % 60).toInt()
         return String.format("%02d:%02d:%02d", hours, minutes, secs)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        lifecycleScope.launch {
+            if (sessionOpened) {
+                repository.endActiveSession()
+            }
+        }
+        if (isSimulationMode) {
+            SimulatedOBD2Manager.stopSimulation()
+        }
     }
 }

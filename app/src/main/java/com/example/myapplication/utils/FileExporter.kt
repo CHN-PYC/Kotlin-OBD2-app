@@ -1,7 +1,6 @@
 package com.example.myapplication.utils
 
 import android.content.Context
-import androidx.core.content.FileProvider
 import com.example.myapplication.data.local.VehicleData
 import com.example.myapplication.data.repository.VehicleRepository
 import kotlinx.coroutines.flow.first
@@ -18,17 +17,20 @@ object FileExporter {
      * @param repository Vehicle repository to get data
      * @return File object for the exported CSV
      */
-    suspend fun exportToCsv(context: Context, repository: VehicleRepository): File {
-        // Get all history data
-        val data = repository.getHistory().first()
-        
+    suspend fun exportToCsv(context: Context, repository: VehicleRepository, sessionId: Long? = null): File {
+        val data = if (sessionId != null) {
+            repository.getHistoryBySession(sessionId).first()
+        } else {
+            repository.getHistory().first()
+        }
+
         if (data.isEmpty()) {
             throw Exception("No data to export")
         }
 
-        // Create CSV file
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val fileName = "obd2_export_$timestamp.csv"
+        val scope = if (sessionId != null) "session_${sessionId}" else "all"
+        val fileName = "obd2_export_${scope}_$timestamp.csv"
         val file = File(context.cacheDir, fileName)
 
         FileWriter(file).use { writer ->

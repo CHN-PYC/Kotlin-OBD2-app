@@ -104,6 +104,14 @@ class MainActivity : AppCompatActivity() {
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
             true
         }
+
+        binding.cardDemoMode.setOnLongClickListener {
+            val intent = Intent(this, com.example.myapplication.ui.dashboard.DetailedDiagnosticsActivity::class.java)
+            intent.putExtra("simulation_mode", true)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+            true
+        }
     }
 
     private fun setupBottomNavigation() {

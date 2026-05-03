@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.MyApplication
 import com.example.myapplication.R
+import com.example.myapplication.data.local.DriveSession
 import com.example.myapplication.data.local.VehicleData
 import com.example.myapplication.databinding.DashboardBinding
 import com.example.myapplication.utils.SimulatedOBD2Manager
@@ -50,6 +51,7 @@ class DashboardActivity : AppCompatActivity() {
     
     // Simulation mode
     private var isSimulationMode = false
+    private var sessionOpened = false
     
     // UI helpers
     private val handler = Handler(Looper.getMainLooper())
@@ -73,6 +75,15 @@ class DashboardActivity : AppCompatActivity() {
             
             // Check if launched in simulation mode from MainActivity
             isSimulationMode = intent.getBooleanExtra("simulation_mode", false)
+
+            lifecycleScope.launch {
+                val source = if (isSimulationMode) DriveSession.SOURCE_DEMO else DriveSession.SOURCE_REAL
+                repository.startSession(
+                    sourceType = source,
+                    title = if (isSimulationMode) "Dashboard Demo Session" else "Live Dashboard Session"
+                )
+                sessionOpened = true
+            }
             
             // Setup UI components
             setupToolbar()
@@ -168,17 +179,18 @@ class DashboardActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val dataFlow = if (isSimulationMode) {
-                    // 使用 SimulatedOBD2Manager 发送原始 PID 命令并用 ObdDecoder 解析
                     SimulatedOBD2Manager.setMode(SimulatedOBD2Manager.SimulationMode.IDLE)
                     SimulatedOBD2Manager.startSimulation()
                 } else {
-                    repository.startLiveDataStream()
+                    repository.startLiveDataStream(sourceType = DriveSession.SOURCE_REAL)
                 }
 
                 // 收集数据流并更新UI
                 dataFlow.collect { data ->
                     // 保存到数据库 (both real OBD2 and simulation mode)
-                    repository.saveVehicleData(data)
+                    if (isSimulationMode) {
+                        repository.saveVehicleData(data.copy(sourceType = DriveSession.SOURCE_DEMO))
+                    }
                     
                     // 确保在主线程更新UI
                     runOnUiThread {
@@ -460,6 +472,11 @@ class DashboardActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacksAndMessages(null)
+        lifecycleScope.launch {
+            if (sessionOpened) {
+                repository.endActiveSession()
+            }
+        }
         if (!isSimulationMode) {
             repository.disconnect()
         } else {

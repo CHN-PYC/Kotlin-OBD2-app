@@ -7,36 +7,54 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface VehicleDataDao {
-    /**
-     * 插入一条车辆数据
-     * @param vehicleData 插入数据对象
-     */
     @Insert
     suspend fun insert(vehicleData: VehicleData)
-    /**
-     * 获取所有的历史记录，按时间戳降序
-     */
-    @Query("SELECT * FROM vehicle_data ORDER BY timestamp DESC")
-    fun getAllHistory(): Flow<kotlin.collections.List<VehicleData>>
 
-    /**
-     * 删除早于指定时间戳的记录
-     * @param cutoffTime 阈值时间戳（毫秒），早于此时间的记录将被删除
-     */
+    @Insert
+    suspend fun insertAll(items: List<VehicleData>)
+
+    @Query("SELECT * FROM vehicle_data ORDER BY timestamp DESC")
+    fun getAllHistory(): Flow<List<VehicleData>>
+
+    @Query("SELECT * FROM vehicle_data WHERE sessionId = :sessionId ORDER BY timestamp ASC")
+    fun getBySession(sessionId: Long): Flow<List<VehicleData>>
+
+    @Query("SELECT * FROM vehicle_data WHERE sessionId = :sessionId ORDER BY timestamp ASC")
+    suspend fun getBySessionOnce(sessionId: Long): List<VehicleData>
+
+    @Query("DELETE FROM vehicle_data WHERE sessionId = :sessionId")
+    suspend fun deleteBySession(sessionId: Long)
+
     @Query("DELETE FROM vehicle_data WHERE timestamp < :cutoffTime")
     suspend fun deleteOldRecords(cutoffTime: Long)
 
-    /**
-     * 删除所有记录（用于用户手动清除数据）
-     */
     @Query("DELETE FROM vehicle_data")
     suspend fun deleteAll()
 
-    /**
-     * 可选：根据时间范围查询
-     * @param startTime 起始时间戳
-     * @param endTime 结束时间戳
-     */
     @Query("SELECT * FROM vehicle_data WHERE timestamp BETWEEN :startTime AND :endTime ORDER BY timestamp ASC")
-    fun getRecordsInTimeRange(startTime: Long, endTime: Long): Flow<kotlin.collections.List<VehicleData>>
+    fun getRecordsInTimeRange(startTime: Long, endTime: Long): Flow<List<VehicleData>>
+
+    @Query(
+        """
+        SELECT
+            COUNT(*) AS sampleCount,
+            AVG(speed) AS avgSpeed,
+            MAX(speed) AS maxSpeed,
+            AVG(rpm) AS avgRpm,
+            MAX(rpm) AS maxRpm,
+            AVG(coolantTemp) AS avgCoolantTemp,
+            MAX(coolantTemp) AS maxCoolantTemp,
+            AVG(batteryVoltage) AS avgBatteryVoltage,
+            MIN(batteryVoltage) AS minBatteryVoltage,
+            MAX(batteryVoltage) AS maxBatteryVoltage,
+            AVG(engineLoad) AS avgEngineLoad,
+            MAX(engineLoad) AS maxEngineLoad,
+            AVG(shortTermFuelTrimBank1) AS avgStft1,
+            AVG(longTermFuelTrimBank1) AS avgLtft1,
+            AVG(equivalenceRatio) AS avgLambda
+        FROM vehicle_data
+        WHERE sessionId = :sessionId
+        """
+    )
+    suspend fun getSessionStats(sessionId: Long): SessionStats
 }

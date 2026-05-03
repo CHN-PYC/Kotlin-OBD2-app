@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
-import com.example.myapplication.data.local.VehicleData
+import com.example.myapplication.data.local.DriveSession
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -22,7 +22,13 @@ class TripAdapter(
         val duration: Long, // in minutes
         val distance: Double, // km
         val avgSpeed: Double, // km/h
-        val maxRpm: Int
+        val maxRpm: Int,
+        val sourceType: String,
+        val sampleCount: Int,
+        val avgCoolantTemp: Double,
+        val maxCoolantTemp: Int,
+        val avgBatteryVoltage: Double,
+        val maxEngineLoad: Double
     )
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripViewHolder {
@@ -64,7 +70,7 @@ class TripAdapter(
             
             // Metrics
             tvDistance.text = String.format("%.1f", item.distance)
-            tvAvgSpeed.text = item.avgSpeed.toInt().toString()
+            tvAvgSpeed.text = "${item.avgSpeed.toInt()} • ${item.sourceType}"
             tvMaxRpm.text = String.format("%,d", item.maxRpm)
             
             btnViewDetails.setOnClickListener {
@@ -84,48 +90,23 @@ class TripAdapter(
     }
     
     companion object {
-        /**
-         * Convert VehicleData list to TripItem list
-         * Groups data by trips (simplified: each continuous session is a trip)
-         */
-        fun createTripItems(data: List<VehicleData>): List<TripItem> {
-            if (data.isEmpty()) return emptyList()
-            
-            val sorted = data.sortedBy { it.timestamp }
-            val trips = mutableListOf<List<VehicleData>>()
-            val currentTrip = mutableListOf<VehicleData>()
-            val tripGapMs = 30 * 60 * 1000L
-
-            for (point in sorted) {
-                if (currentTrip.isEmpty()) {
-                    currentTrip.add(point)
-                    continue
-                }
-
-                val previous = currentTrip.last()
-                if (point.timestamp - previous.timestamp > tripGapMs) {
-                    trips.add(currentTrip.toList())
-                    currentTrip.clear()
-                }
-                currentTrip.add(point)
-            }
-
-            if (currentTrip.isNotEmpty()) trips.add(currentTrip.toList())
-
-            return trips.map { trip ->
-                val duration = ((trip.last().timestamp - trip.first().timestamp) / 60000).coerceAtLeast(1)
-                val avgSpeed = trip.map { it.speed }.filter { it > 0 }.average().let { if (it.isNaN()) 0.0 else it }
-                val fallbackSpeed = trip.map { it.rpm }.average() * 0.01
-                val effectiveAvgSpeed = if (avgSpeed > 0) avgSpeed else fallbackSpeed
-                val distance = effectiveAvgSpeed * (duration / 60.0)
-
+        fun createTripItems(sessions: List<DriveSession>): List<TripItem> {
+            return sessions.map { session ->
+                val durationMinutes = (session.durationSec / 60).coerceAtLeast(1)
+                val distance = session.avgSpeed * (session.durationSec / 3600.0)
                 TripItem(
-                    id = trip.first().id,
-                    date = trip.last().timestamp,
-                    duration = duration,
+                    id = session.id,
+                    date = session.endedAt ?: session.startedAt,
+                    duration = durationMinutes,
                     distance = distance,
-                    avgSpeed = effectiveAvgSpeed,
-                    maxRpm = trip.maxOf { it.rpm }
+                    avgSpeed = session.avgSpeed,
+                    maxRpm = session.maxRpm,
+                    sourceType = session.sourceType,
+                    sampleCount = session.sampleCount,
+                    avgCoolantTemp = session.avgCoolantTemp,
+                    maxCoolantTemp = session.maxCoolantTemp,
+                    avgBatteryVoltage = session.avgBatteryVoltage,
+                    maxEngineLoad = session.maxEngineLoad
                 )
             }.sortedByDescending { it.date }
         }

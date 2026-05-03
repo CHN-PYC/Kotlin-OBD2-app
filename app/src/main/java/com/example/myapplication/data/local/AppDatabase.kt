@@ -10,8 +10,12 @@ import androidx.room.RoomDatabase
  * 存储车辆 OBD2 数据
  */
 @Database(
-    entities = [VehicleData::class],
-    version = 1,
+    entities = [
+        VehicleData::class,
+        DriveSession::class,
+        DiagnosticReport::class
+    ],
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -20,6 +24,10 @@ abstract class AppDatabase : RoomDatabase() {
      * 获取 VehicleDataDao 实例
      */
     abstract fun vehicleDataDao(): VehicleDataDao
+
+    abstract fun driveSessionDao(): DriveSessionDao
+
+    abstract fun diagnosticReportDao(): DiagnosticReportDao
 
     companion object {
         @Volatile

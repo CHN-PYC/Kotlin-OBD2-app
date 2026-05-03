@@ -1,6 +1,9 @@
 package com.example.myapplication.data.repository
 
+import android.bluetooth.BluetoothDevice
 import com.example.myapplication.data.bluetooth.ObdBluetoothManager
+import com.example.myapplication.data.local.DriveSession
+import com.example.myapplication.data.local.DriveSessionDao
 import com.example.myapplication.data.local.VehicleData
 import com.example.myapplication.data.local.VehicleDataDao
 import com.example.myapplication.data.model.ObdCommand
@@ -13,124 +16,124 @@ import kotlinx.coroutines.withContext
 
 class VehicleRepository(
     private val bluetoothManager: ObdBluetoothManager,
-    private val dao: VehicleDataDao
+    private val dao: VehicleDataDao,
+    private val sessionDao: DriveSessionDao
 ) {
 
-    /**
-     * 连接 OBD2 设备
-     * @param device 蓝牙设备
-     * @return 连接是否成功
-     */
-    suspend fun connectToDevice(device: android.bluetooth.BluetoothDevice): Boolean {
+    private var activeSessionId: Long? = null
+    private var activeSourceType: String = DriveSession.SOURCE_REAL
+
+    suspend fun connectToDevice(device: BluetoothDevice): Boolean {
         return bluetoothManager.connect(device.address)
     }
 
-    /**
-     * 请求一次完整的车辆数据 (扩展诊断模式)
-     * 采集 15+ 个关键参数
-     * @return VehicleData 对象，若核心参数失败则返回 null
-     */
-    suspend fun requestVehicleData(): VehicleData? = withContext(Dispatchers.IO) {
+    suspend fun startSession(
+        sourceType: String = DriveSession.SOURCE_REAL,
+        title: String? = null,
+        notes: String? = null,
+        vehicleName: String? = null
+    ): Long {
+        val existing = activeSessionId
+        if (existing != null) return existing
+
+        val sessionId = sessionDao.insert(
+            DriveSession(
+                startedAt = System.currentTimeMillis(),
+                sourceType = sourceType,
+                title = title,
+                notes = notes,
+                vehicleName = vehicleName,
+                status = DriveSession.STATUS_ACTIVE
+            )
+        )
+        activeSessionId = sessionId
+        activeSourceType = sourceType
+        return sessionId
+    }
+
+    suspend fun ensureSession(sourceType: String = activeSourceType): Long {
+        return activeSessionId ?: startSession(sourceType = sourceType)
+    }
+
+    suspend fun endActiveSession(status: String = DriveSession.STATUS_COMPLETED) {
+        val sessionId = activeSessionId ?: return
+        val startedAt = sessionDao.getById(sessionId)?.startedAt ?: System.currentTimeMillis()
+        val endedAt = System.currentTimeMillis()
+        val stats = dao.getSessionStats(sessionId)
+
+        sessionDao.closeSession(sessionId, endedAt, status)
+        sessionDao.updateSummary(
+            sessionId = sessionId,
+            sampleCount = stats.sampleCount,
+            durationSec = ((endedAt - startedAt) / 1000).coerceAtLeast(0),
+            avgSpeed = stats.avgSpeed ?: 0.0,
+            maxSpeed = stats.maxSpeed ?: 0,
+            avgRpm = stats.avgRpm ?: 0.0,
+            maxRpm = stats.maxRpm ?: 0,
+            avgCoolantTemp = stats.avgCoolantTemp ?: 0.0,
+            maxCoolantTemp = stats.maxCoolantTemp ?: 0,
+            avgBatteryVoltage = stats.avgBatteryVoltage ?: 0.0,
+            minBatteryVoltage = stats.minBatteryVoltage ?: 0.0,
+            maxBatteryVoltage = stats.maxBatteryVoltage ?: 0.0,
+            avgEngineLoad = stats.avgEngineLoad ?: 0.0,
+            maxEngineLoad = stats.maxEngineLoad ?: 0,
+            avgStft1 = stats.avgStft1 ?: 0.0,
+            avgLtft1 = stats.avgLtft1 ?: 0.0,
+            avgLambda = stats.avgLambda ?: 0.0
+        )
+
+        activeSessionId = null
+    }
+
+    fun getActiveSessionId(): Long? = activeSessionId
+
+    suspend fun requestVehicleData(
+        sessionId: Long? = activeSessionId,
+        sourceType: String = activeSourceType
+    ): VehicleData? = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
 
-        // ==================== 核心参数 (必须成功) ====================
-        
-        // 1. 请求 RPM (发动机转速)
         val rpmResponse = bluetoothManager.sendCommand(ObdCommand.RPM.pid)
         val rpm = ObdDecoder.parse(rpmResponse, ObdCommand.RPM)?.toInt() ?: return@withContext null
 
-        // 2. 请求冷却液温度
         val tempResponse = bluetoothManager.sendCommand(ObdCommand.COOLANT_TEMP.pid)
         val coolantTemp = ObdDecoder.parse(tempResponse, ObdCommand.COOLANT_TEMP)?.toInt() ?: return@withContext null
 
-        // 3. 请求进气温度
         val intakeResponse = bluetoothManager.sendCommand(ObdCommand.INTAKE_TEMP.pid)
         val intakeTemp = ObdDecoder.parse(intakeResponse, ObdCommand.INTAKE_TEMP)?.toInt() ?: return@withContext null
 
-        // 4. 请求节气门位置
         val throttleResponse = bluetoothManager.sendCommand(ObdCommand.THROTTLE_POS.pid)
         val throttlePos = ObdDecoder.parse(throttleResponse, ObdCommand.THROTTLE_POS)?.toInt() ?: return@withContext null
 
-        // 5. 请求电池电压
         val voltageResponse = bluetoothManager.sendCommand(ObdCommand.BATTERY_VOLTAGE.pid)
         val batteryVoltage = ObdDecoder.parse(voltageResponse, ObdCommand.BATTERY_VOLTAGE) ?: return@withContext null
 
-        // ==================== 扩展诊断参数 (可选，失败不影响核心数据) ====================
-        
-        // 6. 发动机负荷
-        val loadResponse = bluetoothManager.sendCommand(ObdCommand.ENGINE_LOAD.pid)
-        val engineLoad = ObdDecoder.parse(loadResponse, ObdCommand.ENGINE_LOAD) ?: 0.0
+        val engineLoad = ObdDecoder.parse(bluetoothManager.sendCommand(ObdCommand.ENGINE_LOAD.pid), ObdCommand.ENGINE_LOAD) ?: 0.0
+        val speed = ObdDecoder.parse(bluetoothManager.sendCommand(ObdCommand.SPEED.pid), ObdCommand.SPEED)?.toInt() ?: 0
+        val intakeManifoldPressure = ObdDecoder.parse(bluetoothManager.sendCommand(ObdCommand.INTAKE_MANIFOLD_PRESSURE.pid), ObdCommand.INTAKE_MANIFOLD_PRESSURE) ?: 0.0
+        val mafRate = ObdDecoder.parse(bluetoothManager.sendCommand(ObdCommand.MAF_RATE.pid), ObdCommand.MAF_RATE) ?: 0.0
+        val fuelPressure = ObdDecoder.parse(bluetoothManager.sendCommand(ObdCommand.FUEL_PRESSURE.pid), ObdCommand.FUEL_PRESSURE) ?: 0.0
+        val fuelLevel = ObdDecoder.parse(bluetoothManager.sendCommand(ObdCommand.FUEL_LEVEL.pid), ObdCommand.FUEL_LEVEL) ?: 0.0
+        val shortTermFuelTrimBank1 = ObdDecoder.parse(bluetoothManager.sendCommand(ObdCommand.SHORT_TERM_FUEL_TRIM_BANK1.pid), ObdCommand.SHORT_TERM_FUEL_TRIM_BANK1) ?: 0.0
+        val longTermFuelTrimBank1 = ObdDecoder.parse(bluetoothManager.sendCommand(ObdCommand.LONG_TERM_FUEL_TRIM_BANK1.pid), ObdCommand.LONG_TERM_FUEL_TRIM_BANK1) ?: 0.0
+        val shortTermFuelTrimBank2 = ObdDecoder.parse(bluetoothManager.sendCommand(ObdCommand.SHORT_TERM_FUEL_TRIM_BANK2.pid), ObdCommand.SHORT_TERM_FUEL_TRIM_BANK2) ?: 0.0
+        val longTermFuelTrimBank2 = ObdDecoder.parse(bluetoothManager.sendCommand(ObdCommand.LONG_TERM_FUEL_TRIM_BANK2.pid), ObdCommand.LONG_TERM_FUEL_TRIM_BANK2) ?: 0.0
+        val timingAdvance = ObdDecoder.parse(bluetoothManager.sendCommand(ObdCommand.TIMING_ADVANCE.pid), ObdCommand.TIMING_ADVANCE) ?: 0.0
+        val equivalenceRatio = ObdDecoder.parse(bluetoothManager.sendCommand(ObdCommand.EQUIVALENCE_RATIO.pid), ObdCommand.EQUIVALENCE_RATIO) ?: 0.0
+        val acceleratorPedalPos = ObdDecoder.parse(bluetoothManager.sendCommand(ObdCommand.ACCELERATOR_PEDAL_POS_D.pid), ObdCommand.ACCELERATOR_PEDAL_POS_D) ?: 0.0
+        val runTime = ObdDecoder.parse(bluetoothManager.sendCommand(ObdCommand.RUN_TIME.pid), ObdCommand.RUN_TIME) ?: 0.0
+        val warmupsSinceCodesCleared = ObdDecoder.parse(bluetoothManager.sendCommand(ObdCommand.WARMUPS_SINCE_CODES_CLEARED.pid), ObdCommand.WARMUPS_SINCE_CODES_CLEARED)?.toInt() ?: 0
+        val timeSinceCodesCleared = ObdDecoder.parse(bluetoothManager.sendCommand(ObdCommand.TIME_SINCE_CODES_CLEARED.pid), ObdCommand.TIME_SINCE_CODES_CLEARED) ?: 0.0
 
-        // 7. 车速
-        val speedResponse = bluetoothManager.sendCommand(ObdCommand.SPEED.pid)
-        val speed = ObdDecoder.parse(speedResponse, ObdCommand.SPEED)?.toInt() ?: 0
-
-        // 8. 进气歧管压力 (MAP)
-        val mapResponse = bluetoothManager.sendCommand(ObdCommand.INTAKE_MANIFOLD_PRESSURE.pid)
-        val intakeManifoldPressure = ObdDecoder.parse(mapResponse, ObdCommand.INTAKE_MANIFOLD_PRESSURE) ?: 0.0
-
-        // 9. 空气质量流量 (MAF)
-        val mafResponse = bluetoothManager.sendCommand(ObdCommand.MAF_RATE.pid)
-        val mafRate = ObdDecoder.parse(mafResponse, ObdCommand.MAF_RATE) ?: 0.0
-
-        // 10. 燃油压力
-        val fuelPressResponse = bluetoothManager.sendCommand(ObdCommand.FUEL_PRESSURE.pid)
-        val fuelPressure = ObdDecoder.parse(fuelPressResponse, ObdCommand.FUEL_PRESSURE) ?: 0.0
-
-        // 11. 燃油液位
-        val fuelLevelResponse = bluetoothManager.sendCommand(ObdCommand.FUEL_LEVEL.pid)
-        val fuelLevel = ObdDecoder.parse(fuelLevelResponse, ObdCommand.FUEL_LEVEL) ?: 0.0
-
-        // 12. 短期燃油修正 - 组 1 (关键诊断参数)
-        val stft1Response = bluetoothManager.sendCommand(ObdCommand.SHORT_TERM_FUEL_TRIM_BANK1.pid)
-        val shortTermFuelTrimBank1 = ObdDecoder.parse(stft1Response, ObdCommand.SHORT_TERM_FUEL_TRIM_BANK1) ?: 0.0
-
-        // 13. 长期燃油修正 - 组 1 (关键诊断参数)
-        val ltft1Response = bluetoothManager.sendCommand(ObdCommand.LONG_TERM_FUEL_TRIM_BANK1.pid)
-        val longTermFuelTrimBank1 = ObdDecoder.parse(ltft1Response, ObdCommand.LONG_TERM_FUEL_TRIM_BANK1) ?: 0.0
-
-        // 14. 短期燃油修正 - 组 2 (V6/V8 发动机)
-        val stft2Response = bluetoothManager.sendCommand(ObdCommand.SHORT_TERM_FUEL_TRIM_BANK2.pid)
-        val shortTermFuelTrimBank2 = ObdDecoder.parse(stft2Response, ObdCommand.SHORT_TERM_FUEL_TRIM_BANK2) ?: 0.0
-
-        // 15. 长期燃油修正 - 组 2 (V6/V8 发动机)
-        val ltft2Response = bluetoothManager.sendCommand(ObdCommand.LONG_TERM_FUEL_TRIM_BANK2.pid)
-        val longTermFuelTrimBank2 = ObdDecoder.parse(ltft2Response, ObdCommand.LONG_TERM_FUEL_TRIM_BANK2) ?: 0.0
-
-        // 16. 点火提前角
-        val timingResponse = bluetoothManager.sendCommand(ObdCommand.TIMING_ADVANCE.pid)
-        val timingAdvance = ObdDecoder.parse(timingResponse, ObdCommand.TIMING_ADVANCE) ?: 0.0
-
-        // 17. 空燃比当量比 (Lambda)
-        val lambdaResponse = bluetoothManager.sendCommand(ObdCommand.EQUIVALENCE_RATIO.pid)
-        val equivalenceRatio = ObdDecoder.parse(lambdaResponse, ObdCommand.EQUIVALENCE_RATIO) ?: 0.0
-
-        // 18. 油门踏板位置
-        val pedalResponse = bluetoothManager.sendCommand(ObdCommand.ACCELERATOR_PEDAL_POS_D.pid)
-        val acceleratorPedalPos = ObdDecoder.parse(pedalResponse, ObdCommand.ACCELERATOR_PEDAL_POS_D) ?: 0.0
-
-        // 19. 发动机运行时间
-        val runTimeResponse = bluetoothManager.sendCommand(ObdCommand.RUN_TIME.pid)
-        val runTime = ObdDecoder.parse(runTimeResponse, ObdCommand.RUN_TIME) ?: 0.0
-
-        // 20. 暖机循环次数
-        val warmupsResponse = bluetoothManager.sendCommand(ObdCommand.WARMUPS_SINCE_CODES_CLEARED.pid)
-        val warmupsSinceCodesCleared = ObdDecoder.parse(warmupsResponse, ObdCommand.WARMUPS_SINCE_CODES_CLEARED)?.toInt() ?: 0
-
-        // 21. 故障后运行时间
-        val timeClearedResponse = bluetoothManager.sendCommand(ObdCommand.TIME_SINCE_CODES_CLEARED.pid)
-        val timeSinceCodesCleared = ObdDecoder.parse(timeClearedResponse, ObdCommand.TIME_SINCE_CODES_CLEARED) ?: 0.0
-
-        // 所有参数采集完成，构建对象
         VehicleData(
+            sessionId = sessionId ?: 0,
+            sourceType = sourceType,
             timestamp = timestamp,
             rpm = rpm,
             coolantTemp = coolantTemp,
             intakeTemp = intakeTemp,
             throttlePos = throttlePos,
             batteryVoltage = batteryVoltage,
-            
-            // 扩展参数
             engineLoad = engineLoad,
             speed = speed,
             intakeManifoldPressure = intakeManifoldPressure,
@@ -150,53 +153,41 @@ class VehicleRepository(
         )
     }
 
-    /**
-     * 实时数据流：每 500ms 获取一次数据，并通过 Flow 发射
-     * 包含所有扩展诊断参数
-     */
-    fun startLiveDataStream(): Flow<VehicleData> = flow {
+    fun startLiveDataStream(
+        sourceType: String = DriveSession.SOURCE_REAL,
+        autoStartSession: Boolean = true
+    ): Flow<VehicleData> = flow {
+        if (autoStartSession) {
+            ensureSession(sourceType)
+        }
         while (true) {
-            val data = requestVehicleData()
+            val data = requestVehicleData(sourceType = sourceType)
             if (data != null) {
-                // 发射给 UI
                 emit(data)
-                // 保存到数据库
                 dao.insert(data)
             }
-            delay(500) // 控制采样频率
+            delay(500)
         }
     }
 
-    /**
-     * 保存车辆数据到数据库
-     */
     suspend fun saveVehicleData(data: VehicleData) {
-        dao.insert(data)
+        val sessionId = if (data.sessionId != 0L) data.sessionId else ensureSession(data.sourceType)
+        dao.insert(data.copy(sessionId = sessionId))
     }
 
-    /**
-     * 获取历史数据
-     */
     fun getHistory(): Flow<List<VehicleData>> = dao.getAllHistory()
 
-    /**
-     * 断开蓝牙连接
-     */
-    fun disconnect() {
-        bluetoothManager.close()
-    }
+    fun getHistoryBySession(sessionId: Long): Flow<List<VehicleData>> = dao.getBySession(sessionId)
 
-    /**
-     * 清理旧数据（如 30 天前）
-     */
+    fun getHistoryByTimeRange(startTime: Long, endTime: Long): Flow<List<VehicleData>> =
+        dao.getRecordsInTimeRange(startTime, endTime)
+
     suspend fun cleanOldData() {
         val thirtyDaysAgo = System.currentTimeMillis() - 30L * 24 * 60 * 60 * 1000
         dao.deleteOldRecords(thirtyDaysAgo)
     }
 
-    /**
-     * 获取特定时间范围的数据
-     */
-    fun getHistoryByTimeRange(startTime: Long, endTime: Long): Flow<List<VehicleData>> =
-        dao.getRecordsInTimeRange(startTime, endTime)
+    fun disconnect() {
+        bluetoothManager.close()
+    }
 }

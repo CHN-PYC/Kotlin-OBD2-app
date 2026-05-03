@@ -10,6 +10,12 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "vehicle_data")
 data class VehicleData(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
+
+    /** 所属会话 ID */
+    val sessionId: Long = 0,
+
+    /** 数据来源: REAL / DEMO / REPLAY */
+    val sourceType: String = DriveSession.SOURCE_REAL,
     
     // 时间戳
     val timestamp: Long,

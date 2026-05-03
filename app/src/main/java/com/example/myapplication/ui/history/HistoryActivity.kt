@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.MyApplication
+import com.example.myapplication.data.local.DriveSession
 import com.example.myapplication.data.local.VehicleData
 import com.example.myapplication.databinding.ActivityHistoryBinding
 import com.example.myapplication.ui.adapter.TripAdapter
@@ -76,27 +77,21 @@ class HistoryActivity : AppCompatActivity() {
 
     private fun loadTrips() {
         lifecycleScope.launch {
-            val repository = (application as MyApplication).repository
-            
-            repository.getHistory().collect { vehicleDataList: kotlin.collections.List<VehicleData> ->
-                if (vehicleDataList.isEmpty()) {
-                    // Show empty state
+            val sessionRepository = (application as MyApplication).sessionRepository
+
+            sessionRepository.getAllSessions().collect { sessions: List<DriveSession> ->
+                if (sessions.isEmpty()) {
                     binding.recyclerTrips.visibility = View.GONE
                     binding.emptyState.visibility = View.VISIBLE
 
-                    // Auto-insert test data on first load to verify UI
                     if (!testSeedInserted) {
                         testSeedInserted = true
                         injectTestData()
                     }
                 } else {
-                    // Show trip list
                     binding.emptyState.visibility = View.GONE
                     binding.recyclerTrips.visibility = View.VISIBLE
-
-                    // Convert vehicle data to trip items
-                    val tripItems = TripAdapter.createTripItems(vehicleDataList)
-                    tripAdapter?.submitList(tripItems)
+                    tripAdapter?.submitList(TripAdapter.createTripItems(sessions))
                 }
             }
         }
@@ -108,7 +103,12 @@ class HistoryActivity : AppCompatActivity() {
      */
     private fun injectTestData() {
         lifecycleScope.launch(Dispatchers.IO) {
-            val repository = (application as MyApplication).repository
+            val app = application as MyApplication
+            val repository = app.repository
+            val sessionId = repository.startSession(
+                sourceType = DriveSession.SOURCE_DEMO,
+                title = "History Demo Session"
+            )
             val baseTime = System.currentTimeMillis() - 15 * 60 * 1000 // 15 min ago
 
             // Generate ~20 data points across a 15-minute trip
@@ -117,6 +117,8 @@ class HistoryActivity : AppCompatActivity() {
                 val progress = i / 19.0 // 0.0 → 1.0 across the trip
 
                 VehicleData(
+                    sessionId = sessionId,
+                    sourceType = DriveSession.SOURCE_DEMO,
                     timestamp = baseTime + elapsedMs,
                     rpm = (800 + (1500 * sin(progress * PI * 2)) + 500).toInt(),
                     coolantTemp = (85 + (10 * sin(progress * PI))).toInt(),
@@ -145,6 +147,7 @@ class HistoryActivity : AppCompatActivity() {
             }
 
             testData.forEach { repository.saveVehicleData(it) }
+            app.sessionRepository.closeSession(sessionId)
 
             withContext(Dispatchers.Main) {
                 Toast.makeText(this@HistoryActivity, "🧪 Test data inserted — 15 min trip simulated", Toast.LENGTH_LONG).show()
@@ -153,16 +156,20 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun showTripDetails(tripItem: TripAdapter.TripItem) {
-        val dateFormat = java.text.SimpleDateFormat("MMM d, yyyy HH:mm", java.util.Locale.getDefault())
-        // Show dialog with trip details
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Trip Details")
+            .setTitle("Session Details")
             .setMessage(
                 "Date: ${java.text.SimpleDateFormat("MMM d, yyyy HH:mm", java.util.Locale.getDefault()).format(java.util.Date(tripItem.date))}\n\n" +
+                "Source: ${tripItem.sourceType}\n" +
                 "Duration: ${tripItem.duration} min\n" +
                 "Distance: ${String.format("%.2f", tripItem.distance)} km\n" +
                 "Avg Speed: ${String.format("%.1f", tripItem.avgSpeed)} km/h\n" +
-                "Max RPM: ${tripItem.maxRpm}"
+                "Max RPM: ${tripItem.maxRpm}\n" +
+                "Samples: ${tripItem.sampleCount}\n" +
+                "Avg Coolant: ${String.format("%.1f", tripItem.avgCoolantTemp)} °C\n" +
+                "Max Coolant: ${tripItem.maxCoolantTemp} °C\n" +
+                "Avg Battery: ${String.format("%.2f", tripItem.avgBatteryVoltage)} V\n" +
+                "Max Load: ${String.format("%.1f", tripItem.maxEngineLoad)} %"
             )
             .setPositiveButton("OK", null)
             .show()
@@ -172,8 +179,7 @@ class HistoryActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val csvFile = FileExporter.exportToCsv(this@HistoryActivity, (application as MyApplication).repository)
-                
-                // Share the file
+
                 val shareIntent = Intent(Intent.ACTION_SEND).apply {
                     type = "text/csv"
                     putExtra(Intent.EXTRA_STREAM, androidx.core.content.FileProvider.getUriForFile(
@@ -183,7 +189,7 @@ class HistoryActivity : AppCompatActivity() {
                     ))
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
-                
+
                 startActivity(Intent.createChooser(shareIntent, "Export trip data"))
             } catch (e: Exception) {
                 Toast.makeText(this@HistoryActivity, "Export failed: ${e.message}", Toast.LENGTH_SHORT).show()
