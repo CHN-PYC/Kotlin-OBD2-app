@@ -40,7 +40,9 @@ class MyApplication : Application() {
         )
 
         diagnosticRepository = DiagnosticRepository(
-            reportDao = database.diagnosticReportDao()
+            reportDao = database.diagnosticReportDao(),
+            sessionDao = database.driveSessionDao(),
+            vehicleDataDao = database.vehicleDataDao()
         )
     }
 }

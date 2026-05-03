@@ -171,8 +171,109 @@ class HistoryActivity : AppCompatActivity() {
                 "Avg Battery: ${String.format("%.2f", tripItem.avgBatteryVoltage)} V\n" +
                 "Max Load: ${String.format("%.1f", tripItem.maxEngineLoad)} %"
             )
+            .setNeutralButton("Run Diagnosis") { _, _ ->
+                runRuleDiagnosis(tripItem.id)
+            }
+            .setNegativeButton("Preview LLM") { _, _ ->
+                showLlmPreviewOptions(tripItem.id)
+            }
             .setPositiveButton("OK", null)
             .show()
+    }
+
+    private fun runRuleDiagnosis(sessionId: Long) {
+        lifecycleScope.launch {
+            try {
+                val report = (application as MyApplication)
+                    .diagnosticRepository
+                    .runRuleBasedDiagnosis(sessionId)
+
+                androidx.appcompat.app.AlertDialog.Builder(this@HistoryActivity)
+                    .setTitle("Rule-Based Diagnosis")
+                    .setMessage(
+                        "Severity: ${report.severity}\n\n" +
+                        "Summary: ${report.summary}\n\n" +
+                        "Recommendations:\n${report.recommendationsJson}"
+                    )
+                    .setPositiveButton("OK", null)
+                    .show()
+            } catch (e: Exception) {
+                Toast.makeText(this@HistoryActivity, "Diagnosis failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun showLlmPreviewOptions(sessionId: Long) {
+        val items = arrayOf("Preview JSON Input", "Preview Prompt Text", "Run LLM Diagnosis")
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("LLM Input Preview")
+            .setItems(items) { _, which ->
+                when (which) {
+                    0 -> previewLlmJson(sessionId)
+                    1 -> previewLlmPrompt(sessionId)
+                    2 -> runLlmDiagnosis(sessionId)
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun previewLlmJson(sessionId: Long) {
+        lifecycleScope.launch {
+            try {
+                val json = (application as MyApplication)
+                    .diagnosticRepository
+                    .buildLlmInputJson(sessionId)
+
+                androidx.appcompat.app.AlertDialog.Builder(this@HistoryActivity)
+                    .setTitle("LLM JSON Input")
+                    .setMessage(json.take(12000))
+                    .setPositiveButton("OK", null)
+                    .show()
+            } catch (e: Exception) {
+                Toast.makeText(this@HistoryActivity, "Preview failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun previewLlmPrompt(sessionId: Long) {
+        lifecycleScope.launch {
+            try {
+                val prompt = (application as MyApplication)
+                    .diagnosticRepository
+                    .buildLlmPromptText(sessionId)
+
+                androidx.appcompat.app.AlertDialog.Builder(this@HistoryActivity)
+                    .setTitle("LLM Prompt Preview")
+                    .setMessage(prompt.take(12000))
+                    .setPositiveButton("OK", null)
+                    .show()
+            } catch (e: Exception) {
+                Toast.makeText(this@HistoryActivity, "Preview failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun runLlmDiagnosis(sessionId: Long) {
+        lifecycleScope.launch {
+            try {
+                val report = (application as MyApplication)
+                    .diagnosticRepository
+                    .runLlmDiagnosis(sessionId)
+
+                androidx.appcompat.app.AlertDialog.Builder(this@HistoryActivity)
+                    .setTitle("LLM Diagnosis")
+                    .setMessage(
+                        "Severity: ${report.severity}\n\n" +
+                        "Summary: ${report.summary}\n\n" +
+                        "Raw Output:\n${report.rawOutputText?.take(8000) ?: "n/a"}"
+                    )
+                    .setPositiveButton("OK", null)
+                    .show()
+            } catch (e: Exception) {
+                Toast.makeText(this@HistoryActivity, "LLM diagnosis failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun exportData() {

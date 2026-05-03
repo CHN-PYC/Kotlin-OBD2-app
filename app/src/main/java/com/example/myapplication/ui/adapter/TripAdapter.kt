@@ -69,9 +69,9 @@ class TripAdapter(
             tvTripDuration.text = "${item.duration} min"
             
             // Metrics
-            tvDistance.text = String.format("%.1f", item.distance)
-            tvAvgSpeed.text = "${item.avgSpeed.toInt()} • ${item.sourceType}"
-            tvMaxRpm.text = String.format("%,d", item.maxRpm)
+            tvDistance.text = String.format("%.1f km", item.distance)
+            tvAvgSpeed.text = "${item.avgSpeed.toInt()} km/h"
+            tvMaxRpm.text = "${String.format("%,d", item.maxRpm)} • ${item.sourceType}"
             
             btnViewDetails.setOnClickListener {
                 onViewDetailsClick(item)
