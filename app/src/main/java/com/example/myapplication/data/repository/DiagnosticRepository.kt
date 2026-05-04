@@ -1,5 +1,6 @@
 package com.example.myapplication.data.repository
 
+import com.example.myapplication.BuildConfig
 import com.example.myapplication.data.local.DiagnosticReport
 import com.example.myapplication.data.local.DiagnosticReportDao
 import com.example.myapplication.data.local.DriveSessionDao
@@ -17,6 +18,18 @@ class DiagnosticRepository(
         reportDao = reportDao
     )
     private val llmExecutor = LlmDiagnosisExecutor()
+    private val remoteConfig = if (BuildConfig.REMOTE_LLM_ENABLED) {
+        LlmProviderConfig(
+            providerName = BuildConfig.REMOTE_LLM_PROVIDER,
+            baseUrl = BuildConfig.REMOTE_LLM_BASE_URL,
+            apiKey = BuildConfig.REMOTE_LLM_API_KEY,
+            model = BuildConfig.REMOTE_LLM_MODEL,
+            timeoutSeconds = BuildConfig.REMOTE_LLM_TIMEOUT_SECONDS,
+            enabled = true
+        )
+    } else {
+        LlmProviderConfig.disabledDefault()
+    }
     fun getReportsBySession(sessionId: Long): Flow<List<DiagnosticReport>> =
         reportDao.getBySession(sessionId)
 
@@ -55,6 +68,27 @@ class DiagnosticRepository(
             sessionId = sessionId,
             inputJson = inputJson,
             result = result
+        )
+        val reportId = reportDao.insert(report)
+        return report.copy(id = reportId)
+    }
+
+    suspend fun runRemoteLlmDiagnosis(sessionId: Long): DiagnosticReport {
+        require(remoteConfig.enabled) { "Remote LLM is not configured yet. Enable REMOTE_LLM_ENABLED and provide BuildConfig values." }
+        require(remoteConfig.baseUrl.isNotBlank()) { "Remote LLM base URL is missing" }
+        require(remoteConfig.apiKey.isNotBlank()) { "Remote LLM API key is missing" }
+        require(remoteConfig.model.isNotBlank()) { "Remote LLM model is missing" }
+
+        val input = buildLlmInput(sessionId)
+        val inputJson = llmInputBuilder.toJson(input)
+        val prompt = llmInputBuilder.toPromptText(input)
+        val apiClient = RemoteLlmApiClient(remoteConfig)
+        val executor = RemoteLlmDiagnosisExecutor(apiClient, remoteConfig)
+        val report = executor.run(
+            sessionId = sessionId,
+            input = input,
+            prompt = prompt,
+            inputJson = inputJson
         )
         val reportId = reportDao.insert(report)
         return report.copy(id = reportId)

@@ -200,7 +200,7 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun showLlmPreviewOptions(sessionId: Long) {
-        val items = arrayOf("Preview JSON Input", "Preview Prompt Text", "Run LLM Diagnosis")
+        val items = arrayOf("Preview JSON Input", "Preview Prompt Text", "Run LLM Diagnosis", "Run Remote LLM Diagnosis")
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("LLM Input Preview")
             .setItems(items) { _, which ->
@@ -208,6 +208,7 @@ class HistoryActivity : AppCompatActivity() {
                     0 -> previewLlmJson(sessionId)
                     1 -> previewLlmPrompt(sessionId)
                     2 -> runLlmDiagnosis(sessionId)
+                    3 -> runRemoteLlmDiagnosis(sessionId)
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -264,6 +265,24 @@ class HistoryActivity : AppCompatActivity() {
                 )
             } catch (e: Exception) {
                 Toast.makeText(this@HistoryActivity, "LLM diagnosis failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun runRemoteLlmDiagnosis(sessionId: Long) {
+        lifecycleScope.launch {
+            try {
+                val report = (application as MyApplication)
+                    .diagnosticRepository
+                    .runRemoteLlmDiagnosis(sessionId)
+
+                startActivity(
+                    Intent(this@HistoryActivity, DiagnosticReportActivity::class.java)
+                        .putExtra(DiagnosticReportActivity.EXTRA_REPORT_ID, report.id)
+                        .putExtra(DiagnosticReportActivity.EXTRA_REPORT_TYPE, "Remote LLM Diagnosis")
+                )
+            } catch (e: Exception) {
+                Toast.makeText(this@HistoryActivity, "Remote LLM failed: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }

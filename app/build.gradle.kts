@@ -4,11 +4,19 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
+val remoteLlmEnabled = (project.findProperty("REMOTE_LLM_ENABLED") as String?) ?: "false"
+val remoteLlmProvider = (project.findProperty("REMOTE_LLM_PROVIDER") as String?) ?: "remote-disabled"
+val remoteLlmBaseUrl = (project.findProperty("REMOTE_LLM_BASE_URL") as String?) ?: ""
+val remoteLlmApiKey = (project.findProperty("REMOTE_LLM_API_KEY") as String?) ?: ""
+val remoteLlmModel = (project.findProperty("REMOTE_LLM_MODEL") as String?) ?: ""
+val remoteLlmTimeoutSeconds = (project.findProperty("REMOTE_LLM_TIMEOUT_SECONDS") as String?) ?: "45"
+
 android {
     namespace = "com.example.myapplication"
     compileSdk = 36
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     defaultConfig {
@@ -19,6 +27,13 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("boolean", "REMOTE_LLM_ENABLED", remoteLlmEnabled)
+        buildConfigField("String", "REMOTE_LLM_PROVIDER", "\"${remoteLlmProvider}\"")
+        buildConfigField("String", "REMOTE_LLM_BASE_URL", "\"${remoteLlmBaseUrl}\"")
+        buildConfigField("String", "REMOTE_LLM_API_KEY", "\"${remoteLlmApiKey}\"")
+        buildConfigField("String", "REMOTE_LLM_MODEL", "\"${remoteLlmModel}\"")
+        buildConfigField("long", "REMOTE_LLM_TIMEOUT_SECONDS", "${remoteLlmTimeoutSeconds}L")
     }
 
     buildTypes {
@@ -58,5 +73,6 @@ dependencies {
     // 使用 KSP 替代 kapt 处理 Room 注解
     ksp("androidx.room:room-compiler:2.6.1")
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
 }
