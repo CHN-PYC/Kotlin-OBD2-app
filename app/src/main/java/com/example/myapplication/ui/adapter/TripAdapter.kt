@@ -84,7 +84,6 @@ class TripAdapter(
                 else -> "No diagnosis"
             }
 
-            val context = itemView.context
             when (item.sourceType) {
                 "DEMO" -> {
                     tvSourceBadge.setBackgroundResource(R.drawable.badge_demo)

@@ -67,7 +67,7 @@ class DiagnosticReportActivity : AppCompatActivity() {
             ).joinToString(" • ")
             binding.tvSummary.text = report.summary
             renderFindings(report.findingsJson)
-            renderRecommendations(report.recommendationsJson)
+            val recommendationsText = renderRecommendations(report.recommendationsJson)
             val rawText = report.rawOutputText ?: report.rawInputSnapshotJson ?: "No raw output"
             val inputText = report.rawInputSnapshotJson ?: "No input snapshot"
             binding.tvRawOutput.text = rawText
@@ -84,7 +84,7 @@ class DiagnosticReportActivity : AppCompatActivity() {
                 }
             }
             binding.btnShareSummary.setOnClickListener {
-                shareText("${report.summary}\n\n${binding.tvRecommendations.text}")
+                shareText("${report.summary}\n\n$recommendationsText")
             }
         }
     }
@@ -115,9 +115,15 @@ class DiagnosticReportActivity : AppCompatActivity() {
         }
         items.forEach { item ->
             if (item is JSONObject) {
+                val kind = item.optString("kind").ifBlank { "observation" }
+                val title = when (kind) {
+                    "hypothesis" -> "Hypothesis"
+                    "note" -> "Guardrail note"
+                    else -> item.optString("title").ifBlank { "Observation" }
+                }
                 binding.containerFindings.addView(
                     buildTextCard(
-                        item.optString("title").ifBlank { "Finding" },
+                        title,
                         item.optString("detail").ifBlank { null },
                         item.optString("severity").ifBlank { null }
                     )
@@ -128,17 +134,20 @@ class DiagnosticReportActivity : AppCompatActivity() {
         }
     }
 
-    private fun renderRecommendations(json: String) {
+    private fun renderRecommendations(json: String): String {
         binding.containerRecommendations.removeAllViews()
         val items = parseJsonArray(json)
         if (items.isEmpty()) {
             binding.containerRecommendations.addView(buildTextCard("No recommendations", null, null))
-            return
+            return "No recommendations"
         }
+        val lines = mutableListOf<String>()
         items.forEach { item ->
             val text = if (item is String) item else item.toString()
+            lines += "• $text"
             binding.containerRecommendations.addView(buildTextCard(text, null, null))
         }
+        return lines.joinToString("\n")
     }
 
     private fun parseJsonArray(json: String): List<Any> {

@@ -34,54 +34,35 @@ class RemoteLlmDiagnosisExecutor(
 
         return try {
             val json = JSONObject(candidate)
-            val severity = json.optString("severity").ifBlank { input.ruleSummary.severity }
-            val summary = json.optString("summary").ifBlank { input.ruleSummary.summary }
-            val likelyCauses = parseStringArray(json, "likelyCauses")
-            val recommendedChecks = parseStringArray(json, "recommendedChecks")
+            val validated = RemoteDiagnosisGuardrail.validate(
+                rawJson = json,
+                input = input,
+                fallbackSeverity = input.ruleSummary.severity,
+                fallbackSummary = input.ruleSummary.summary,
+                fallbackRecommendations = input.ruleSummary.recommendations
+            )
 
-            val findingsJson = JSONArray().apply {
-                input.ruleSummary.findings.forEach { finding ->
-                    put(JSONObject().apply {
-                        put("code", finding.code)
-                        put("severity", finding.severity)
-                        put("title", finding.title)
-                        put("detail", finding.detail)
-                    })
-                }
-                likelyCauses.forEach { cause ->
-                    put(JSONObject().apply {
-                        put("code", "REMOTE_LIKELY_CAUSE")
-                        put("severity", severity)
-                        put("title", "Likely cause")
-                        put("detail", cause)
-                    })
-                }
-            }.toString()
-
-            val recommendationsJson = JSONArray().apply {
-                if (recommendedChecks.isEmpty()) {
-                    input.ruleSummary.recommendations.forEach { put(it) }
-                } else {
-                    recommendedChecks.forEach { put(it) }
-                }
-            }.toString()
-
-            ParsedRemoteOutput(severity, summary, findingsJson, recommendationsJson)
-        } catch (_: Exception) {
             ParsedRemoteOutput(
+                severity = validated.severity,
+                summary = validated.summary,
+                findingsJson = RemoteDiagnosisGuardrail.buildFindingsJson(input, validated),
+                recommendationsJson = RemoteDiagnosisGuardrail.buildRecommendationsJson(validated)
+            )
+        } catch (_: Exception) {
+            val validated = RemoteDiagnosisGuardrail.ValidatedOutput(
                 severity = input.ruleSummary.severity,
                 summary = normalized.take(500).ifBlank { input.ruleSummary.summary },
-                findingsJson = JSONArray().apply {
-                    input.ruleSummary.findings.forEach { finding ->
-                        put(JSONObject().apply {
-                            put("code", finding.code)
-                            put("severity", finding.severity)
-                            put("title", finding.title)
-                            put("detail", finding.detail)
-                        })
-                    }
-                }.toString(),
-                recommendationsJson = JSONArray(input.ruleSummary.recommendations).toString()
+                observations = listOf("Remote output could not be parsed as trusted JSON."),
+                hypotheses = emptyList(),
+                recommendations = input.ruleSummary.recommendations,
+                confidence = "low",
+                notes = listOf("Guardrail fallback used because remote output was malformed or unsupported.")
+            )
+            ParsedRemoteOutput(
+                severity = validated.severity,
+                summary = validated.summary,
+                findingsJson = RemoteDiagnosisGuardrail.buildFindingsJson(input, validated),
+                recommendationsJson = RemoteDiagnosisGuardrail.buildRecommendationsJson(validated)
             )
         }
     }
@@ -111,26 +92,6 @@ class RemoteLlmDiagnosisExecutor(
             }
         }
         return null
-    }
-
-    private fun parseStringArray(json: JSONObject, key: String): List<String> {
-        val keys = when (key) {
-            "likelyCauses" -> listOf("likelyCauses", "likely_causes", "causes", "possibleCauses")
-            "recommendedChecks" -> listOf("recommendedChecks", "recommended_checks", "recommendations", "nextChecks")
-            else -> listOf(key)
-        }
-
-        for (candidateKey in keys) {
-            val array = json.optJSONArray(candidateKey) ?: continue
-            val values = buildList {
-                for (i in 0 until array.length()) {
-                    val value = array.optString(i)
-                    if (value.isNotBlank()) add(value)
-                }
-            }
-            if (values.isNotEmpty()) return values
-        }
-        return emptyList()
     }
 
     private data class ParsedRemoteOutput(
