@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -28,7 +29,9 @@ class TripAdapter(
         val avgCoolantTemp: Double,
         val maxCoolantTemp: Int,
         val avgBatteryVoltage: Double,
-        val maxEngineLoad: Double
+        val maxEngineLoad: Double,
+        val latestReportSeverity: String? = null,
+        val latestReportType: String? = null
     )
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripViewHolder {
@@ -48,6 +51,8 @@ class TripAdapter(
         private val tvDistance: TextView = itemView.findViewById(R.id.tvDistance)
         private val tvAvgSpeed: TextView = itemView.findViewById(R.id.tvAvgSpeed)
         private val tvMaxRpm: TextView = itemView.findViewById(R.id.tvMaxRpm)
+        private val tvSourceBadge: TextView = itemView.findViewById(R.id.tvSourceBadge)
+        private val tvDiagnosisStatus: TextView = itemView.findViewById(R.id.tvDiagnosisStatus)
         private val btnViewDetails: TextView = itemView.findViewById(R.id.btnViewDetails)
 
         fun bind(item: TripItem, onViewDetailsClick: (TripItem) -> Unit) {
@@ -71,8 +76,53 @@ class TripAdapter(
             // Metrics
             tvDistance.text = String.format("%.1f km", item.distance)
             tvAvgSpeed.text = "${item.avgSpeed.toInt()} km/h"
-            tvMaxRpm.text = "${String.format("%,d", item.maxRpm)} • ${item.sourceType}"
-            
+            tvMaxRpm.text = String.format("%,d", item.maxRpm)
+            tvSourceBadge.text = item.sourceType
+            tvDiagnosisStatus.text = when {
+                !item.latestReportSeverity.isNullOrBlank() && !item.latestReportType.isNullOrBlank() -> "${item.latestReportType} • ${item.latestReportSeverity}"
+                !item.latestReportSeverity.isNullOrBlank() -> item.latestReportSeverity
+                else -> "No diagnosis"
+            }
+
+            val context = itemView.context
+            when (item.sourceType) {
+                "DEMO" -> {
+                    tvSourceBadge.setBackgroundResource(R.drawable.badge_demo)
+                    tvSourceBadge.setTextColor(ContextCompat.getColor(context, R.color.white))
+                }
+                "REAL" -> {
+                    tvSourceBadge.setBackgroundResource(R.drawable.badge_real)
+                    tvSourceBadge.setTextColor(ContextCompat.getColor(context, R.color.background_dark))
+                }
+                "REPLAY" -> {
+                    tvSourceBadge.setBackgroundResource(R.drawable.badge_replay)
+                    tvSourceBadge.setTextColor(ContextCompat.getColor(context, R.color.white))
+                }
+                else -> {
+                    tvSourceBadge.setBackgroundResource(R.drawable.badge_neutral)
+                    tvSourceBadge.setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+                }
+            }
+
+            when (item.latestReportSeverity) {
+                "HIGH", "WARNING" -> {
+                    tvDiagnosisStatus.setBackgroundResource(R.drawable.badge_warning)
+                    tvDiagnosisStatus.setTextColor(ContextCompat.getColor(context, R.color.background_dark))
+                }
+                "NOTICE" -> {
+                    tvDiagnosisStatus.setBackgroundResource(R.drawable.badge_info)
+                    tvDiagnosisStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
+                }
+                "NORMAL" -> {
+                    tvDiagnosisStatus.setBackgroundResource(R.drawable.badge_success)
+                    tvDiagnosisStatus.setTextColor(ContextCompat.getColor(context, R.color.background_dark))
+                }
+                else -> {
+                    tvDiagnosisStatus.setBackgroundResource(R.drawable.badge_neutral)
+                    tvDiagnosisStatus.setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+                }
+            }
+
             btnViewDetails.setOnClickListener {
                 onViewDetailsClick(item)
             }
@@ -90,10 +140,14 @@ class TripAdapter(
     }
     
     companion object {
-        fun createTripItems(sessions: List<DriveSession>): List<TripItem> {
+        fun createTripItems(
+            sessions: List<DriveSession>,
+            latestReportMap: Map<Long, Pair<String, String>> = emptyMap()
+        ): List<TripItem> {
             return sessions.map { session ->
                 val durationMinutes = (session.durationSec / 60).coerceAtLeast(1)
                 val distance = session.avgSpeed * (session.durationSec / 3600.0)
+                val latestReport = latestReportMap[session.id]
                 TripItem(
                     id = session.id,
                     date = session.endedAt ?: session.startedAt,
@@ -106,7 +160,9 @@ class TripAdapter(
                     avgCoolantTemp = session.avgCoolantTemp,
                     maxCoolantTemp = session.maxCoolantTemp,
                     avgBatteryVoltage = session.avgBatteryVoltage,
-                    maxEngineLoad = session.maxEngineLoad
+                    maxEngineLoad = session.maxEngineLoad,
+                    latestReportSeverity = latestReport?.second,
+                    latestReportType = latestReport?.first
                 )
             }.sortedByDescending { it.date }
         }

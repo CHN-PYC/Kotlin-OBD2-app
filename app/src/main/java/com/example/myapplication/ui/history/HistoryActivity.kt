@@ -3,6 +3,7 @@ package com.example.myapplication.ui.history
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -26,6 +27,8 @@ class HistoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHistoryBinding
     private var tripAdapter: TripAdapter? = null
     private var testSeedInserted = false
+    private var isDiagnosisRunning = false
+    private var loadingDialog: androidx.appcompat.app.AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +80,9 @@ class HistoryActivity : AppCompatActivity() {
 
     private fun loadTrips() {
         lifecycleScope.launch {
-            val sessionRepository = (application as MyApplication).sessionRepository
+            val app = application as MyApplication
+            val sessionRepository = app.sessionRepository
+            val diagnosticRepository = app.diagnosticRepository
 
             sessionRepository.getAllSessions().collect { sessions: List<DriveSession> ->
                 if (sessions.isEmpty()) {
@@ -91,7 +96,21 @@ class HistoryActivity : AppCompatActivity() {
                 } else {
                     binding.emptyState.visibility = View.GONE
                     binding.recyclerTrips.visibility = View.VISIBLE
-                    tripAdapter?.submitList(TripAdapter.createTripItems(sessions))
+                    val latestReportMap = sessions.associate { session ->
+                        val latest = diagnosticRepository.getLatestReport(session.id)
+                        val typeLabel = when (latest?.reportType) {
+                            "RULE_BASED" -> "RULE"
+                            "LLM" -> "LLM"
+                            "HYBRID" -> "HYBRID"
+                            else -> null
+                        }
+                        session.id to if (latest != null && !typeLabel.isNullOrBlank()) {
+                            Pair(typeLabel, latest.severity)
+                        } else {
+                            Pair("", "")
+                        }
+                    }
+                    tripAdapter?.submitList(TripAdapter.createTripItems(sessions, latestReportMap))
                 }
             }
         }
@@ -182,6 +201,7 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun runRuleDiagnosis(sessionId: Long) {
+        if (!beginDiagnosisRun("Running rule-based diagnosis...")) return
         lifecycleScope.launch {
             try {
                 val report = (application as MyApplication)
@@ -195,6 +215,8 @@ class HistoryActivity : AppCompatActivity() {
                 )
             } catch (e: Exception) {
                 Toast.makeText(this@HistoryActivity, "Diagnosis failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            } finally {
+                endDiagnosisRun()
             }
         }
     }
@@ -252,6 +274,7 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun runLlmDiagnosis(sessionId: Long) {
+        if (!beginDiagnosisRun("Running local LLM diagnosis...")) return
         lifecycleScope.launch {
             try {
                 val report = (application as MyApplication)
@@ -265,11 +288,14 @@ class HistoryActivity : AppCompatActivity() {
                 )
             } catch (e: Exception) {
                 Toast.makeText(this@HistoryActivity, "LLM diagnosis failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            } finally {
+                endDiagnosisRun()
             }
         }
     }
 
     private fun runRemoteLlmDiagnosis(sessionId: Long) {
+        if (!beginDiagnosisRun("Calling remote LLM...")) return
         lifecycleScope.launch {
             try {
                 val report = (application as MyApplication)
@@ -283,8 +309,54 @@ class HistoryActivity : AppCompatActivity() {
                 )
             } catch (e: Exception) {
                 Toast.makeText(this@HistoryActivity, "Remote LLM failed: ${e.message}", Toast.LENGTH_LONG).show()
+            } finally {
+                endDiagnosisRun()
             }
         }
+    }
+
+    private fun beginDiagnosisRun(message: String): Boolean {
+        if (isDiagnosisRunning) {
+            Toast.makeText(this, "A diagnosis is already running...", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        isDiagnosisRunning = true
+        showLoadingDialog(message)
+        return true
+    }
+
+    private fun endDiagnosisRun() {
+        isDiagnosisRunning = false
+        loadingDialog?.dismiss()
+        loadingDialog = null
+    }
+
+    private fun showLoadingDialog(message: String) {
+        val container = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.HORIZONTAL
+            setPadding(48, 40, 48, 40)
+            gravity = android.view.Gravity.CENTER_VERTICAL
+        }
+
+        val progressBar = ProgressBar(this).apply {
+            isIndeterminate = true
+        }
+        container.addView(progressBar)
+
+        val textView = android.widget.TextView(this).apply {
+            text = message
+            setTextColor(getColor(R.color.text_primary))
+            textSize = 15f
+            setPadding(24, 0, 0, 0)
+        }
+        container.addView(textView)
+
+        loadingDialog?.dismiss()
+        loadingDialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(container)
+            .setCancelable(false)
+            .create()
+        loadingDialog?.show()
     }
 
     private fun exportData() {
