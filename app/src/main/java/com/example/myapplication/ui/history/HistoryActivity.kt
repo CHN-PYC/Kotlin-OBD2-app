@@ -166,7 +166,7 @@ class HistoryActivity : AppCompatActivity() {
             }
 
             testData.forEach { repository.saveVehicleData(it) }
-            app.sessionRepository.closeSession(sessionId)
+            repository.endActiveSession()
 
             withContext(Dispatchers.Main) {
                 Toast.makeText(this@HistoryActivity, "🧪 Test data inserted — 15 min trip simulated", Toast.LENGTH_LONG).show()

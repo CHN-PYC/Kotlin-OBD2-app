@@ -80,7 +80,8 @@ class DashboardActivity : AppCompatActivity() {
                 val source = if (isSimulationMode) DriveSession.SOURCE_DEMO else DriveSession.SOURCE_REAL
                 repository.startSession(
                     sourceType = source,
-                    title = if (isSimulationMode) "Dashboard Demo Session" else "Live Dashboard Session"
+                    title = if (isSimulationMode) "Dashboard Demo Session" else "Live Dashboard Session",
+                    forceNew = true
                 )
                 sessionOpened = true
             }

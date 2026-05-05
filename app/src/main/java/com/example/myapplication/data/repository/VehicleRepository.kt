@@ -31,10 +31,14 @@ class VehicleRepository(
         sourceType: String = DriveSession.SOURCE_REAL,
         title: String? = null,
         notes: String? = null,
-        vehicleName: String? = null
+        vehicleName: String? = null,
+        forceNew: Boolean = false
     ): Long {
         val existing = activeSessionId
-        if (existing != null) return existing
+        if (!forceNew && existing != null) return existing
+        if (forceNew && existing != null) {
+            endActiveSession(DriveSession.STATUS_INTERRUPTED)
+        }
 
         val sessionId = sessionDao.insert(
             DriveSession(
