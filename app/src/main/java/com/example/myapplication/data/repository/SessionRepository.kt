@@ -33,6 +33,11 @@ class SessionRepository(
 
     suspend fun closeSession(sessionId: Long, status: String = DriveSession.STATUS_COMPLETED) {
         val session = sessionDao.getById(sessionId) ?: return
+        val stats = vehicleDataDao.getSessionStats(sessionId)
+        if (stats.sampleCount <= 0) {
+            sessionDao.deleteById(sessionId)
+            return
+        }
         val endedAt = System.currentTimeMillis()
         sessionDao.closeSession(sessionId, endedAt, status)
         recomputeSummary(sessionId, session.startedAt, endedAt)

@@ -85,7 +85,8 @@ class HistoryActivity : AppCompatActivity() {
             val diagnosticRepository = app.diagnosticRepository
 
             sessionRepository.getAllSessions().collect { sessions: List<DriveSession> ->
-                if (sessions.isEmpty()) {
+                val visibleSessions = sessions.filter { it.sampleCount > 0 }
+                if (visibleSessions.isEmpty()) {
                     binding.recyclerTrips.visibility = View.GONE
                     binding.emptyState.visibility = View.VISIBLE
 
@@ -96,7 +97,7 @@ class HistoryActivity : AppCompatActivity() {
                 } else {
                     binding.emptyState.visibility = View.GONE
                     binding.recyclerTrips.visibility = View.VISIBLE
-                    val latestReportMap = sessions.associate { session ->
+                    val latestReportMap = visibleSessions.associate { session ->
                         val latest = diagnosticRepository.getLatestReport(session.id)
                         val typeLabel = when (latest?.reportType) {
                             "RULE_BASED" -> "RULE"
@@ -110,7 +111,7 @@ class HistoryActivity : AppCompatActivity() {
                             Pair("", "")
                         }
                     }
-                    tripAdapter?.submitList(TripAdapter.createTripItems(sessions, latestReportMap))
+                    tripAdapter?.submitList(TripAdapter.createTripItems(visibleSessions, latestReportMap))
                 }
             }
         }

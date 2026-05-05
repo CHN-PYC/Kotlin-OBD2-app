@@ -65,6 +65,12 @@ class VehicleRepository(
         val endedAt = System.currentTimeMillis()
         val stats = dao.getSessionStats(sessionId)
 
+        if (stats.sampleCount <= 0) {
+            sessionDao.deleteById(sessionId)
+            activeSessionId = null
+            return
+        }
+
         sessionDao.closeSession(sessionId, endedAt, status)
         sessionDao.updateSummary(
             sessionId = sessionId,
@@ -80,7 +86,7 @@ class VehicleRepository(
             minBatteryVoltage = stats.minBatteryVoltage ?: 0.0,
             maxBatteryVoltage = stats.maxBatteryVoltage ?: 0.0,
             avgEngineLoad = stats.avgEngineLoad ?: 0.0,
-            maxEngineLoad = stats.maxEngineLoad ?: 0,
+            maxEngineLoad = stats.maxEngineLoad ?: 0.0,
             avgStft1 = stats.avgStft1 ?: 0.0,
             avgLtft1 = stats.avgLtft1 ?: 0.0,
             avgLambda = stats.avgLambda ?: 0.0
