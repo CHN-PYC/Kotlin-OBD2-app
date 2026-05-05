@@ -37,14 +37,13 @@ class RemoteLlmApiClient(
             put("messages", JSONArray().apply {
                 put(JSONObject().apply {
                     put("role", "system")
-                    put("content", "You are an automotive diagnostic assistant. Return ONLY valid JSON. Do not use markdown fences. Do not add commentary outside JSON. Required keys: severity, summary, likelyCauses, recommendedChecks.")
+                    put("content", "You are a helpful automotive diagnostic assistant. Return ONLY valid JSON. Do not use markdown fences. Do not add commentary outside JSON. Required keys: severity, summary, observations, hypotheses, recommendedChecks, confidence, notes.")
                 })
                 put(JSONObject().apply {
                     put("role", "user")
                     put("content", prompt)
                 })
             })
-            put("temperature", 0.2)
         }
 
         val request = Request.Builder()
@@ -57,7 +56,11 @@ class RemoteLlmApiClient(
         client.newCall(request).execute().use { response ->
             val bodyText = response.body?.string().orEmpty()
             if (!response.isSuccessful) {
-                throw IllegalStateException("Remote LLM request failed: ${response.code} ${response.message} ${bodyText.take(500)}")
+                throw IllegalStateException("Remote LLM request failed: HTTP ${response.code} ${response.message}; body=${bodyText.take(800)}")
+            }
+
+            if (bodyText.isBlank()) {
+                throw IllegalStateException("Remote LLM returned an empty body")
             }
 
             val parsedText = extractContent(bodyText)
@@ -74,10 +77,11 @@ class RemoteLlmApiClient(
             val json = JSONObject(responseBody)
             val choices = json.optJSONArray("choices")
             if (choices != null && choices.length() > 0) {
-                choices.getJSONObject(0)
-                    .optJSONObject("message")
+                val first = choices.getJSONObject(0)
+                first.optJSONObject("message")
                     ?.optString("content")
                     ?.takeIf { it.isNotBlank() }
+                    ?: first.optString("text").takeIf { it.isNotBlank() }
                     ?: responseBody
             } else {
                 responseBody

@@ -5,7 +5,9 @@ import com.example.myapplication.data.local.DiagnosticReport
 import com.example.myapplication.data.local.DiagnosticReportDao
 import com.example.myapplication.data.local.DriveSessionDao
 import com.example.myapplication.data.local.VehicleDataDao
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
 class DiagnosticRepository(
     private val reportDao: DiagnosticReportDao,
@@ -73,7 +75,7 @@ class DiagnosticRepository(
         return report.copy(id = reportId)
     }
 
-    suspend fun runRemoteLlmDiagnosis(sessionId: Long): DiagnosticReport {
+    suspend fun runRemoteLlmDiagnosis(sessionId: Long): DiagnosticReport = withContext(Dispatchers.IO) {
         require(remoteConfig.enabled) { "Remote LLM is not configured yet. Enable REMOTE_LLM_ENABLED and provide BuildConfig values." }
         require(remoteConfig.baseUrl.isNotBlank()) { "Remote LLM base URL is missing" }
         require(remoteConfig.apiKey.isNotBlank()) { "Remote LLM API key is missing" }
@@ -91,6 +93,6 @@ class DiagnosticRepository(
             inputJson = inputJson
         )
         val reportId = reportDao.insert(report)
-        return report.copy(id = reportId)
+        report.copy(id = reportId)
     }
 }

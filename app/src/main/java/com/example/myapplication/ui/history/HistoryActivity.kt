@@ -308,7 +308,9 @@ class HistoryActivity : AppCompatActivity() {
                         .putExtra(DiagnosticReportActivity.EXTRA_REPORT_TYPE, "Remote LLM Diagnosis")
                 )
             } catch (e: Exception) {
-                Toast.makeText(this@HistoryActivity, "Remote LLM failed: ${e.message}", Toast.LENGTH_LONG).show()
+                e.printStackTrace()
+                val detail = e.message ?: "no message"
+                Toast.makeText(this@HistoryActivity, "Remote LLM failed: ${e.javaClass.simpleName}: ${detail.take(180)}", Toast.LENGTH_LONG).show()
             } finally {
                 endDiagnosisRun()
             }
