@@ -88,6 +88,7 @@ class DashboardActivity : AppCompatActivity() {
             
             // Setup UI components
             setupToolbar()
+            setupGauges()
             setupChart()
             setupBottomNavigation()
             
@@ -135,6 +136,27 @@ class DashboardActivity : AppCompatActivity() {
             toggleSimulationMode()
             true
         }
+    }
+
+    private fun setupGauges() {
+        binding.gaugeRpm.configure(
+            title = "RPM",
+            maxValue = 8000f,
+            unit = "rev/min",
+            majorTickStep = 2000f,
+            warningThreshold = 5000f,
+            dangerThreshold = 6500f
+        )
+        binding.gaugeSpeed.configure(
+            title = "Speed",
+            maxValue = 240f,
+            unit = "km/h",
+            majorTickStep = 60f,
+            warningThreshold = 120f,
+            dangerThreshold = 180f
+        )
+        binding.gaugeRpm.setStatus("Ready", resources.getColor(R.color.info, null))
+        binding.gaugeSpeed.setStatus("Ready", resources.getColor(R.color.info, null))
     }
 
     /**
@@ -223,13 +245,26 @@ class DashboardActivity : AppCompatActivity() {
         animateTextView(binding.tvConnectionQuality, buildSignalSummary(data))
         
         // Update status indicators with color coding
-        updateStatusIndicator(binding.tvRpmStatus, checkRpmStatus(data.rpm))
-        updateStatusIndicator(binding.tvCoolantStatus, checkCoolantStatus(data.coolantTemp))
-        updateStatusIndicator(binding.tvBatteryStatus, checkBatteryStatus(data.batteryVoltage))
-        updateStatusIndicator(binding.tvIntakeStatus, checkIntakeStatus(data.intakeTemp))
-        updateStatusIndicator(binding.tvThrottleStatus, checkThrottleStatus(data.throttlePos))
-        updateStatusIndicator(binding.tvEngineLoadStatus, checkEngineLoadStatus(data.engineLoad))
-        updateStatusIndicator(binding.tvMapStatus, checkMapStatus(data.intakeManifoldPressure))
+        val rpmStatus = checkRpmStatus(data.rpm)
+        val coolantStatus = checkCoolantStatus(data.coolantTemp)
+        val batteryStatus = checkBatteryStatus(data.batteryVoltage)
+        val intakeStatus = checkIntakeStatus(data.intakeTemp)
+        val throttleStatus = checkThrottleStatus(data.throttlePos)
+        val engineLoadStatus = checkEngineLoadStatus(data.engineLoad)
+        val mapStatus = checkMapStatus(data.intakeManifoldPressure)
+
+        updateStatusIndicator(binding.tvRpmStatus, rpmStatus)
+        updateStatusIndicator(binding.tvCoolantStatus, coolantStatus)
+        updateStatusIndicator(binding.tvBatteryStatus, batteryStatus)
+        updateStatusIndicator(binding.tvIntakeStatus, intakeStatus)
+        updateStatusIndicator(binding.tvThrottleStatus, throttleStatus)
+        updateStatusIndicator(binding.tvEngineLoadStatus, engineLoadStatus)
+        updateStatusIndicator(binding.tvMapStatus, mapStatus)
+
+        binding.gaugeRpm.setMetricValue(data.rpm.toFloat())
+        binding.gaugeRpm.setStatus(rpmStatus.text, getStatusColor(rpmStatus))
+        binding.gaugeSpeed.setMetricValue(data.speed.toFloat())
+        binding.gaugeSpeed.setStatus(getSpeedGaugeStatus(data.speed), getSpeedGaugeColor(data.speed))
         
         // Update timestamp with pulse animation
         binding.tvTimestamp.text = "Live • ${timeFormat.format(Date(data.timestamp))}"
@@ -355,13 +390,34 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun updateStatusIndicator(textView: android.widget.TextView, status: Status) {
         textView.text = status.text
-        textView.setTextColor(
-            when (status) {
-                is Status.Normal -> resources.getColor(R.color.success, null)
-                is Status.Warning -> resources.getColor(R.color.warning, null)
-                is Status.Danger -> resources.getColor(R.color.error, null)
-            }
-        )
+        textView.setTextColor(getStatusColor(status))
+    }
+
+    private fun getStatusColor(status: Status): Int {
+        return when (status) {
+            is Status.Normal -> resources.getColor(R.color.success, null)
+            is Status.Warning -> resources.getColor(R.color.warning, null)
+            is Status.Danger -> resources.getColor(R.color.error, null)
+        }
+    }
+
+    private fun getSpeedGaugeStatus(speed: Int): String {
+        return when {
+            speed <= 0 -> "Idle"
+            speed < 60 -> "City"
+            speed < 110 -> "Cruise"
+            else -> "Fast"
+        }
+    }
+
+    private fun getSpeedGaugeColor(speed: Int): Int {
+        val colorRes = when {
+            speed <= 0 -> R.color.info
+            speed < 110 -> R.color.success
+            speed < 150 -> R.color.warning
+            else -> R.color.error
+        }
+        return resources.getColor(colorRes, null)
     }
 
     // ==================== UI Helper Functions ====================

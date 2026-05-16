@@ -161,6 +161,47 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
+            <!-- Canvas Gauges (lightweight layer for demo/PPT alignment) -->
+            <LinearLayout
+                android:id="@+id/gaugesRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    app:cardBackgroundColor="@color/card_background"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+
+                    <com.example.myapplication.ui.dashboard.MetricGaugeView
+                        android:id="@+id/gaugeRpm"
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp"
+                        android:padding="12dp" />
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    app:cardBackgroundColor="@color/card_background"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+
+                    <com.example.myapplication.ui.dashboard.MetricGaugeView
+                        android:id="@+id/gaugeSpeed"
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp"
+                        android:padding="12dp" />
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+
             <!-- Metrics Grid (4 rows x 2 columns) -->
             <GridLayout
                 android:id="@+id/metricsGrid"
