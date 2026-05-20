@@ -2,24 +2,47 @@ package com.example.myapplication
 
 import android.app.Application
 import com.example.myapplication.data.bluetooth.ObdBluetoothManager
+import com.example.myapplication.data.local.AppDatabase
+import com.example.myapplication.data.repository.DiagnosticRepository
+import com.example.myapplication.data.repository.SessionRepository
 import com.example.myapplication.data.repository.VehicleRepository
 
 class MyApplication : Application() {
 
-    // 全局 Repository 实例
     lateinit var repository: VehicleRepository
+        private set
+
+    lateinit var sessionRepository: SessionRepository
+        private set
+
+    lateinit var diagnosticRepository: DiagnosticRepository
+        private set
+
+    lateinit var bluetoothManager: ObdBluetoothManager
         private set
 
     override fun onCreate() {
         super.onCreate()
 
-        // 初始化数据库
         val database = AppDatabase.getDatabase(this)
+        bluetoothManager = ObdBluetoothManager(this)
 
-        // 初始化蓝牙管理器
-        val obdbluetoothManager = ObdBluetoothManager(this)
+        repository = VehicleRepository(
+            bluetoothManager = bluetoothManager,
+            dao = database.vehicleDataDao(),
+            sessionDao = database.driveSessionDao()
+        )
 
-        // 初始化 Repository
-        repository = VehicleRepository(obdbluetoothManager, database.vehicleDataDao())
+        sessionRepository = SessionRepository(
+            sessionDao = database.driveSessionDao(),
+            vehicleDataDao = database.vehicleDataDao(),
+            reportDao = database.diagnosticReportDao()
+        )
+
+        diagnosticRepository = DiagnosticRepository(
+            reportDao = database.diagnosticReportDao(),
+            sessionDao = database.driveSessionDao(),
+            vehicleDataDao = database.vehicleDataDao()
+        )
     }
 }
