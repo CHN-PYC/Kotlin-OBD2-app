@@ -4,6 +4,8 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
+import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -69,6 +71,7 @@ class DiagnosticReportActivity : AppCompatActivity() {
             renderFindings(report.findingsJson)
             val recommendationsText = renderRecommendations(report.recommendationsJson)
             val rawText = report.rawOutputText ?: report.rawInputSnapshotJson ?: "No raw output"
+            renderSources(report.rawOutputText)
             val inputText = report.rawInputSnapshotJson ?: "No input snapshot"
             binding.tvRawOutput.text = rawText
             binding.btnCopyRaw.setOnClickListener { copyToClipboard("diagnostic_raw", rawText) }
@@ -148,6 +151,54 @@ class DiagnosticReportActivity : AppCompatActivity() {
             binding.containerRecommendations.addView(buildTextCard(text, null, null))
         }
         return lines.joinToString("\n")
+    }
+
+    private fun renderSources(rawOutputText: String?) {
+        binding.containerSources.removeAllViews()
+        if (rawOutputText.isNullOrBlank()) {
+            binding.tvSourcesHeader.visibility = View.GONE
+            binding.containerSources.visibility = View.GONE
+            return
+        }
+
+        val sources = parseSourcesFromRawOutput(rawOutputText)
+        if (sources.isEmpty()) {
+            binding.tvSourcesHeader.visibility = View.GONE
+            binding.containerSources.visibility = View.GONE
+            return
+        }
+
+        binding.tvSourcesHeader.visibility = View.VISIBLE
+        binding.containerSources.visibility = View.VISIBLE
+
+        sources.forEach { source ->
+            binding.containerSources.addView(buildSourceCard(source))
+        }
+    }
+
+    private fun parseSourcesFromRawOutput(rawOutputText: String): List<RetrievedSourceItem> {
+        return try {
+            val root = JSONObject(rawOutputText)
+            val array = root.optJSONArray("sources") ?: return emptyList()
+            buildList {
+                for (i in 0 until array.length()) {
+                    val item = array.optJSONObject(i) ?: continue
+                    add(
+                        RetrievedSourceItem(
+                            title = item.optString("title").ifBlank {
+                                item.optString("doc_id").ifBlank { "Source ${i + 1}" }
+                            },
+                            url = item.optString("source_url"),
+                            scoreText = item.optDouble("score", Double.NaN)
+                                .let { score -> if (score.isNaN()) "" else "score=${String.format("%.3f", score)}" },
+                            preview = item.optString("text").take(240)
+                        )
+                    )
+                }
+            }
+        } catch (_: Exception) {
+            emptyList()
+        }
     }
 
     private fun parseJsonArray(json: String): List<Any> {
@@ -232,6 +283,69 @@ class DiagnosticReportActivity : AppCompatActivity() {
         return card
     }
 
+    private fun buildSourceCard(source: RetrievedSourceItem): CardView {
+        val card = CardView(this).apply {
+            radius = 18f
+            cardElevation = 2f
+            setCardBackgroundColor(ContextCompat.getColor(context, R.color.card_background))
+            val params = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            params.bottomMargin = 12
+            layoutParams = params
+        }
+
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(24, 24, 24, 24)
+        }
+
+        val titleView = TextView(this).apply {
+            text = "• ${source.title}"
+            setTextColor(ContextCompat.getColor(context, R.color.text_primary))
+            textSize = 14f
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+        }
+        container.addView(titleView)
+
+        if (source.url.isNotBlank()) {
+            val urlView = TextView(this).apply {
+                text = source.url
+                setTextColor(ContextCompat.getColor(context, R.color.accent))
+                textSize = 12f
+                setPadding(0, 10, 0, 0)
+                autoLinkMask = android.text.util.Linkify.WEB_URLS
+                movementMethod = LinkMovementMethod.getInstance()
+                linksClickable = true
+            }
+            container.addView(urlView)
+        }
+
+        if (source.scoreText.isNotBlank()) {
+            val scoreView = TextView(this).apply {
+                text = source.scoreText
+                setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+                textSize = 12f
+                setPadding(0, 8, 0, 0)
+            }
+            container.addView(scoreView)
+        }
+
+        if (source.preview.isNotBlank()) {
+            val previewView = TextView(this).apply {
+                text = source.preview
+                setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+                textSize = 13f
+                setPadding(0, 12, 0, 0)
+            }
+            container.addView(previewView)
+        }
+
+        card.addView(container)
+        return card
+    }
+
     private fun copyToClipboard(label: String, text: String) {
         val clipboard = getSystemService(ClipboardManager::class.java)
         clipboard.setPrimaryClip(ClipData.newPlainText(label, text))
@@ -250,4 +364,11 @@ class DiagnosticReportActivity : AppCompatActivity() {
         const val EXTRA_REPORT_ID = "report_id"
         const val EXTRA_REPORT_TYPE = "report_type"
     }
+
+    private data class RetrievedSourceItem(
+        val title: String,
+        val url: String,
+        val scoreText: String,
+        val preview: String
+    )
 }

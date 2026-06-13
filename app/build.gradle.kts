@@ -10,6 +10,10 @@ val remoteLlmBaseUrl = (project.findProperty("REMOTE_LLM_BASE_URL") as String?) 
 val remoteLlmApiKey = (project.findProperty("REMOTE_LLM_API_KEY") as String?) ?: ""
 val remoteLlmModel = (project.findProperty("REMOTE_LLM_MODEL") as String?) ?: ""
 val remoteLlmTimeoutSeconds = (project.findProperty("REMOTE_LLM_TIMEOUT_SECONDS") as String?) ?: "45"
+val vehicleQaBackendEnabled = (project.findProperty("VEHICLE_QA_BACKEND_ENABLED") as String?) ?: "false"
+val vehicleQaBackendBaseUrl = (project.findProperty("VEHICLE_QA_BACKEND_BASE_URL") as String?) ?: ""
+val vehicleQaBackendApiKey = (project.findProperty("VEHICLE_QA_BACKEND_API_KEY") as String?) ?: ""
+val vehicleQaBackendTimeoutSeconds = (project.findProperty("VEHICLE_QA_BACKEND_TIMEOUT_SECONDS") as String?) ?: "45"
 
 android {
     namespace = "com.example.myapplication"
@@ -34,6 +38,10 @@ android {
         buildConfigField("String", "REMOTE_LLM_API_KEY", "\"${remoteLlmApiKey}\"")
         buildConfigField("String", "REMOTE_LLM_MODEL", "\"${remoteLlmModel}\"")
         buildConfigField("long", "REMOTE_LLM_TIMEOUT_SECONDS", "${remoteLlmTimeoutSeconds}L")
+        buildConfigField("boolean", "VEHICLE_QA_BACKEND_ENABLED", vehicleQaBackendEnabled)
+        buildConfigField("String", "VEHICLE_QA_BACKEND_BASE_URL", "\"${vehicleQaBackendBaseUrl}\"")
+        buildConfigField("String", "VEHICLE_QA_BACKEND_API_KEY", "\"${vehicleQaBackendApiKey}\"")
+        buildConfigField("long", "VEHICLE_QA_BACKEND_TIMEOUT_SECONDS", "${vehicleQaBackendTimeoutSeconds}L")
     }
 
     buildTypes {

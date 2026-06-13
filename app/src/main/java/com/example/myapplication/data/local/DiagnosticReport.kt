@@ -23,6 +23,7 @@ data class DiagnosticReport(
         const val TYPE_RULE_BASED = "RULE_BASED"
         const val TYPE_LLM = "LLM"
         const val TYPE_HYBRID = "HYBRID"
+        const val TYPE_RAG_QA = "RAG_QA"
 
         const val SEVERITY_NORMAL = "NORMAL"
         const val SEVERITY_NOTICE = "NOTICE"

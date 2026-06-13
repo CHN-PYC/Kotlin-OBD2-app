@@ -27,6 +27,13 @@ class RemoteLlmApiClient(
     }
 
     fun runDiagnosis(prompt: String): RemoteLlmApiResult {
+        return runChat(
+            systemPrompt = "You are a helpful automotive diagnostic assistant. Return ONLY valid JSON. Do not use markdown fences. Do not add commentary outside JSON. Required keys: severity, summary, observations, hypotheses, recommendedChecks, confidence, notes.",
+            userPrompt = prompt
+        )
+    }
+
+    fun runChat(systemPrompt: String, userPrompt: String): RemoteLlmApiResult {
         require(config.enabled) { "Remote LLM is disabled" }
         require(config.baseUrl.isNotBlank()) { "Remote LLM baseUrl is missing" }
         require(config.apiKey.isNotBlank()) { "Remote LLM apiKey is missing" }
@@ -37,11 +44,11 @@ class RemoteLlmApiClient(
             put("messages", JSONArray().apply {
                 put(JSONObject().apply {
                     put("role", "system")
-                    put("content", "You are a helpful automotive diagnostic assistant. Return ONLY valid JSON. Do not use markdown fences. Do not add commentary outside JSON. Required keys: severity, summary, observations, hypotheses, recommendedChecks, confidence, notes.")
+                    put("content", systemPrompt)
                 })
                 put(JSONObject().apply {
                     put("role", "user")
-                    put("content", prompt)
+                    put("content", userPrompt)
                 })
             })
         }

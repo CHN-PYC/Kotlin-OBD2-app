@@ -11,6 +11,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
+import kotlinx.coroutines.runBlocking
 
 /**
  * 数据库 CRUD 操作测试
@@ -39,6 +40,10 @@ class DatabaseCrudTest {
         dao = db.vehicleDataDao()
     }
 
+    private fun insertBlocking(data: VehicleData) = runBlocking { insertBlocking(data) }
+    private fun deleteAllBlocking() = runBlocking { deleteAllBlocking() }
+    private fun deleteOldRecordsBlocking(cutoffTime: Long) = runBlocking { dao.deleteOldRecords(cutoffTime) }
+
     @After
     fun teardown() {
         db.close()
@@ -56,7 +61,7 @@ class DatabaseCrudTest {
         )
 
         // 执行插入
-        dao.insert(vehicleData)
+        insertBlocking(vehicleData)
 
         // 验证
         val allData = dao.getAllHistory().blockingFirst()
@@ -74,7 +79,7 @@ class DatabaseCrudTest {
                 coolantTemp = 80 + i,
                 timestamp = System.currentTimeMillis() + (i * 1000)
             )
-            dao.insert(vehicleData)
+            insertBlocking(vehicleData)
         }
 
         // 验证
@@ -111,7 +116,7 @@ class DatabaseCrudTest {
                 coolantTemp = 80,
                 timestamp = baseTime + (i * 60000) // 每分钟一条
             )
-            dao.insert(vehicleData)
+            insertBlocking(vehicleData)
         }
 
         // 查询中间 5 分钟的数据
@@ -134,7 +139,7 @@ class DatabaseCrudTest {
             coolantTemp = 85,
             timestamp = System.currentTimeMillis()
         )
-        dao.insert(originalData)
+        insertBlocking(originalData)
 
         // 获取并修改
         val allData = dao.getAllHistory().blockingFirst()
@@ -148,8 +153,8 @@ class DatabaseCrudTest {
         // 在实际应用中，我们会使用 @Update 注解
         // 这里测试通过 ID 更新的方式
         val updatedData = recordToUpdate.copy(id = recordToUpdate.id)
-        dao.deleteAll()
-        dao.insert(updatedData)
+        deleteAllBlocking()
+        insertBlocking(updatedData)
 
         // 验证
         val updated = dao.getAllHistory().blockingFirst()[0]
@@ -169,7 +174,7 @@ class DatabaseCrudTest {
         assertEquals(10, dao.getAllHistory().blockingFirst().size)
 
         // 删除所有
-        dao.deleteAll()
+        deleteAllBlocking()
 
         // 验证已删除
         assertEquals(0, dao.getAllHistory().blockingFirst().size)
@@ -187,7 +192,7 @@ class DatabaseCrudTest {
             coolantTemp = 80,
             timestamp = oldTime
         )
-        dao.insert(oldData)
+        insertBlocking(oldData)
 
         // 插入新记录
         for (i in 1..5) {
@@ -196,7 +201,7 @@ class DatabaseCrudTest {
                 coolantTemp = 85,
                 timestamp = now - (i * 60000)
             )
-            dao.insert(newData)
+            insertBlocking(newData)
         }
 
         // 验证总数
@@ -204,7 +209,7 @@ class DatabaseCrudTest {
 
         // 删除 30 天前的记录
         val thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000)
-        dao.deleteOldRecords(thirtyDaysAgo)
+        deleteOldRecordsBlocking(thirtyDaysAgo)
 
         // 验证旧记录已删除，新记录保留
         val remaining = dao.getAllHistory().blockingFirst()
@@ -245,7 +250,7 @@ class DatabaseCrudTest {
         )
 
         // 插入数据库
-        dao.insert(fullData)
+        insertBlocking(fullData)
 
         // 读取并验证
         val retrieved = dao.getAllHistory().blockingFirst()[0]
@@ -304,7 +309,7 @@ class DatabaseCrudTest {
             warmupsSinceCodesCleared = 65535
         )
 
-        dao.insert(maxData)
+        insertBlocking(maxData)
         val retrieved = dao.getAllHistory().blockingFirst()[0]
         
         assertEquals(16383, retrieved.rpm)
@@ -327,7 +332,7 @@ class DatabaseCrudTest {
             longTermFuelTrimBank1 = -100.0
         )
 
-        dao.insert(minData)
+        insertBlocking(minData)
         val retrieved = dao.getAllHistory().blockingFirst()[0]
         
         assertEquals(0, retrieved.rpm)
@@ -348,7 +353,7 @@ class DatabaseCrudTest {
                         coolantTemp = 80 + i,
                         timestamp = System.currentTimeMillis() + (i * 1000) + j
                     )
-                    dao.insert(data)
+                    insertBlocking(data)
                 }
             }
             threads.add(thread)
@@ -376,7 +381,7 @@ class DatabaseCrudTest {
                 coolantTemp = 80 + (i % 50),
                 timestamp = System.currentTimeMillis() + (i * 100)
             )
-            dao.insert(data)
+            insertBlocking(data)
         }
 
         val endTime = System.currentTimeMillis()
@@ -400,7 +405,7 @@ class DatabaseCrudTest {
                 coolantTemp = 80,
                 timestamp = System.currentTimeMillis() + (i * 100)
             )
-            dao.insert(data)
+            insertBlocking(data)
         }
 
         // 测试查询性能
@@ -439,7 +444,7 @@ class DatabaseCrudTest {
                 coolantTemp = 80 + i,
                 timestamp = System.currentTimeMillis() + (i * 1000)
             )
-            dao.insert(data)
+            insertBlocking(data)
         }
     }
 }

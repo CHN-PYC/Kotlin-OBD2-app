@@ -103,6 +103,7 @@ class HistoryActivity : AppCompatActivity() {
                             "RULE_BASED" -> "RULE"
                             "LLM" -> "LLM"
                             "HYBRID" -> "HYBRID"
+                            "RAG_QA" -> "RAG"
                             else -> null
                         }
                         session.id to if (latest != null && !typeLabel.isNullOrBlank()) {
@@ -223,7 +224,7 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun showLlmPreviewOptions(sessionId: Long) {
-        val items = arrayOf("Preview JSON Input", "Preview Prompt Text", "Run LLM Diagnosis", "Run Remote LLM Diagnosis")
+        val items = arrayOf("Preview JSON Input", "Preview Prompt Text", "Run LLM Diagnosis", "Run Remote LLM Diagnosis", "Ask Vehicle QA (RAG)")
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("LLM Input Preview")
             .setItems(items) { _, which ->
@@ -232,6 +233,28 @@ class HistoryActivity : AppCompatActivity() {
                     1 -> previewLlmPrompt(sessionId)
                     2 -> runLlmDiagnosis(sessionId)
                     3 -> runRemoteLlmDiagnosis(sessionId)
+                    4 -> promptVehicleQa(sessionId)
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun promptVehicleQa(sessionId: Long) {
+        val input = android.widget.EditText(this).apply {
+            hint = "例如：为什么这段行程冷却液温度偏高？"
+            minLines = 3
+        }
+
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Ask Vehicle QA")
+            .setView(input)
+            .setPositiveButton("Run") { _, _ ->
+                val question = input.text?.toString().orEmpty().trim()
+                if (question.isBlank()) {
+                    Toast.makeText(this, "Question cannot be empty", Toast.LENGTH_SHORT).show()
+                } else {
+                    runVehicleQa(sessionId, question)
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -312,6 +335,29 @@ class HistoryActivity : AppCompatActivity() {
                 e.printStackTrace()
                 val detail = e.message ?: "no message"
                 Toast.makeText(this@HistoryActivity, "Remote LLM failed: ${e.javaClass.simpleName}: ${detail.take(180)}", Toast.LENGTH_LONG).show()
+            } finally {
+                endDiagnosisRun()
+            }
+        }
+    }
+
+    private fun runVehicleQa(sessionId: Long, question: String) {
+        if (!beginDiagnosisRun("Running RAG vehicle QA...")) return
+        lifecycleScope.launch {
+            try {
+                val report = (application as MyApplication)
+                    .diagnosticRepository
+                    .runVehicleQa(sessionId, question)
+
+                startActivity(
+                    Intent(this@HistoryActivity, DiagnosticReportActivity::class.java)
+                        .putExtra(DiagnosticReportActivity.EXTRA_REPORT_ID, report.id)
+                        .putExtra(DiagnosticReportActivity.EXTRA_REPORT_TYPE, "RAG Vehicle QA")
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                val detail = e.message ?: "no message"
+                Toast.makeText(this@HistoryActivity, "RAG QA failed: ${e.javaClass.simpleName}: ${detail.take(180)}", Toast.LENGTH_LONG).show()
             } finally {
                 endDiagnosisRun()
             }

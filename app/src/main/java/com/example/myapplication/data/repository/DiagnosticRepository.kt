@@ -1,5 +1,6 @@
 package com.example.myapplication.data.repository
 
+import android.content.Context
 import com.example.myapplication.BuildConfig
 import com.example.myapplication.data.local.DiagnosticReport
 import com.example.myapplication.data.local.DiagnosticReportDao
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 class DiagnosticRepository(
+    private val appContext: Context,
     private val reportDao: DiagnosticReportDao,
     private val sessionDao: DriveSessionDao,
     private val vehicleDataDao: VehicleDataDao
@@ -31,6 +33,16 @@ class DiagnosticRepository(
         )
     } else {
         LlmProviderConfig.disabledDefault()
+    }
+    private val vehicleQaBackendConfig = if (BuildConfig.VEHICLE_QA_BACKEND_ENABLED) {
+        VehicleQaBackendConfig(
+            baseUrl = BuildConfig.VEHICLE_QA_BACKEND_BASE_URL,
+            apiKey = BuildConfig.VEHICLE_QA_BACKEND_API_KEY,
+            timeoutSeconds = BuildConfig.VEHICLE_QA_BACKEND_TIMEOUT_SECONDS,
+            enabled = true
+        )
+    } else {
+        VehicleQaBackendConfig.disabledDefault()
     }
     fun getReportsBySession(sessionId: Long): Flow<List<DiagnosticReport>> =
         reportDao.getBySession(sessionId)
@@ -91,6 +103,35 @@ class DiagnosticRepository(
             input = input,
             prompt = prompt,
             inputJson = inputJson
+        )
+        val reportId = reportDao.insert(report)
+        report.copy(id = reportId)
+    }
+
+    suspend fun runVehicleQa(sessionId: Long, question: String): DiagnosticReport = withContext(Dispatchers.IO) {
+        require(vehicleQaBackendConfig.enabled) { "Vehicle QA backend is not configured yet. Enable VEHICLE_QA_BACKEND_ENABLED and provide backend BuildConfig values." }
+        require(question.isNotBlank()) { "Question must not be blank" }
+
+        val input = buildLlmInput(sessionId)
+        val backendClient = VehicleQaBackendApiClient(vehicleQaBackendConfig)
+        val result = backendClient.askQuestion(
+            sessionId = sessionId,
+            question = question,
+            input = input
+        )
+        val report = DiagnosticReport(
+            sessionId = sessionId,
+            createdAt = System.currentTimeMillis(),
+            reportType = DiagnosticReport.TYPE_RAG_QA,
+            modelName = "vehicle-rag-backend",
+            modelVersion = vehicleQaBackendConfig.baseUrl,
+            promptVersion = "vehicle-rag-backend-v1",
+            severity = result.severity,
+            summary = result.answer,
+            findingsJson = result.findingsJson,
+            recommendationsJson = result.recommendationsJson,
+            rawInputSnapshotJson = result.requestJson,
+            rawOutputText = result.rawText
         )
         val reportId = reportDao.insert(report)
         report.copy(id = reportId)
