@@ -1,0 +1,45 @@
+{
+  "answer": "观察事实：最高水温108℃\n可能原因：冷却液不足、风扇、节温器或散热循环问题\n下一步：先检查液位和风扇工作状态\n安全边界：不能仅凭一次Session断定部件损坏",
+  "severity": "WARNING",
+  "findings": [
+    "本次行程最高冷却液温度达到108摄氏度，存在水温偏高现象。"
+  ],
+  "recommendations": [
+    "优先检查冷却液液位和散热风扇工作状态，再检查节温器及散热器循环。"
+  ],
+  "sources": [
+    {
+      "chunk_id": "12345",
+      "doc_id": "6789",
+      "title": "水温异常处理",
+      "source_url": "",
+      "score": 0.82,
+      "text": "冷却液温度持续偏高时，应依次检查冷却液液位、散热风扇、节温器和散热器循环状态。",
+      "topic": "cooling_system",
+      "pid_tags": ["ECT"],
+      "page_start": 1,
+      "page_end": 2,
+      "section_title": "冷却系统故障诊断"
+    }
+  ],
+  "rewritten_query": "冷却液最高温度达到108摄氏度时的可能原因和检查顺序",
+  "answer_mode": "llm_rag",
+  "confidence": "medium",
+  "agent_trace": [
+    {
+      "step": "plan",
+      "status": "completed",
+      "detail": "已选择车辆上下文RAG诊断流程。"
+    },
+    {
+      "step": "retrieval_tool",
+      "status": "completed",
+      "detail": "已召回与冷却液温度相关的知识片段。"
+    },
+    {
+      "step": "evidence_gate",
+      "status": "passed",
+      "detail": "检索证据达到回答条件，允许进入生成节点。"
+    }
+  ]
+}

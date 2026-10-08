@@ -1,0 +1,137 @@
+[
+  {
+    "case_id": "maf-function",
+    "query": "空气流量计有什么作用，安装在哪里？",
+    "relevant_chunk_ids": ["hella-air-mass-sensor:section:1"]
+  },
+  {
+    "case_id": "maf-symptoms",
+    "query": "空气流量计损坏后车辆会出现哪些症状？",
+    "relevant_chunk_ids": ["hella-air-mass-sensor:section:2"]
+  },
+  {
+    "case_id": "maf-causes",
+    "query": "哪些机械或电气原因会导致空气流量计失效？",
+    "relevant_chunk_ids": ["hella-air-mass-sensor:section:3"]
+  },
+  {
+    "case_id": "maf-test-steps",
+    "query": "空气流量计异常时应该按照什么步骤检查？",
+    "relevant_chunk_ids": ["hella-air-mass-sensor:section:4"]
+  },
+  {
+    "case_id": "maf-emergency-mode",
+    "query": "发动机熄火或进入应急程序可能与空气流量计有关吗？",
+    "relevant_chunk_ids": ["hella-air-mass-sensor:section:2"]
+  },
+  {
+    "case_id": "maf-wiring",
+    "query": "如何检查传感器供电和线束导通性，参考电阻是多少？",
+    "relevant_chunk_ids": ["hella-air-mass-sensor:section:4"]
+  },
+  {
+    "case_id": "maf-location",
+    "query": "传感器位于空气滤清器和进气歧管之间吗？",
+    "relevant_chunk_ids": ["hella-air-mass-sensor:section:1"]
+  },
+  {
+    "case_id": "maf-vibration",
+    "query": "振动和事故造成的机械损伤会让测量元件脱落吗？",
+    "relevant_chunk_ids": ["hella-air-mass-sensor:section:3"]
+  },
+  {
+    "case_id": "ect-ntc",
+    "query": "冷却液温度传感器温度升高时电阻怎么变化？",
+    "relevant_chunk_ids": ["coolant-temperature-sensor:function"]
+  },
+  {
+    "case_id": "ect-starting-symptoms",
+    "query": "冷车不好启动而且怠速很高，ECT 信号异常会有这种表现吗？",
+    "relevant_chunk_ids": ["coolant-temperature-sensor:symptoms"]
+  },
+  {
+    "case_id": "ect-reference-values",
+    "query": "水温传感器在 25 度和 80 度时电阻参考值是多少？",
+    "relevant_chunk_ids": ["coolant-temperature-sensor:checks"]
+  },
+  {
+    "case_id": "cooling-overheat-real-or-signal",
+    "query": "仪表报水温过高，如何先判断是真过热还是传感器误报？",
+    "relevant_chunk_ids": ["cooling-system:overheat-validation"]
+  },
+  {
+    "case_id": "cooling-warms-slowly",
+    "query": "发动机一直升温很慢，风扇又常转，应该优先检查什么？",
+    "relevant_chunk_ids": ["cooling-system:fan-thermostat"]
+  },
+  {
+    "case_id": "cooling-pump-flow",
+    "query": "风扇和节温器正常仍然过热，水泵和散热器怎么继续排查？",
+    "relevant_chunk_ids": ["cooling-system:circulation"]
+  },
+  {
+    "case_id": "lambda-upstream-downstream",
+    "query": "前氧负责闭环控制还是后氧负责？后氧主要看什么？",
+    "relevant_chunk_ids": ["lambda-sensor:function"]
+  },
+  {
+    "case_id": "lambda-narrowband-voltage",
+    "query": "窄带氧传感器稀和浓时大概输出多少伏？",
+    "relevant_chunk_ids": ["lambda-sensor:narrowband-signal"]
+  },
+  {
+    "case_id": "lambda-exhaust-leak",
+    "query": "氧传感器报码时为什么要先检查前方排气泄漏和工作温度？",
+    "relevant_chunk_ids": ["lambda-sensor:checks"]
+  },
+  {
+    "case_id": "battery-open-circuit",
+    "query": "检查发电机之前，蓄电池静置电压低于 12.4V 怎么处理？",
+    "relevant_chunk_ids": ["charging-system:battery-precheck"]
+  },
+  {
+    "case_id": "charging-running-voltage",
+    "query": "发动机两千转带负载时充电电压参考范围是多少，智能充电能直接套吗？",
+    "relevant_chunk_ids": ["charging-system:running-test"]
+  },
+  {
+    "case_id": "alternator-unsafe-test",
+    "query": "能不能在发动机运行时拔掉电瓶线判断发电机好坏？",
+    "relevant_chunk_ids": ["charging-system:symptoms-safety"]
+  },
+  {
+    "case_id": "throttle-signals",
+    "query": "节气门位置、踏板位置和电子节气门实际开度是同一个信号吗？",
+    "relevant_chunk_ids": ["throttle-position:function"]
+  },
+  {
+    "case_id": "dtc-not-part",
+    "query": "报码是不是就能直接确定哪个零件坏了？冻结帧有什么用？",
+    "relevant_chunk_ids": ["obd-dtc:meaning"]
+  },
+  {
+    "case_id": "dtc-exact-p0171",
+    "query": "P0171 和 P0172 分别代表过稀还是过浓？",
+    "relevant_chunk_ids": ["obd-dtc:families"]
+  },
+  {
+    "case_id": "fuel-trim-short-long",
+    "query": "STFT 与 LTFT 有什么区别，正数和负数分别意味着什么？",
+    "relevant_chunk_ids": ["fuel-trim:meaning"]
+  },
+  {
+    "case_id": "fuel-trim-positive-causes",
+    "query": "长期燃油修正一直很正，是漏气、油压还是氧传感器直接坏了？",
+    "relevant_chunk_ids": ["fuel-trim:diagnostic-patterns"]
+  },
+  {
+    "case_id": "map-not-vacuum",
+    "query": "MAP 读的是绝对压力还是真空度？它如何表示发动机负荷？",
+    "relevant_chunk_ids": ["map-sensor:function"]
+  },
+  {
+    "case_id": "map-koeo-check",
+    "query": "点火开但不启动时，MAP 为什么要和当地大气压力比较？",
+    "relevant_chunk_ids": ["map-sensor:plausibility"]
+  }
+]

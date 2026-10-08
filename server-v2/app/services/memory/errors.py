@@ -1,0 +1,2 @@
+class SessionMemoryError(RuntimeError):
+    pass

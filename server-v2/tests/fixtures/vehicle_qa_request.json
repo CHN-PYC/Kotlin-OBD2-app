@@ -1,0 +1,63 @@
+{
+  "session_id": "10001",
+  "question": "车辆行驶过程中水温偏高，应该优先检查什么？",
+  "vehicle_context": {
+    "sessionSummary": {
+      "durationSec": 900,
+      "sampleCount": 180,
+      "avgSpeed": 42.5,
+      "maxSpeed": 86,
+      "avgRpm": 1850.0,
+      "maxRpm": 3200,
+      "avgCoolantTemp": 96.5,
+      "maxCoolantTemp": 108,
+      "avgBatteryVoltage": 13.9,
+      "minBatteryVoltage": 13.5,
+      "maxBatteryVoltage": 14.2,
+      "avgEngineLoad": 38.0,
+      "maxEngineLoad": 72.0,
+      "avgStft1": 2.5,
+      "avgLtft1": 3.0,
+      "avgLambda": 1.002
+    },
+    "sampleHighlights": {
+      "hottestSample": {
+        "timestamp": 1788228000000,
+        "rpm": 2100,
+        "speed": 58,
+        "coolantTemp": 108,
+        "batteryVoltage": 13.8,
+        "engineLoad": 51.0,
+        "shortTermFuelTrimBank1": 3.2,
+        "longTermFuelTrimBank1": 3.0,
+        "equivalenceRatio": 1.001,
+        "intakeManifoldPressure": 54.0,
+        "mafRate": 18.5,
+        "throttlePos": 28
+      }
+    },
+    "promptHints": {
+      "isDemoData": false,
+      "shouldAvoidHardFaultClaims": false,
+      "instruction": "这是实车采集数据，请给出谨慎的诊断建议，不要直接断定零部件损坏。"
+    },
+    "sourceType": "REAL",
+    "createdAt": 1788228060000
+  },
+  "rule_summary": {
+    "severity": "WARNING",
+    "summary": "本次行程最高冷却液温度偏高，需要关注冷却系统工作状态。",
+    "findings": [
+      {
+        "code": "COOLANT_HIGH",
+        "severity": "WARNING",
+        "title": "冷却液温度偏高",
+        "detail": "最高冷却液温度达到108摄氏度。"
+      }
+    ],
+    "recommendations": [
+      "检查冷却液液位、散热风扇、节温器和散热器工作状态。"
+    ]
+  },
+  "top_k": 5
+}

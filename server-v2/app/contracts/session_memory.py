@@ -1,0 +1,13 @@
+from typing import Protocol
+
+from app.schemas.memory import ConversationTurn, SessionMemory
+
+
+class SessionMemoryStore(Protocol):
+    async def load(self, session_id: str) -> SessionMemory: ...
+
+    async def append(self, session_id: str, turn: ConversationTurn) -> None: ...
+
+    async def clear(self, session_id: str) -> None: ...
+
+    async def aclose(self) -> None: ...
