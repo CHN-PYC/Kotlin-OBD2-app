@@ -6,6 +6,7 @@ import httpx2
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+from app.api.routes.health import router as health_router
 from app.api.routes.qa import router as qa_router
 from app.contracts.vector_store import VectorStore
 from app.core.config import RetrievalMode, Settings, get_settings
@@ -95,6 +96,7 @@ def create_app(
         lifespan=lifespan,
     )
     application.include_router(qa_router)
+    application.include_router(health_router)
 
     @application.get(
         "/health",

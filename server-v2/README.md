@@ -157,6 +157,11 @@ uv run uvicorn app.main:app --host 127.0.0.1 --port 8000
 OpenAPI is available at `http://127.0.0.1:8000/docs`; Qdrant dashboard is at
 `http://127.0.0.1:6333/dashboard`.
 
+Health checks: `GET /health` is liveness and touches no dependency.
+`GET /health/ready` pings Redis and Qdrant (2 s per probe) and reports each
+component; a failed dependency yields HTTP 200 with `status: degraded`, because
+the API can still answer with rule fallback.
+
 Delete one short-term conversation with:
 
 ```http
@@ -187,6 +192,7 @@ embedding model or dimension changes, use a versioned collection name and rebuil
 | Repeated chat provider failures | Circuit opens; subsequent model calls fail fast into fallback |
 | Request deadline exhausted | Cancel pending async work; return rule fallback with `request_deadline` trace |
 | Truncated or invalid model JSON | Schema parsing fails, then rule fallback |
+| Unexpected workflow exception | Rule fallback with `unexpected_error` trace instead of HTTP 500 |
 | Invalid API request | FastAPI/Pydantic returns 422 before workflow execution |
 | Missing/incorrect configured service key | 401 with Bearer challenge |
 | Redis unavailable | Continue with empty history; log only sanitized error type |

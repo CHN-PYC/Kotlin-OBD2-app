@@ -68,6 +68,7 @@ class Settings(BaseSettings):
     request_deadline_seconds: float = Field(default=60, gt=0, allow_inf_nan=False)
     model_circuit_failure_threshold: int = Field(default=5, ge=1)
     model_circuit_recovery_seconds: float = Field(default=30, gt=0, allow_inf_nan=False)
+    health_probe_timeout_seconds: float = Field(default=2, gt=0, le=30, allow_inf_nan=False)
 
     vector_store_provider: VectorStoreProvider = VectorStoreProvider.MEMORY
     embedding_dimension: int = Field(default=1024, ge=1)

@@ -24,5 +24,8 @@ class InMemorySessionMemoryStore:
     async def clear(self, session_id: str) -> None:
         self._turns.pop(session_id, None)
 
+    async def ping(self) -> None:
+        return None
+
     async def aclose(self) -> None:
         return None

@@ -219,6 +219,19 @@ class QdrantVectorStore(VectorStore):
         if not any(value != 0.0 for value in vector):
             raise ValueError("vector must not be all zero")
 
+    async def ping(self) -> None:
+        # 只确认服务可达且 collection 仍在；维度校验已在启动时由 ensure_collection 完成。
+        exists = await self._request(
+            "collection_exists",
+            self._client.collection_exists(self._collection_name),
+        )
+        if not exists:
+            raise VectorStoreConfigurationError(
+                "collection is missing",
+                operation="collection_exists",
+                collection=self._collection_name,
+            )
+
     async def aclose(self) -> None:
         if self._owns_client:
             await self._client.close()

@@ -22,6 +22,7 @@ from app.schemas.qa import VehicleQARequest, VehicleQAResponse
 from app.services.generation.answer_parser import VehicleAnswerParser
 from app.services.generation.context_manager import ContextWindowManager
 from app.services.generation.deadline import DeadlineQAService
+from app.services.generation.exception_fallback import ExceptionFallbackQAService
 from app.services.generation.prompt_builder import VehicleQAPromptBuilder
 from app.services.generation.qa_service import RuleFallbackQAService, VehicleQAService
 from app.services.generation.workflow_qa_service import WorkflowQAService
@@ -115,9 +116,12 @@ async def answer_vehicle_question(
     service: Annotated[VehicleQAService, Depends(get_vehicle_qa_service)],
 ) -> VehicleQAResponse:
     # LEARNING: 路由只做协议边界和调用，不在这里拼 Prompt 或直接访问 Ollama。
-    return await DeadlineQAService(
-        service,
-        seconds=http_request.app.state.settings.request_deadline_seconds,
+    # 外层兜底意外异常；内层只处理请求总预算超时。
+    return await ExceptionFallbackQAService(
+        DeadlineQAService(
+            service,
+            seconds=http_request.app.state.settings.request_deadline_seconds,
+        )
     ).answer(request)
 
 

@@ -61,6 +61,12 @@ class RedisSessionMemoryStore:
         except RedisError as exc:
             raise SessionMemoryError("failed to clear session memory") from exc
 
+    async def ping(self) -> None:
+        try:
+            await cast(Awaitable[bool], self._client.ping())
+        except RedisError as exc:
+            raise SessionMemoryError("session memory ping failed") from exc
+
     async def aclose(self) -> None:
         if self._owns_client:
             await self._client.aclose()

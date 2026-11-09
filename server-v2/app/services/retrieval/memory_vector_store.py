@@ -44,5 +44,8 @@ class MemoryVectorStore(VectorStore):
         for chunk_id in set(chunk_ids):
             self._records.pop(chunk_id, None)
 
+    async def ping(self) -> None:
+        """Memory storage is always reachable inside this process."""
+
     async def aclose(self) -> None:
         """Memory storage owns no external resource."""
