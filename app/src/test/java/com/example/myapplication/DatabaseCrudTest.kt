@@ -11,6 +11,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -40,8 +41,8 @@ class DatabaseCrudTest {
         dao = db.vehicleDataDao()
     }
 
-    private fun insertBlocking(data: VehicleData) = runBlocking { insertBlocking(data) }
-    private fun deleteAllBlocking() = runBlocking { deleteAllBlocking() }
+    private fun insertBlocking(data: VehicleData) = runBlocking { dao.insert(data) }
+    private fun deleteAllBlocking() = runBlocking { dao.deleteAll() }
     private fun deleteOldRecordsBlocking(cutoffTime: Long) = runBlocking { dao.deleteOldRecords(cutoffTime) }
 
     @After
@@ -184,7 +185,7 @@ class DatabaseCrudTest {
     fun testDeleteOldRecords() {
         // 插入不同时间的记录
         val now = System.currentTimeMillis()
-        val oldTime = now - (31 * 24 * 60 * 60 * 1000) // 31 天前
+        val oldTime = now - (31L * 24 * 60 * 60 * 1000) // 31 天前
 
         // 插入旧记录
         val oldData = createTestVehicleData(
@@ -208,7 +209,7 @@ class DatabaseCrudTest {
         assertEquals(6, dao.getAllHistory().blockingFirst().size)
 
         // 删除 30 天前的记录
-        val thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000)
+        val thirtyDaysAgo = now - (30L * 24 * 60 * 60 * 1000)
         deleteOldRecordsBlocking(thirtyDaysAgo)
 
         // 验证旧记录已删除，新记录保留
@@ -456,8 +457,3 @@ fun <T> kotlinx.coroutines.flow.Flow<T>.blockingFirst(): T {
     }
 }
 
-fun <T> kotlinx.coroutines.flow.Flow<List<T>>.blockingFirst(): List<T> {
-    return kotlinx.coroutines.runBlocking {
-        this@blockingFirst.first()
-    }
-}

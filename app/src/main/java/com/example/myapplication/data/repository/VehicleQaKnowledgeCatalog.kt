@@ -55,25 +55,29 @@ object VehicleQaKnowledgeCatalog {
     )
 
     fun matchSources(question: String, input: LlmDiagnosticInput, maxSources: Int = 3): List<VehicleQaKnowledgeSource> {
-        val normalized = (question + " " + input.ruleSummary.summary + " " + input.ruleSummary.findings.joinToString(" ") { it.title + " " + it.detail })
+        val findingsText = input.ruleSummary.findings.joinToString(" ") { finding: RuleFindingPayload ->
+            "${finding.title} ${finding.detail}"
+        }
+        val normalized = "$question ${input.ruleSummary.summary} $findingsText"
             .lowercase()
 
-        val scored = sources.map { source ->
-            val keywordHits = source.keywords.sumOf { keyword ->
-                if (normalized.contains(keyword.lowercase())) 3 else 0
-            }
+        val scoredPairs: List<Pair<VehicleQaKnowledgeSource, Int>> = sources.map { source: VehicleQaKnowledgeSource ->
+            val keywordHits = source.keywords.count { keyword: String ->
+                normalized.contains(keyword.lowercase())
+            } * 3
             val titleHit = if (normalized.contains(source.title.lowercase())) 2 else 0
-            val summaryHit = source.summary.lowercase().split(" ").count { token ->
+            val summaryHit = source.summary.lowercase().split(" ").count { token: String ->
                 token.length > 3 && normalized.contains(token)
             }
             source to (keywordHits + titleHit + summaryHit)
         }
-            .filter { it.second > 0 }
-            .sortedByDescending { it.second }
-            .map { it.first }
+            .filter { pair: Pair<VehicleQaKnowledgeSource, Int> -> pair.second > 0 }
+            .sortedByDescending { pair: Pair<VehicleQaKnowledgeSource, Int> -> pair.second }
+
+        val matchedSources = scoredPairs.map { pair: Pair<VehicleQaKnowledgeSource, Int> -> pair.first }
 
         return when {
-            scored.isNotEmpty() -> scored.distinctBy { it.id }.take(maxSources)
+            matchedSources.isNotEmpty() -> matchedSources.distinctBy { source: VehicleQaKnowledgeSource -> source.id }.take(maxSources)
             else -> sources.take(maxSources)
         }
     }

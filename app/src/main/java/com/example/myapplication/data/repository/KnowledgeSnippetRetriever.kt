@@ -52,7 +52,7 @@ class KnowledgeSnippetRetriever {
         if (tokens.isEmpty()) return 0
         val lower = chunk.lowercase()
         val overlap = tokens.count { lower.contains(it) }
-        val exactPhraseBonus = tokens.sumOf { token -> if (" $token " in " $lower ") 1 else 0 }
+        val exactPhraseBonus = tokens.count { token -> " $token " in " $lower " }
         return overlap * 3 + exactPhraseBonus
     }
 

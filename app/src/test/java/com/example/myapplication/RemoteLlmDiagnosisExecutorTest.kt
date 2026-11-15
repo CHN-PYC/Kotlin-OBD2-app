@@ -2,6 +2,8 @@ package com.example.myapplication
 
 import com.example.myapplication.data.repository.LlmDiagnosticInput
 import com.example.myapplication.data.repository.PromptHintsPayload
+import com.example.myapplication.data.repository.LlmProviderConfig
+import com.example.myapplication.data.repository.RemoteLlmApiClient
 import com.example.myapplication.data.repository.RemoteLlmDiagnosisExecutor
 import com.example.myapplication.data.repository.RuleFindingPayload
 import com.example.myapplication.data.repository.RuleSummaryPayload
@@ -34,10 +36,10 @@ class RemoteLlmDiagnosisExecutorTest {
             promptHints = PromptHintsPayload(false, false, "Use care")
         )
 
-        val unsafe = java.lang.reflect.Field::class.java
         val ctor = executorClass.declaredConstructors.first()
         ctor.isAccessible = true
-        val executor = ctor.newInstance(null, com.example.myapplication.data.repository.LlmProviderConfig.disabledDefault())
+        val config = LlmProviderConfig.disabledDefault()
+        val executor = ctor.newInstance(RemoteLlmApiClient(config), config)
 
         val text = """
             ```json

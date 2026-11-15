@@ -430,15 +430,15 @@ class DiagnosticReportActivity : AppCompatActivity() {
             when (severity) {
                 "HIGH", "WARNING" -> {
                     severityView.setBackgroundResource(R.drawable.badge_warning)
-                    severityView.setTextColor(ContextCompat.getColor(context, R.color.background_dark))
+                    severityView.setTextColor(ContextCompat.getColor(this@DiagnosticReportActivity, R.color.background_dark))
                 }
                 "NOTICE" -> {
                     severityView.setBackgroundResource(R.drawable.badge_info)
-                    severityView.setTextColor(ContextCompat.getColor(context, R.color.white))
+                    severityView.setTextColor(ContextCompat.getColor(this@DiagnosticReportActivity, R.color.white))
                 }
                 else -> {
                     severityView.setBackgroundResource(R.drawable.badge_success)
-                    severityView.setTextColor(ContextCompat.getColor(context, R.color.background_dark))
+                    severityView.setTextColor(ContextCompat.getColor(this@DiagnosticReportActivity, R.color.background_dark))
                 }
             }
             headerRow.addView(severityView)
