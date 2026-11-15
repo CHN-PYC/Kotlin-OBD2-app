@@ -147,7 +147,7 @@ class LLMVehicleQAService:
             ConfidenceLevel.MEDIUM if request.rule_summary is not None else ConfidenceLevel.LOW
         )
         # LEARNING: LLM-only 路径没有检索证据，所有 claim 都会被标为 unsupported。
-        citations = resolve_claim_citations(generated_answer.claims, [])
+        citations = resolve_claim_citations(generated_answer.claims, {})
         return baseline.model_copy(
             update={
                 "answer": generated_answer.answer,

@@ -29,6 +29,9 @@ def test_builds_grounded_chat_request_from_vehicle_request() -> None:
     assert '"claims"' in system_prompt
     assert '"source_chunk_ids"' in system_prompt
     assert "never invent an id" in system_prompt
+    assert '"quote"' in system_prompt
+    assert "word for word" in system_prompt
+    assert '"uses_vehicle_data"' in system_prompt
     assert chat_request.options.temperature == 0.0
     assert chat_request.options.max_output_tokens == 512
 

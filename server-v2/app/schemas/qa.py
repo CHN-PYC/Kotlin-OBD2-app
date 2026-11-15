@@ -25,8 +25,10 @@ class ConfidenceLevel(str, Enum):
 
 
 class ClaimSupport(str, Enum):
-    # cited 只表示引用的片段确实在本次证据中，不表示片段一定支持该说法。
-    CITED = "cited"
+    # 这些等级都只描述机械校验结果，不表示片段在语义上一定支持该说法。
+    QUOTED = "quoted"  # 引用片段存在，且摘录句逐字出现在其中
+    CITED = "cited"  # 引用片段存在，但没有可核实的摘录句
+    VEHICLE_DATA = "vehicle_data"  # 依据是车辆上下文或规则摘要，未对照文档
     UNSUPPORTED = "unsupported"
 
 
@@ -37,6 +39,9 @@ class ResponseClaim(BaseModel):
     kind: ClaimKind
     support: ClaimSupport
     source_chunk_ids: list[str] = Field(default_factory=list)
+    # 只有校验通过时才填写；quote 是 quote_chunk_id 原文中的精确子串，可直接用于高亮。
+    quote: str | None = None
+    quote_chunk_id: str | None = None
 
 
 class VehicleQARequest(BaseModel):

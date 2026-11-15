@@ -16,6 +16,10 @@ class GeneratedClaim(BaseModel):
     kind: ClaimKind
     # 模型声称的引用只是提议；服务端会对照本次实际发送的证据重新校验。
     source_chunk_ids: list[str] = Field(default_factory=list, max_length=3)
+    # 逐字摘录的支持句；服务端只在它确实出现在所引片段中时才展示。
+    quote: str | None = Field(default=None, max_length=400)
+    # 依据来自车辆上下文或规则摘要，而不是检索文档。
+    uses_vehicle_data: bool = False
 
 
 class GeneratedVehicleAnswer(BaseModel):

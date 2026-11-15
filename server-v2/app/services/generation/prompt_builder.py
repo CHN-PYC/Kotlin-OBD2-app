@@ -87,13 +87,19 @@ class VehicleQAPromptBuilder:
                 '"answer" must be a nonempty one- or two-sentence summary of at most '
                 "4000 characters. "
                 '"claims" must be an array of at most 10 objects, each with exactly these '
-                'fields: "text", "kind", and "source_chunk_ids". Each "text" states one '
-                "checkable statement of at most 500 characters; never merge two statements. "
+                'fields: "text", "kind", "source_chunk_ids", "quote", and '
+                '"uses_vehicle_data". Each "text" states one checkable statement of at '
+                "most 500 characters; never merge two statements. "
                 '"kind" is "definition" for what a code or signal means, "cause" for a '
                 'possible cause, or "check" for a recommended next check. '
                 '"source_chunk_ids" lists at most 3 chunk_id values copied from '
                 "retrievedEvidence that directly support that statement; use [] when no "
                 "supplied evidence supports it, and never invent an ID. "
+                '"quote" copies, word for word, the single sentence from the first cited '
+                "chunk's text that best supports the statement, at most 400 characters; "
+                "do not paraphrase, translate or join sentences. Use null when nothing is "
+                'cited. "uses_vehicle_data" is true only when the statement relies on '
+                "vehicleContext or ruleSummary values rather than retrievedEvidence. "
                 "Do not wrap the JSON in Markdown code fences."
             ),
         )

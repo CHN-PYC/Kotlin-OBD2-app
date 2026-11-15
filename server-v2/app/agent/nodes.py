@@ -357,7 +357,7 @@ class BuildResponseNode:
         # LEARNING: prompt 节点已把 reranked_sources 收窄为实际发送给模型的证据。
         citations = resolve_claim_citations(
             generated.claims,
-            [item.source.chunk_id for item in state.reranked_sources],
+            {item.source.chunk_id: item.source.text for item in state.reranked_sources},
         )
         trace = [
             *state.trace,
