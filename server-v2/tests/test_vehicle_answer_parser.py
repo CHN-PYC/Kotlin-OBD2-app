@@ -4,7 +4,7 @@ import pytest
 
 from app.providers.chat import ChatResult
 from app.providers.errors import InvalidModelResponseError
-from app.schemas.generation import GeneratedVehicleAnswer
+from app.schemas.generation import ClaimKind, GeneratedVehicleAnswer
 from app.services.generation.answer_parser import VehicleAnswerParser
 
 
@@ -23,8 +23,18 @@ def test_parser_returns_typed_vehicle_answer_from_json() -> None:
     content = json.dumps(
         {
             "answer": "Check the coolant level and cooling fan first.",
-            "findings": ["Coolant temperature reached 108 C."],
-            "recommendations": ["Stop safely if the temperature continues to rise."],
+            "claims": [
+                {
+                    "text": "Coolant temperature reached 108 C.",
+                    "kind": "cause",
+                    "source_chunk_ids": [],
+                },
+                {
+                    "text": "Stop safely if the temperature continues to rise.",
+                    "kind": "check",
+                    "source_chunk_ids": [],
+                },
+            ],
         }
     )
 
@@ -32,8 +42,11 @@ def test_parser_returns_typed_vehicle_answer_from_json() -> None:
 
     assert isinstance(parsed, GeneratedVehicleAnswer)
     assert parsed.answer == "Check the coolant level and cooling fan first."
-    assert parsed.findings == ["Coolant temperature reached 108 C."]
-    assert len(parsed.recommendations) == 1
+    assert [claim.text for claim in parsed.claims] == [
+        "Coolant temperature reached 108 C.",
+        "Stop safely if the temperature continues to rise.",
+    ]
+    assert [claim.kind for claim in parsed.claims] == [ClaimKind.CAUSE, ClaimKind.CHECK]
 
 
 def test_parser_maps_invalid_json_to_provider_error() -> None:
@@ -49,9 +62,15 @@ def test_parser_maps_invalid_json_to_provider_error() -> None:
 @pytest.mark.parametrize(
     "payload",
     [
-        {"findings": [], "recommendations": []},
-        {"answer": "   ", "findings": [], "recommendations": []},
-        {"answer": "Valid", "findings": [], "recommendations": [], "extra": True},
+        {"claims": []},
+        {"answer": "   ", "claims": []},
+        {"answer": "Valid", "claims": [], "extra": True},
+        {"answer": "Valid", "findings": ["legacy field"]},
+        {"answer": "Valid", "claims": [{"text": "x", "kind": "guess"}]},
+        {
+            "answer": "Valid",
+            "claims": [{"text": "x", "kind": "cause", "source_chunk_ids": ["a", "b", "c", "d"]}],
+        },
     ],
 )
 def test_parser_rejects_content_that_violates_answer_schema(payload: dict) -> None:

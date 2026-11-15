@@ -5,6 +5,12 @@ from app.providers.vector_store_errors import VectorStoreProviderError
 from app.schemas.agent_trace import AgentTraceStep, TraceStatus
 from app.schemas.qa import AnswerMode, ConfidenceLevel
 from app.services.generation.answer_parser import VehicleAnswerParser
+from app.services.generation.claim_citations import (
+    claim_findings,
+    claim_recommendations,
+    describe_citation_check,
+    resolve_claim_citations,
+)
 from app.services.generation.context_manager import ContextBudgetExceededError
 from app.services.generation.prompt_builder import VehicleQAPromptBuilder
 from app.services.generation.qa_service import VehicleQAService
@@ -348,8 +354,18 @@ class BuildResponseNode:
         if state.baseline_response is None or state.generated_answer is None:
             raise ValueError("build response requires baseline_response and generated_answer")
         generated = state.generated_answer
+        # LEARNING: prompt 节点已把 reranked_sources 收窄为实际发送给模型的证据。
+        citations = resolve_claim_citations(
+            generated.claims,
+            [item.source.chunk_id for item in state.reranked_sources],
+        )
         trace = [
             *state.trace,
+            AgentTraceStep(
+                step="claim_citation_check",
+                status=TraceStatus.COMPLETED,
+                detail=describe_citation_check(citations),
+            ),
             AgentTraceStep(
                 step="build_response",
                 status=TraceStatus.COMPLETED,
@@ -360,8 +376,9 @@ class BuildResponseNode:
         response = state.baseline_response.model_copy(
             update={
                 "answer": generated.answer,
-                "findings": list(generated.findings),
-                "recommendations": list(generated.recommendations),
+                "findings": claim_findings(citations.claims),
+                "recommendations": claim_recommendations(citations.claims),
+                "claims": citations.claims,
                 "sources": [item.source.model_copy(deep=True) for item in state.reranked_sources],
                 "answer_mode": (
                     AnswerMode.LLM_RAG if state.reranked_sources else AnswerMode.LLM_ONLY

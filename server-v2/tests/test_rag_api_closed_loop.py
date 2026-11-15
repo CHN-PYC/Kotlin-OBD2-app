@@ -48,8 +48,18 @@ def test_api_runs_embedding_retrieval_gate_prompt_and_generation() -> None:
                         "content": json.dumps(
                             {
                                 "answer": "Inspect the cooling fan and coolant level.",
-                                "findings": ["Coolant temperature is high."],
-                                "recommendations": ["Inspect the cooling fan."],
+                                "claims": [
+                                    {
+                                        "text": "Coolant temperature is high.",
+                                        "kind": "cause",
+                                        "source_chunk_ids": [],
+                                    },
+                                    {
+                                        "text": "Inspect the cooling fan.",
+                                        "kind": "check",
+                                        "source_chunk_ids": [],
+                                    },
+                                ],
                             }
                         ),
                     },
@@ -92,6 +102,7 @@ def test_api_runs_embedding_retrieval_gate_prompt_and_generation() -> None:
         "prompt_build",
         "model_generation",
         "model_output_parse",
+        "claim_citation_check",
         "build_response",
     ]
     prompt = json.loads(captured_chat_payloads[0]["messages"][1]["content"])

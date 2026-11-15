@@ -6,6 +6,11 @@ from app.schemas.agent_trace import AgentTraceStep, TraceStatus
 from app.schemas.qa import AnswerMode, ConfidenceLevel, VehicleQARequest, VehicleQAResponse
 from app.schemas.rule_summary import DiagnosticSeverity
 from app.services.generation.answer_parser import VehicleAnswerParser
+from app.services.generation.claim_citations import (
+    claim_findings,
+    claim_recommendations,
+    resolve_claim_citations,
+)
 from app.services.generation.prompt_builder import VehicleQAPromptBuilder
 
 
@@ -141,13 +146,16 @@ class LLMVehicleQAService:
         confidence = (
             ConfidenceLevel.MEDIUM if request.rule_summary is not None else ConfidenceLevel.LOW
         )
+        # LEARNING: LLM-only 路径没有检索证据，所有 claim 都会被标为 unsupported。
+        citations = resolve_claim_citations(generated_answer.claims, [])
         return baseline.model_copy(
             update={
                 "answer": generated_answer.answer,
                 "answer_mode": AnswerMode.LLM_ONLY,
                 "confidence": confidence,
-                "findings": list(generated_answer.findings),
-                "recommendations": list(generated_answer.recommendations),
+                "findings": claim_findings(citations.claims),
+                "recommendations": claim_recommendations(citations.claims),
+                "claims": citations.claims,
                 "agent_trace": [
                     AgentTraceStep(
                         step="prompt_build",

@@ -80,6 +80,7 @@ def test_workflow_completes_successful_path() -> None:
         "prompt_build",
         "model_generation",
         "model_output_parse",
+        "claim_citation_check",
         "build_response",
     ]
     assert model.calls == 1

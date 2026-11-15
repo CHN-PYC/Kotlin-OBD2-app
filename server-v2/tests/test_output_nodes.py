@@ -24,8 +24,10 @@ def generated_state() -> VehicleAgentState:
             content=json.dumps(
                 {
                     "answer": "Check the fan.",
-                    "findings": ["High temperature"],
-                    "recommendations": ["Inspect cooling system"],
+                    "claims": [
+                        {"text": "High temperature", "kind": "cause", "source_chunk_ids": []},
+                        {"text": "Inspect cooling system", "kind": "check", "source_chunk_ids": []},
+                    ],
                 }
             ),
             provider="stub",
@@ -59,6 +61,7 @@ def test_parse_then_build_response_preserves_snapshots() -> None:
     assert [step.step for step in final.trace] == [
         "model_generation",
         "model_output_parse",
+        "claim_citation_check",
         "build_response",
     ]
     with pytest.raises(ValueError):

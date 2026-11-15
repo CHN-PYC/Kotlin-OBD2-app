@@ -39,8 +39,18 @@ def result(*, finish_reason: str = "stop") -> ChatResult:
         content=json.dumps(
             {
                 "answer": "Check the coolant level, fan, thermostat, and radiator first.",
-                "findings": ["Coolant temperature reached 108 C."],
-                "recommendations": ["Stop safely if the temperature continues to rise."],
+                "claims": [
+                    {
+                        "text": "Coolant temperature reached 108 C.",
+                        "kind": "cause",
+                        "source_chunk_ids": [],
+                    },
+                    {
+                        "text": "Stop safely if the temperature continues to rise.",
+                        "kind": "check",
+                        "source_chunk_ids": [],
+                    },
+                ],
             }
         ),
         provider="stub",

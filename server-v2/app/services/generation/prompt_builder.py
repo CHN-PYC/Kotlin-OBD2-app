@@ -83,11 +83,17 @@ class VehicleQAPromptBuilder:
                 "and recommend safe next checks. Do not claim that a component is damaged "
                 "without direct evidence. Conversation history may be stale; current vehicle "
                 "context, rule summary, and retrieved evidence always take precedence. "
-                'Return one JSON object with exactly these fields: "answer", "findings", '
-                'and "recommendations". '
-                '"answer" must be a nonempty string of at most 4000 characters. '
-                '"findings" and "recommendations" must each be arrays of strings '
-                "with at most 10 items, never arrays of objects. Use [] when empty. "
+                'Return one JSON object with exactly these fields: "answer" and "claims". '
+                '"answer" must be a nonempty one- or two-sentence summary of at most '
+                "4000 characters. "
+                '"claims" must be an array of at most 10 objects, each with exactly these '
+                'fields: "text", "kind", and "source_chunk_ids". Each "text" states one '
+                "checkable statement of at most 500 characters; never merge two statements. "
+                '"kind" is "definition" for what a code or signal means, "cause" for a '
+                'possible cause, or "check" for a recommended next check. '
+                '"source_chunk_ids" lists at most 3 chunk_id values copied from '
+                "retrievedEvidence that directly support that statement; use [] when no "
+                "supplied evidence supports it, and never invent an ID. "
                 "Do not wrap the JSON in Markdown code fences."
             ),
         )

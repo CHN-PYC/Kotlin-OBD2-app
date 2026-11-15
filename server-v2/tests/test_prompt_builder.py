@@ -26,10 +26,9 @@ def test_builds_grounded_chat_request_from_vehicle_request() -> None:
     assert "do not claim" in system_prompt
     assert "json object" in system_prompt
     assert '"answer"' in system_prompt
-    assert '"findings"' in system_prompt
-    assert '"recommendations"' in system_prompt
-    assert "arrays of strings" in system_prompt
-    assert "never arrays of objects" in system_prompt
+    assert '"claims"' in system_prompt
+    assert '"source_chunk_ids"' in system_prompt
+    assert "never invent an id" in system_prompt
     assert chat_request.options.temperature == 0.0
     assert chat_request.options.max_output_tokens == 512
 

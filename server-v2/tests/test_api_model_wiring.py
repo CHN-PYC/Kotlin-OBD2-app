@@ -29,8 +29,18 @@ def test_vehicle_qa_uses_llm_service_when_model_is_configured() -> None:
                     "content": json.dumps(
                         {
                             "answer": "Check the cooling system.",
-                            "findings": ["Coolant temperature reached 108 C."],
-                            "recommendations": ["Inspect the cooling fan."],
+                            "claims": [
+                                {
+                                    "text": "Coolant temperature reached 108 C.",
+                                    "kind": "cause",
+                                    "source_chunk_ids": [],
+                                },
+                                {
+                                    "text": "Inspect the cooling fan.",
+                                    "kind": "check",
+                                    "source_chunk_ids": [],
+                                },
+                            ],
                         }
                     ),
                 },
@@ -58,6 +68,7 @@ def test_vehicle_qa_uses_llm_service_when_model_is_configured() -> None:
         "prompt_build",
         "model_generation",
         "model_output_parse",
+        "claim_citation_check",
         "build_response",
     ]
     assert len(outbound_requests) == 1
