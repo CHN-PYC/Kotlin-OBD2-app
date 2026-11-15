@@ -1,0 +1,658 @@
+{
+  "run_at": "2026-11-15T17:17:14+00:00",
+  "provider": "openai_compatible",
+  "model": "deepseek-v4-flash",
+  "max_output_tokens": 4096,
+  "retrieval": "bm25 top-5 over hella_air_mass_sensor.chunks.json",
+  "summary": {
+    "questions": 4,
+    "answered": 3,
+    "claims": 28,
+    "support_counts": {
+      "quoted": 26,
+      "cited": 0,
+      "vehicle_data": 1,
+      "unsupported": 1
+    },
+    "raw_cited_ids": 26,
+    "raw_ids_outside_evidence": 0,
+    "raw_quotes": 26,
+    "raw_quotes_not_found": 0
+  },
+  "records": [
+    {
+      "question": "What does the air mass sensor measure and how does it work?",
+      "evidence_chunk_ids": [
+        "hella-air-mass-sensor:section:1",
+        "hella-air-mass-sensor:section:4",
+        "hella-air-mass-sensor:section:3",
+        "hella-air-mass-sensor:section:2"
+      ],
+      "status": "ok",
+      "finish_reason": "stop",
+      "output_tokens": 2050,
+      "answer": "The air mass sensor measures the intake air mass using two temperature-dependent metal film resistors on a glass membrane: one resistor measures air temperature, while the other is cooled by airflow, and the electronics regulate its current to maintain a constant temperature difference so that the resulting heat flow represents intake air mass. The engine management control unit uses this measured value to calculate the required fuel quantity.",
+      "citation_check": "10 claims (quoted=10, cited=0, vehicle_data=0, unsupported=0); rejected 0 citations to unknown chunks; 0 quotes not found in cited evidence.",
+      "raw_claims": [
+        {
+          "text": "The air-mass sensor is used to measure the intake air mass.",
+          "kind": "definition",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "The air-mass sensor is used to measure the intake air mass.",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "The air-mass sensor is mounted in the intake pipe between the air filter housing and the intake manifold.",
+          "kind": "definition",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "It is mounted in the intake pipe between the air filter housing and the intake manifold.",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "The air-mass sensor consists of a tubular housing with flow straightener, sensor protection, and sensor module.",
+          "kind": "definition",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "It consists of a tubular housing with flow straightener, sensor protection, and sensor module.",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "Two temperature-dependent metal film resistors affixed to a glass membrane are arranged in the air flow.",
+          "kind": "definition",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "Two temperature-dependent metal film resistors affixed to a glass membrane are arranged in the air flow.",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "The first resistor (RT) is a temperature sensor and measures the air temperature.",
+          "kind": "definition",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "The first resistor (RT) is a temperature sensor and measures the air temperature.",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "The second resistor (RS) is used to detect the air flow rate.",
+          "kind": "definition",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "The second resistor (RS) is used to detect the air flow rate.",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "The resistor RS cools down to a greater or lesser degree depending on the intake air flow.",
+          "kind": "definition",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "The resistor RS cools down to a greater or lesser degree depending on the intake air flow.",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "In order to balance out the constant temperature difference between resistors RT and RS, the current flow through resistor RS must be dynamically regulated by the electronics.",
+          "kind": "definition",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "In order to balance out the constant temperature difference between resistors RT and RS, the current flow through resistor RS must be dynamically regulated by the electronics.",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "This heat flow is used as a measured variable for the respective air mass that is taken in by the engine.",
+          "kind": "definition",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "This heat flow is used as a measured variable for the respective air mass that is taken in by the engine.",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "This measured value is required by the engine management control unit to calculate the fuel quantity required.",
+          "kind": "definition",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "This measured value is required by the engine management control unit to calculate the fuel quantity required.",
+          "uses_vehicle_data": false
+        }
+      ],
+      "response_claims": [
+        {
+          "claim_id": "c1",
+          "text": "The air-mass sensor is used to measure the intake air mass.",
+          "kind": "definition",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "The air-mass sensor is used to measure the intake air mass.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:1"
+        },
+        {
+          "claim_id": "c2",
+          "text": "The air-mass sensor is mounted in the intake pipe between the air filter housing and the intake manifold.",
+          "kind": "definition",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "It is mounted in the intake pipe between the air filter housing and the intake manifold.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:1"
+        },
+        {
+          "claim_id": "c3",
+          "text": "The air-mass sensor consists of a tubular housing with flow straightener, sensor protection, and sensor module.",
+          "kind": "definition",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "It consists of a tubular housing with flow straightener, sensor protection, and sensor module.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:1"
+        },
+        {
+          "claim_id": "c4",
+          "text": "Two temperature-dependent metal film resistors affixed to a glass membrane are arranged in the air flow.",
+          "kind": "definition",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "Two temperature-dependent metal film resistors affixed to a glass membrane are arranged in the air flow.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:1"
+        },
+        {
+          "claim_id": "c5",
+          "text": "The first resistor (RT) is a temperature sensor and measures the air temperature.",
+          "kind": "definition",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "The first resistor (RT) is a temperature sensor and measures the air temperature.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:1"
+        },
+        {
+          "claim_id": "c6",
+          "text": "The second resistor (RS) is used to detect the air flow rate.",
+          "kind": "definition",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "The second resistor (RS) is used to detect the air flow rate.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:1"
+        },
+        {
+          "claim_id": "c7",
+          "text": "The resistor RS cools down to a greater or lesser degree depending on the intake air flow.",
+          "kind": "definition",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "The resistor RS cools down to a greater or lesser degree depending on the intake air flow.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:1"
+        },
+        {
+          "claim_id": "c8",
+          "text": "In order to balance out the constant temperature difference between resistors RT and RS, the current flow through resistor RS must be dynamically regulated by the electronics.",
+          "kind": "definition",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "In order to balance out the constant temperature difference between resistors RT and RS, the current flow through resistor RS must be dynamically regulated by the electronics.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:1"
+        },
+        {
+          "claim_id": "c9",
+          "text": "This heat flow is used as a measured variable for the respective air mass that is taken in by the engine.",
+          "kind": "definition",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "This heat flow is used as a measured variable for the respective air mass that is taken in by the engine.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:1"
+        },
+        {
+          "claim_id": "c10",
+          "text": "This measured value is required by the engine management control unit to calculate the fuel quantity required.",
+          "kind": "definition",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "This measured value is required by the engine management control unit to calculate the fuel quantity required.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:1"
+        }
+      ],
+      "raw_proposal": {
+        "cited_ids": 10,
+        "ids_outside_evidence": 0,
+        "quotes": 10,
+        "quotes_not_found": 0
+      }
+    },
+    {
+      "question": "What does fault code P0101 mean and what usually causes it?",
+      "evidence_chunk_ids": [
+        "hella-air-mass-sensor:section:4",
+        "hella-air-mass-sensor:section:1",
+        "hella-air-mass-sensor:section:3",
+        "hella-air-mass-sensor:section:2"
+      ],
+      "status": "ok",
+      "finish_reason": "stop",
+      "output_tokens": 1286,
+      "answer": "The supplied evidence does not define fault code P0101, so its exact meaning cannot be confirmed from these sources; the retrieved material only covers air-mass sensor function, failure causes and test steps, which would be relevant to an air-flow metering fault. The evidence lists contact faults at the electrical connections, damaged measuring elements and mechanical damage as possible air-mass sensor failure causes, and recommends checking the plug connection, sensor and measuring elements, voltage supply and wiring continuity before concluding a component is faulty.",
+      "citation_check": "10 claims (quoted=9, cited=0, vehicle_data=0, unsupported=1); rejected 0 citations to unknown chunks; 0 quotes not found in cited evidence.",
+      "raw_claims": [
+        {
+          "text": "The retrieved evidence does not contain a definition or description of fault code P0101 itself.",
+          "kind": "definition",
+          "source_chunk_ids": [],
+          "quote": null,
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "Possible air-mass sensor failure causes given in the evidence include contact fault at the electrical connections.",
+          "kind": "cause",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:3"
+          ],
+          "quote": "Causes for failure of the air-mass sensor can be:",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "Damaged measuring elements are listed as a possible cause of air-mass sensor failure.",
+          "kind": "cause",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:3"
+          ],
+          "quote": "Causes for failure of the air-mass sensor can be:",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "Mechanical damage from vibrations or an accident is listed as a possible cause of air-mass sensor failure.",
+          "kind": "cause",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:3"
+          ],
+          "quote": "Causes for failure of the air-mass sensor can be:",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "A recommended first check is that the sensor plug connection is checked for tight fit and correct contact.",
+          "kind": "check",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check plug connection for tight fit and correct contact.",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "The air-mass sensor and its measuring elements should be checked for damage.",
+          "kind": "check",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check the air-mass sensor for damage.",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "The voltage supply to the air-mass sensor should be checked.",
+          "kind": "check",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check the voltage supply",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "The connecting cables between the control unit plug and sensor plug should be checked for continuity, with a reference value of approximately 0 ohms.",
+          "kind": "check",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check the connecting cables between the removed control unit plug and the sensor plug for continuity (circuit diagram required for pin assignment).",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "The air-mass sensor can be tested electronically through the engine management control unit, and a stored fault code can be read out with a diagnostic unit.",
+          "kind": "check",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Electronic test of the air-mass sensor through the engine management control unit.",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "The air-mass sensor measures intake air mass, and this measured value is used by the engine management control unit to calculate the required fuel quantity.",
+          "kind": "definition",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "The air-mass sensor is used to measure the intake air mass.",
+          "uses_vehicle_data": false
+        }
+      ],
+      "response_claims": [
+        {
+          "claim_id": "c1",
+          "text": "The retrieved evidence does not contain a definition or description of fault code P0101 itself.",
+          "kind": "definition",
+          "support": "unsupported",
+          "source_chunk_ids": [],
+          "quote": null,
+          "quote_chunk_id": null
+        },
+        {
+          "claim_id": "c2",
+          "text": "Possible air-mass sensor failure causes given in the evidence include contact fault at the electrical connections.",
+          "kind": "cause",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:3"
+          ],
+          "quote": "Causes for failure of the air-mass sensor can be:",
+          "quote_chunk_id": "hella-air-mass-sensor:section:3"
+        },
+        {
+          "claim_id": "c3",
+          "text": "Damaged measuring elements are listed as a possible cause of air-mass sensor failure.",
+          "kind": "cause",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:3"
+          ],
+          "quote": "Causes for failure of the air-mass sensor can be:",
+          "quote_chunk_id": "hella-air-mass-sensor:section:3"
+        },
+        {
+          "claim_id": "c4",
+          "text": "Mechanical damage from vibrations or an accident is listed as a possible cause of air-mass sensor failure.",
+          "kind": "cause",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:3"
+          ],
+          "quote": "Causes for failure of the air-mass sensor can be:",
+          "quote_chunk_id": "hella-air-mass-sensor:section:3"
+        },
+        {
+          "claim_id": "c5",
+          "text": "A recommended first check is that the sensor plug connection is checked for tight fit and correct contact.",
+          "kind": "check",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check plug connection for tight fit and correct contact.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:4"
+        },
+        {
+          "claim_id": "c6",
+          "text": "The air-mass sensor and its measuring elements should be checked for damage.",
+          "kind": "check",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check the air-mass sensor for damage.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:4"
+        },
+        {
+          "claim_id": "c7",
+          "text": "The voltage supply to the air-mass sensor should be checked.",
+          "kind": "check",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check the voltage supply",
+          "quote_chunk_id": "hella-air-mass-sensor:section:4"
+        },
+        {
+          "claim_id": "c8",
+          "text": "The connecting cables between the control unit plug and sensor plug should be checked for continuity, with a reference value of approximately 0 ohms.",
+          "kind": "check",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check the connecting cables between the removed control unit plug and the sensor plug for continuity (circuit diagram required for pin assignment).",
+          "quote_chunk_id": "hella-air-mass-sensor:section:4"
+        },
+        {
+          "claim_id": "c9",
+          "text": "The air-mass sensor can be tested electronically through the engine management control unit, and a stored fault code can be read out with a diagnostic unit.",
+          "kind": "check",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Electronic test of the air-mass sensor through the engine management control unit.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:4"
+        },
+        {
+          "claim_id": "c10",
+          "text": "The air-mass sensor measures intake air mass, and this measured value is used by the engine management control unit to calculate the required fuel quantity.",
+          "kind": "definition",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "The air-mass sensor is used to measure the intake air mass.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:1"
+        }
+      ],
+      "raw_proposal": {
+        "cited_ids": 9,
+        "ids_outside_evidence": 0,
+        "quotes": 9,
+        "quotes_not_found": 0
+      }
+    },
+    {
+      "question": "How should I check an air mass sensor that reports implausible values?",
+      "evidence_chunk_ids": [
+        "hella-air-mass-sensor:section:4",
+        "hella-air-mass-sensor:section:2",
+        "hella-air-mass-sensor:section:1",
+        "hella-air-mass-sensor:section:3"
+      ],
+      "status": "model_error:invalid_response"
+    },
+    {
+      "question": "Why is my catalytic converter efficiency below threshold (P0420)?",
+      "evidence_chunk_ids": [
+        "hella-air-mass-sensor:section:1",
+        "hella-air-mass-sensor:section:4",
+        "hella-air-mass-sensor:section:2",
+        "hella-air-mass-sensor:section:3"
+      ],
+      "status": "ok",
+      "finish_reason": "stop",
+      "output_tokens": 2969,
+      "answer": "The supplied evidence does not define P0420 or identify catalytic-converter efficiency causes, so it is not enough to attribute the code to a damaged converter. Safe next checks are to read stored/freeze-frame codes, inspect sensor plugs and wiring, test the air-mass sensor, and address the session’s 108°C coolant-temperature warning.",
+      "citation_check": "8 claims (quoted=7, cited=0, vehicle_data=1, unsupported=0); rejected 0 citations to unknown chunks; 0 quotes not found in cited evidence.",
+      "raw_claims": [
+        {
+          "text": "Check the cooling system because the session’s maximum coolant temperature reached 108°C.",
+          "kind": "check",
+          "source_chunk_ids": [],
+          "quote": null,
+          "uses_vehicle_data": true
+        },
+        {
+          "text": "Read out stored fault codes using a diagnostic unit.",
+          "kind": "check",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "When a fault occurs, a fault code is stored in the control unit that can be read out using a diagnostic unit.",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "Check the plug connection for tight fit and correct contact.",
+          "kind": "check",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check plug connection for tight fit and correct contact.",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "Check the air-mass sensor for damage.",
+          "kind": "check",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check the air-mass sensor for damage.",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "Check the measuring elements for damage.",
+          "kind": "check",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check the measuring elements for damage.",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "Check the connecting cables between the removed control-unit plug and the sensor plug for continuity.",
+          "kind": "check",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check the connecting cables between the removed control unit plug and the sensor plug for continuity (circuit diagram required for pin assignment).",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "Check the voltage supply.",
+          "kind": "check",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check the voltage supply",
+          "uses_vehicle_data": false
+        },
+        {
+          "text": "The air-mass sensor’s measured value is required by engine management to calculate the fuel quantity.",
+          "kind": "definition",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "This measured value is required by the engine management control unit to calculate the fuel quantity required.",
+          "uses_vehicle_data": false
+        }
+      ],
+      "response_claims": [
+        {
+          "claim_id": "c1",
+          "text": "Check the cooling system because the session’s maximum coolant temperature reached 108°C.",
+          "kind": "check",
+          "support": "vehicle_data",
+          "source_chunk_ids": [],
+          "quote": null,
+          "quote_chunk_id": null
+        },
+        {
+          "claim_id": "c2",
+          "text": "Read out stored fault codes using a diagnostic unit.",
+          "kind": "check",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "When a fault occurs, a fault code is stored in the control unit that can be read out using a diagnostic unit.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:4"
+        },
+        {
+          "claim_id": "c3",
+          "text": "Check the plug connection for tight fit and correct contact.",
+          "kind": "check",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check plug connection for tight fit and correct contact.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:4"
+        },
+        {
+          "claim_id": "c4",
+          "text": "Check the air-mass sensor for damage.",
+          "kind": "check",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check the air-mass sensor for damage.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:4"
+        },
+        {
+          "claim_id": "c5",
+          "text": "Check the measuring elements for damage.",
+          "kind": "check",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check the measuring elements for damage.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:4"
+        },
+        {
+          "claim_id": "c6",
+          "text": "Check the connecting cables between the removed control-unit plug and the sensor plug for continuity.",
+          "kind": "check",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check the connecting cables between the removed control unit plug and the sensor plug for continuity (circuit diagram required for pin assignment).",
+          "quote_chunk_id": "hella-air-mass-sensor:section:4"
+        },
+        {
+          "claim_id": "c7",
+          "text": "Check the voltage supply.",
+          "kind": "check",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:4"
+          ],
+          "quote": "Check the voltage supply",
+          "quote_chunk_id": "hella-air-mass-sensor:section:4"
+        },
+        {
+          "claim_id": "c8",
+          "text": "The air-mass sensor’s measured value is required by engine management to calculate the fuel quantity.",
+          "kind": "definition",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "This measured value is required by the engine management control unit to calculate the fuel quantity required.",
+          "quote_chunk_id": "hella-air-mass-sensor:section:1"
+        }
+      ],
+      "raw_proposal": {
+        "cited_ids": 7,
+        "ids_outside_evidence": 0,
+        "quotes": 7,
+        "quotes_not_found": 0
+      }
+    }
+  ]
+}
