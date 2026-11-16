@@ -1,5 +1,38 @@
 # Kotlin OBD2 App
 
+## IIS A2 submission: claim-level evidence (start here)
+
+For the Intelligent Interactive Systems A2 project, the vehicle Q&A answer is split into short
+claims. Each claim is shown on its own card with the source passage it was linked to
+directly underneath, and the copied quote highlighted. The server, not the model, decides each
+card's citation status.
+
+| | |
+|---|---|
+| **Development record and AI-use statement** | [docs/A2_DEVELOPMENT_RECORD.md](docs/A2_DEVELOPMENT_RECORD.md) |
+| Claim schema | `server-v2/app/schemas/generation.py` |
+| Server-side citation checks | `server-v2/app/services/generation/claim_citations.py` (step `claim_citation_check` in `server-v2/app/agent/nodes.py`) |
+| Android claim cards | `app/src/main/java/com/example/myapplication/data/repository/VehicleQaClaims.kt`, `app/src/main/java/com/example/myapplication/ui/history/DiagnosticReportActivity.kt` |
+| Tests | `server-v2/tests/test_claim_citations.py`; `app/src/test/java/com/example/myapplication/VehicleQaClaimParserTest.kt` |
+| Recorded smoke run | `server-v2/scripts/smoke_claim_citations.py` → `server-v2/docs/evaluation/claim_citation_smoke_20261115.json` |
+
+**Run the A2 flow locally**
+
+1. Backend: in `server-v2/`, copy `.env.example` to `.env` and set the model provider and key, then run:
+   - `docker compose up -d` to start Qdrant and Redis
+   - `uv run python -m scripts.ingest_knowledge` (embeddings use Ollama with `bge-m3`)
+   - `uv run uvicorn app.main:app --host 127.0.0.1 --port 8000`
+
+   The hosted reasoning model needs `VEHICLE_AGENT_MODEL_MAX_OUTPUT_TOKENS` of 4096 or more. Below that, answers are cut off and the server returns its rule-based fallback.
+2. Android: in `~/.gradle/gradle.properties`, set `VEHICLE_QA_BACKEND_ENABLED=true`,
+   `VEHICLE_QA_BACKEND_BASE_URL=http://10.0.2.2:8000` (emulator), `VEHICLE_QA_BACKEND_API_KEY`
+   (same value as the server's `VEHICLE_AGENT_API_KEY`) and `VEHICLE_QA_BACKEND_TIMEOUT_SECONDS=120`.
+   Then build the debug variant, which allows plain HTTP to `10.0.2.2` only.
+3. In the app: **Try Demo Mode** → drive for a minute → back → **View History** → **View details** →
+   **Preview LLM** → **Ask Vehicle QA (RAG)**.
+
+Citation status records whether a claim can be traced to the supplied evidence. It does not record whether the evidence supports the claim.
+
 An Android OBD-II diagnostics application built with Kotlin. This project combines real-time vehicle telemetry collection, structured local diagnostic logic, and LLM-assisted analysis to explore how AI can support practical automotive diagnostics workflows.
 
 ## Project positioning

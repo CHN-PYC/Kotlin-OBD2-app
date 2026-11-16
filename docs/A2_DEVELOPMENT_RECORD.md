@@ -31,7 +31,11 @@ claim is true, and `vehicle_data` is declared by the model, not checked against 
 | 2026-11-09 | `6d4993d` | Exception fallback and readiness health check |
 | 2026-11-15 | `d30a25e` | Claim-level answers; chunk IDs validated against the evidence actually sent |
 | 2026-11-15 | `9b5520a` | Quote verification; `vehicle_data` label |
-| 2026-11-15 | after `9b5520a` | Android claim cards; smoke script, recorded run and this record |
+| 2026-11-15 | `07f5bdc` | Android claim cards on the report screen |
+| 2026-11-15 | `0135920` | Smoke script, recorded run and this record |
+| 2026-11-15 | `2568425` | Android compile fixes and unit-test setup |
+| 2026-11-15 | `f986d95` | Debug-only cleartext config so the emulator can reach the local server |
+| 2026-11-15 | (no code change) | Full stack run on an Android emulator: P0101 and P0420 answers captured as screenshots and raw responses for the report |
 
 ## Evidence of behaviour
 
@@ -47,6 +51,11 @@ claim is true, and `vehicle_data` is declared by the model, not checked against 
     "Causes for failure of the air-mass sensor can be:", so the highlighted text does not itself
     state the cause; the P0420 (catalytic converter) answer is built from air-mass-sensor checks
     that are all correctly quoted but do not address the question.
+- Emulator run (full hybrid retrieval, Chinese knowledge base): P0101 gave 5 claims (4 quoted,
+  1 unsupported) and P0420 gave 7 (5 quoted, 1 vehicle data, 1 unsupported). In the P0420 answer, one
+  "Quote found" claim ("inspect oxygen-sensor circuits…") is linked to a sentence that only lists
+  fault causes, so the quote was located but does not support the claim. An earlier request
+  was cut off at 4,096 output tokens and returned the rule-based fallback.
 
 ## Authorship and AI use
 
