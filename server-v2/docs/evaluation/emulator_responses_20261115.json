@@ -1,0 +1,491 @@
+[
+  {
+    "report_id": 1,
+    "created_at_ms": 1794779529338,
+    "report_type": "RAG_QA",
+    "response": {
+      "answer": "No obvious rule-based issues detected in this session.",
+      "severity": "NORMAL",
+      "findings": [],
+      "recommendations": [
+        "Keep collecting more real-world sessions before drawing stronger conclusions."
+      ],
+      "claims": [],
+      "sources": [],
+      "rewritten_query": "What does fault code P0101 mean and what usually causes it?",
+      "answer_mode": "llm_call_failed",
+      "confidence": "low",
+      "agent_trace": [
+        {
+          "step": "prepare_baseline",
+          "status": "completed",
+          "detail": "Prepared deterministic rule fallback response."
+        },
+        {
+          "step": "query_rewrite",
+          "status": "completed",
+          "detail": "Applied deterministic rewrite rules: none."
+        },
+        {
+          "step": "retrieval_tool",
+          "status": "completed",
+          "detail": "Retrieved 5 evidence chunks; reranker=pass_through."
+        },
+        {
+          "step": "evidence_gate",
+          "status": "passed",
+          "detail": "Accepted 5 chunks; best dense score=0.606."
+        },
+        {
+          "step": "prompt_build",
+          "status": "completed",
+          "detail": "Built prompt with 5 evidence chunks and 0 available history turns."
+        },
+        {
+          "step": "model_generation",
+          "status": "completed",
+          "detail": "deepseek-v4-flash"
+        },
+        {
+          "step": "model_output_parse",
+          "status": "failed",
+          "detail": "finish_reason=length"
+        },
+        {
+          "step": "rule_fallback",
+          "status": "fallback",
+          "detail": "Returned deterministic rule evidence."
+        }
+      ]
+    }
+  },
+  {
+    "report_id": 2,
+    "created_at_ms": 1794779622017,
+    "report_type": "RAG_QA",
+    "response": {
+      "answer": "The supplied evidence does not give an individual P0101 definition; it places P0101 in the P0100–P0104 group, described as usually involving MAF circuit or signal-range problems, and it does not identify specific usual causes for P0101. Safe next steps are to use model-specific definitions and freeze-frame data, check for intake leaks, and review live MAF airflow and engine operating conditions rather than replacing parts based only on the code.",
+      "severity": "NORMAL",
+      "findings": [
+        "P0101 falls within the P0100–P0104 group, which the evidence describes as usually MAF circuit or signal-range problems.",
+        "The supplied evidence does not identify specific usual causes for P0101.",
+        "The MAF measures the mass of intake air, which the engine control unit uses to calculate fuel injection."
+      ],
+      "recommendations": [
+        "MAF-related diagnosis should combine fault codes with intake-leak checks, live airflow, and engine operating conditions.",
+        "Model-specific code definitions and freeze-frame data should be used before replacing parts based only on a code table."
+      ],
+      "claims": [
+        {
+          "claim_id": "c1",
+          "text": "P0101 falls within the P0100–P0104 group, which the evidence describes as usually MAF circuit or signal-range problems.",
+          "kind": "definition",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "obd-dtc:families"
+          ],
+          "quote": "P0100–P0104 通常属于 MAF 电路或信号范围问题；P0171/P0174 表示对应气缸列混合气过稀，P0172/P0175 表示过浓。",
+          "quote_chunk_id": "obd-dtc:families"
+        },
+        {
+          "claim_id": "c2",
+          "text": "The supplied evidence does not identify specific usual causes for P0101.",
+          "kind": "cause",
+          "support": "unsupported",
+          "source_chunk_ids": [],
+          "quote": null,
+          "quote_chunk_id": null
+        },
+        {
+          "claim_id": "c3",
+          "text": "MAF-related diagnosis should combine fault codes with intake-leak checks, live airflow, and engine operating conditions.",
+          "kind": "check",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:2"
+          ],
+          "quote": "这些表现并不只由 MAF 引起，应结合故障码、进气泄漏检查、实时流量和发动机工况判断。",
+          "quote_chunk_id": "hella-air-mass-sensor:section:2"
+        },
+        {
+          "claim_id": "c4",
+          "text": "Model-specific code definitions and freeze-frame data should be used before replacing parts based only on a code table.",
+          "kind": "check",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "obd-dtc:families"
+          ],
+          "quote": "精确报码有助于词法检索，但仍需结合车型定义和冻结帧，不能只按代码表更换部件。",
+          "quote_chunk_id": "obd-dtc:families"
+        },
+        {
+          "claim_id": "c5",
+          "text": "The MAF measures the mass of intake air, which the engine control unit uses to calculate fuel injection.",
+          "kind": "definition",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:1"
+          ],
+          "quote": "空气质量流量传感器（MAF）测量发动机吸入的空气质量，发动机控制单元据此计算喷油量。",
+          "quote_chunk_id": "hella-air-mass-sensor:section:1"
+        }
+      ],
+      "sources": [
+        {
+          "chunk_id": "obd-dtc:families",
+          "doc_id": "hella-obd-p-codes",
+          "title": "OBD-II 故障码解释",
+          "source_url": "https://www.hella.com/hotsecdocs/OBDII/dtc_db/codelists/en_p-codes.htm",
+          "score": 0.6056205,
+          "text": "P0100–P0104 通常属于 MAF 电路或信号范围问题；P0171/P0174 表示对应气缸列混合气过稀，P0172/P0175 表示过浓。精确报码有助于词法检索，但仍需结合车型定义和冻结帧，不能只按代码表更换部件。",
+          "topic": "obd_dtc",
+          "pid_tags": [
+            "MAF",
+            "STFT_B1",
+            "LTFT_B1"
+          ],
+          "page_start": null,
+          "page_end": null,
+          "section_title": "进气与混合气报码族"
+        },
+        {
+          "chunk_id": "hella-air-mass-sensor:section:2",
+          "doc_id": "hella-air-mass-sensor",
+          "title": "空气质量流量传感器诊断",
+          "source_url": "https://www.hella.com/techworld/uk/technical/sensors-and-actuators/check-air-mass-sensor/",
+          "score": 0.44525105,
+          "text": "MAF 故障可能使发动机熄火、控制单元进入应急运行模式或点亮发动机故障灯。这些表现并不只由 MAF 引起，应结合故障码、进气泄漏检查、实时流量和发动机工况判断。",
+          "topic": "air_intake",
+          "pid_tags": [
+            "MAF"
+          ],
+          "page_start": null,
+          "page_end": null,
+          "section_title": "常见故障表现"
+        },
+        {
+          "chunk_id": "coolant-temperature-sensor:causes",
+          "doc_id": "hella-coolant-temperature-sensor",
+          "title": "冷却液温度传感器诊断",
+          "source_url": "https://www.hella.com/techworld/us/technical/sensors-and-actuators/test-coolant-temperature-sensor/",
+          "score": 0.5086061,
+          "text": "ECT 相关故障可能来自线束断路、对正极或搭铁短路、插头腐蚀、传感器输出不可信，也可能是节温器故障导致发动机长期达不到最低工作温度。故障码只限定检测到的异常，不等于已经确认要更换传感器。",
+          "topic": "coolant_temperature",
+          "pid_tags": [
+            "ECT"
+          ],
+          "page_start": null,
+          "page_end": null,
+          "section_title": "可能原因"
+        },
+        {
+          "chunk_id": "charging-system:symptoms-safety",
+          "doc_id": "hella-alternator-check",
+          "title": "车辆充电系统诊断",
+          "source_url": "https://www.hella.com/techworld/us/technical/car-electronics-and-electrics/starting-and-charging-system/checking-the-alternator/",
+          "score": 0.46147835,
+          "text": "充电系统故障可表现为充电警告灯、启动困难、蓄电池过热、灯光亮度随转速变化或灯泡频繁损坏。不要在发动机运行时断开蓄电池，也不要短接发电机端子；这种旧式测试可能损坏现代车辆电子系统。",
+          "topic": "charging_system",
+          "pid_tags": [
+            "RPM",
+            "CONTROL_MODULE_VOLTAGE"
+          ],
+          "page_start": null,
+          "page_end": null,
+          "section_title": "症状与安全边界"
+        },
+        {
+          "chunk_id": "hella-air-mass-sensor:section:1",
+          "doc_id": "hella-air-mass-sensor",
+          "title": "空气质量流量传感器诊断",
+          "source_url": "https://www.hella.com/techworld/uk/technical/sensors-and-actuators/check-air-mass-sensor/",
+          "score": 0.0,
+          "text": "空气质量流量传感器（MAF）测量发动机吸入的空气质量，发动机控制单元据此计算喷油量。它通常安装在空气滤清器壳体与进气歧管之间的进气管路中。MAF 与 MAP 都描述进气负荷，但测量对象和诊断方法不同，不能仅凭一个数值互相替代。",
+          "topic": "air_intake",
+          "pid_tags": [
+            "MAF"
+          ],
+          "page_start": null,
+          "page_end": null,
+          "section_title": "功能与安装位置"
+        }
+      ],
+      "rewritten_query": "What does fault code P0101 mean and what usually causes it?",
+      "answer_mode": "llm_rag",
+      "confidence": "medium",
+      "agent_trace": [
+        {
+          "step": "prepare_baseline",
+          "status": "completed",
+          "detail": "Prepared deterministic rule fallback response."
+        },
+        {
+          "step": "query_rewrite",
+          "status": "completed",
+          "detail": "Applied deterministic rewrite rules: none."
+        },
+        {
+          "step": "retrieval_tool",
+          "status": "completed",
+          "detail": "Retrieved 5 evidence chunks; reranker=pass_through."
+        },
+        {
+          "step": "evidence_gate",
+          "status": "passed",
+          "detail": "Accepted 5 chunks; best dense score=0.606."
+        },
+        {
+          "step": "prompt_build",
+          "status": "completed",
+          "detail": "Built prompt with 5 evidence chunks and 1 available history turns."
+        },
+        {
+          "step": "model_generation",
+          "status": "completed",
+          "detail": "deepseek-v4-flash"
+        },
+        {
+          "step": "model_output_parse",
+          "status": "completed",
+          "detail": "Validated structured model output."
+        },
+        {
+          "step": "claim_citation_check",
+          "status": "completed",
+          "detail": "5 claims (quoted=4, cited=0, vehicle_data=0, unsupported=1); rejected 0 citations to unknown chunks; 0 quotes not found in cited evidence."
+        },
+        {
+          "step": "build_response",
+          "status": "completed",
+          "detail": "Built final model-assisted response."
+        }
+      ]
+    }
+  },
+  {
+    "report_id": 3,
+    "created_at_ms": 1794779953623,
+    "report_type": "RAG_QA",
+    "response": {
+      "answer": "The supplied evidence does not define P0420 or identify catalytic-converter efficiency causes, and the current session is simulated demo data with no rule-based findings, so it cannot confirm converter damage. Safe next checks are to obtain model-specific P0420 definitions and freeze-frame data, inspect oxygen-sensor circuits and condition, and rule out post-filter intake leaks before replacing parts.",
+      "severity": "NORMAL",
+      "findings": [
+        "The supplied evidence does not define P0420 or list causes specific to catalytic-converter efficiency, so it cannot confirm that the catalytic converter is damaged.",
+        "The supplied code-family evidence addresses P0100–P0104 MAF circuit/signal-range issues and P0171/P0174/P0172/P0175 mixture codes, not P0420.",
+        "Oxygen sensor problems can stem from wiring shorts, supply or ground faults, overheating, contamination, mechanical damage, or improper fuel additives."
+      ],
+      "recommendations": [
+        "Use model-specific definitions and freeze-frame data rather than replacing parts based only on a code table.",
+        "Treat this simulated demo session as non-diagnostic rather than real fault evidence.",
+        "Inspect oxygen-sensor circuits and sensor condition when emissions-related faults are present.",
+        "An intake leak after the air filter can create mixture anomalies similar to MAF-related faults and should be ruled out."
+      ],
+      "claims": [
+        {
+          "claim_id": "c1",
+          "text": "The supplied evidence does not define P0420 or list causes specific to catalytic-converter efficiency, so it cannot confirm that the catalytic converter is damaged.",
+          "kind": "definition",
+          "support": "unsupported",
+          "source_chunk_ids": [],
+          "quote": null,
+          "quote_chunk_id": null
+        },
+        {
+          "claim_id": "c2",
+          "text": "The supplied code-family evidence addresses P0100–P0104 MAF circuit/signal-range issues and P0171/P0174/P0172/P0175 mixture codes, not P0420.",
+          "kind": "definition",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "obd-dtc:families"
+          ],
+          "quote": "P0100–P0104 通常属于 MAF 电路或信号范围问题；P0171/P0174 表示对应气缸列混合气过稀，P0172/P0175 表示过浓。",
+          "quote_chunk_id": "obd-dtc:families"
+        },
+        {
+          "claim_id": "c3",
+          "text": "Use model-specific definitions and freeze-frame data rather than replacing parts based only on a code table.",
+          "kind": "check",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "obd-dtc:families"
+          ],
+          "quote": "精确报码有助于词法检索，但仍需结合车型定义和冻结帧，不能只按代码表更换部件。",
+          "quote_chunk_id": "obd-dtc:families"
+        },
+        {
+          "claim_id": "c4",
+          "text": "Treat this simulated demo session as non-diagnostic rather than real fault evidence.",
+          "kind": "check",
+          "support": "vehicle_data",
+          "source_chunk_ids": [],
+          "quote": null,
+          "quote_chunk_id": null
+        },
+        {
+          "claim_id": "c5",
+          "text": "Oxygen sensor problems can stem from wiring shorts, supply or ground faults, overheating, contamination, mechanical damage, or improper fuel additives.",
+          "kind": "cause",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "lambda-sensor:symptoms-causes"
+          ],
+          "quote": "原因可包括线路短路、供电或搭铁故障、过热、沉积污染、机械损伤，以及含铅燃油或不适当添加剂。",
+          "quote_chunk_id": "lambda-sensor:symptoms-causes"
+        },
+        {
+          "claim_id": "c6",
+          "text": "Inspect oxygen-sensor circuits and sensor condition when emissions-related faults are present.",
+          "kind": "check",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "lambda-sensor:symptoms-causes"
+          ],
+          "quote": "原因可包括线路短路、供电或搭铁故障、过热、沉积污染、机械损伤，以及含铅燃油或不适当添加剂。",
+          "quote_chunk_id": "lambda-sensor:symptoms-causes"
+        },
+        {
+          "claim_id": "c7",
+          "text": "An intake leak after the air filter can create mixture anomalies similar to MAF-related faults and should be ruled out.",
+          "kind": "check",
+          "support": "quoted",
+          "source_chunk_ids": [
+            "hella-air-mass-sensor:section:3"
+          ],
+          "quote": "诊断时还应排除空气滤清器之后的进气泄漏，因为泄漏会造成类似的混合气异常。",
+          "quote_chunk_id": "hella-air-mass-sensor:section:3"
+        }
+      ],
+      "sources": [
+        {
+          "chunk_id": "obd-dtc:families",
+          "doc_id": "hella-obd-p-codes",
+          "title": "OBD-II 故障码解释",
+          "source_url": "https://www.hella.com/hotsecdocs/OBDII/dtc_db/codelists/en_p-codes.htm",
+          "score": 0.55657136,
+          "text": "P0100–P0104 通常属于 MAF 电路或信号范围问题；P0171/P0174 表示对应气缸列混合气过稀，P0172/P0175 表示过浓。精确报码有助于词法检索，但仍需结合车型定义和冻结帧，不能只按代码表更换部件。",
+          "topic": "obd_dtc",
+          "pid_tags": [
+            "MAF",
+            "STFT_B1",
+            "LTFT_B1"
+          ],
+          "page_start": null,
+          "page_end": null,
+          "section_title": "进气与混合气报码族"
+        },
+        {
+          "chunk_id": "coolant-temperature-sensor:causes",
+          "doc_id": "hella-coolant-temperature-sensor",
+          "title": "冷却液温度传感器诊断",
+          "source_url": "https://www.hella.com/techworld/us/technical/sensors-and-actuators/test-coolant-temperature-sensor/",
+          "score": 0.5552967,
+          "text": "ECT 相关故障可能来自线束断路、对正极或搭铁短路、插头腐蚀、传感器输出不可信，也可能是节温器故障导致发动机长期达不到最低工作温度。故障码只限定检测到的异常，不等于已经确认要更换传感器。",
+          "topic": "coolant_temperature",
+          "pid_tags": [
+            "ECT"
+          ],
+          "page_start": null,
+          "page_end": null,
+          "section_title": "可能原因"
+        },
+        {
+          "chunk_id": "lambda-sensor:symptoms-causes",
+          "doc_id": "hella-lambda-sensor",
+          "title": "氧传感器诊断",
+          "source_url": "https://www.hella.com/techworld/us/technical/sensors-and-actuators/test-lambda-sensor/",
+          "score": 0.5246576,
+          "text": "氧传感器异常可能伴随油耗升高、动力下降、排放异常、故障灯和相关故障码。原因可包括线路短路、供电或搭铁故障、过热、沉积污染、机械损伤，以及含铅燃油或不适当添加剂。",
+          "topic": "oxygen_sensor",
+          "pid_tags": [
+            "O2_B1S1",
+            "O2_B1S2",
+            "LAMBDA"
+          ],
+          "page_start": null,
+          "page_end": null,
+          "section_title": "症状与原因"
+        },
+        {
+          "chunk_id": "charging-system:battery-precheck",
+          "doc_id": "hella-charging-system",
+          "title": "车辆充电系统诊断",
+          "source_url": "https://www.hella.com/techworld/en/technical/car-electronics-and-electrics/starting-and-charging-system/service-work-on-the-charging-system/",
+          "score": 0.50985265,
+          "text": "诊断充电系统前先检查蓄电池状态、端子紧固与腐蚀。HELLA 指南给出的静置开路电压参考范围为 12.4–13.2 V，低于 12.4 V 时建议先充电再复测；蓄电池类型、温度和静置时间会影响判断。",
+          "topic": "charging_system",
+          "pid_tags": [
+            "CONTROL_MODULE_VOLTAGE"
+          ],
+          "page_start": null,
+          "page_end": null,
+          "section_title": "蓄电池预检"
+        },
+        {
+          "chunk_id": "hella-air-mass-sensor:section:3",
+          "doc_id": "hella-air-mass-sensor",
+          "title": "空气质量流量传感器诊断",
+          "source_url": "https://www.hella.com/techworld/uk/technical/sensors-and-actuators/check-air-mass-sensor/",
+          "score": 0.5025162,
+          "text": "MAF 失效原因包括插头接触不良、测量元件损坏、振动或事故造成的机械损伤，以及测量元件脱离支架。诊断时还应排除空气滤清器之后的进气泄漏，因为泄漏会造成类似的混合气异常。",
+          "topic": "air_intake",
+          "pid_tags": [
+            "MAF"
+          ],
+          "page_start": null,
+          "page_end": null,
+          "section_title": "失效原因"
+        }
+      ],
+      "rewritten_query": "Why is my catalytic converter efficiency below threshold P0420?",
+      "answer_mode": "llm_rag",
+      "confidence": "medium",
+      "agent_trace": [
+        {
+          "step": "prepare_baseline",
+          "status": "completed",
+          "detail": "Prepared deterministic rule fallback response."
+        },
+        {
+          "step": "query_rewrite",
+          "status": "completed",
+          "detail": "Applied deterministic rewrite rules: none."
+        },
+        {
+          "step": "retrieval_tool",
+          "status": "completed",
+          "detail": "Retrieved 5 evidence chunks; reranker=pass_through."
+        },
+        {
+          "step": "evidence_gate",
+          "status": "passed",
+          "detail": "Accepted 5 chunks; best dense score=0.557."
+        },
+        {
+          "step": "prompt_build",
+          "status": "completed",
+          "detail": "Built prompt with 5 evidence chunks and 2 available history turns."
+        },
+        {
+          "step": "model_generation",
+          "status": "completed",
+          "detail": "deepseek-v4-flash"
+        },
+        {
+          "step": "model_output_parse",
+          "status": "completed",
+          "detail": "Validated structured model output."
+        },
+        {
+          "step": "claim_citation_check",
+          "status": "completed",
+          "detail": "7 claims (quoted=5, cited=0, vehicle_data=1, unsupported=1); rejected 0 citations to unknown chunks; 0 quotes not found in cited evidence."
+        },
+        {
+          "step": "build_response",
+          "status": "completed",
+          "detail": "Built final model-assisted response."
+        }
+      ]
+    }
+  }
+]

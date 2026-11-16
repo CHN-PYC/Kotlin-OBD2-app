@@ -23,18 +23,18 @@ claim is true, and `vehicle_data` is declared by the model, not checked against 
 
 | Date | Commit | Step |
 |---|---|---|
-| 2026-04 – 2026-06 | `d9edaca` … `0a57a1c` | Android OBD app, rule diagnosis, remote LLM integration, first RAG backend link |
-| 2026-10-08 | `c5a39e9` | `server-v2` agent backend: explicit workflow nodes, hybrid retrieval, evidence gate |
-| 2026-11-09 | `6d4993d` | Exception fallback and readiness health check |
-| 2026-11-15 | `d30a25e` | Claim-level answers; chunk IDs validated against the evidence actually sent |
-| 2026-11-15 | `9b5520a` | Quote verification; `vehicle_data` label |
-| 2026-11-15 | `07f5bdc` | Android claim cards on the report screen |
-| 2026-11-15 | `0135920` | Smoke script, recorded run and this record |
-| 2026-11-15 | `2568425` | Android compile fixes and unit-test setup |
-| 2026-11-15 | `f986d95` | Debug-only cleartext config so the emulator can reach the local server |
+| 2026-04 – 2026-06 | [`d9edaca`](https://github.com/CHN-PYC/Kotlin-OBD2-app/commit/d9edaca) … [`0a57a1c`](https://github.com/CHN-PYC/Kotlin-OBD2-app/commit/0a57a1c) | Android OBD app, rule diagnosis, remote LLM integration, first RAG backend link |
+| 2026-10-08 | [`c5a39e9`](https://github.com/CHN-PYC/Kotlin-OBD2-app/commit/c5a39e9) | `server-v2` agent backend: explicit workflow nodes, hybrid retrieval, evidence gate |
+| 2026-11-09 | [`6d4993d`](https://github.com/CHN-PYC/Kotlin-OBD2-app/commit/6d4993d) | Exception fallback and readiness health check |
+| 2026-11-15 | [`d30a25e`](https://github.com/CHN-PYC/Kotlin-OBD2-app/commit/d30a25e) | Claim-level answers; chunk IDs validated against the evidence actually sent |
+| 2026-11-15 | [`9b5520a`](https://github.com/CHN-PYC/Kotlin-OBD2-app/commit/9b5520a) | Quote verification; `vehicle_data` label |
+| 2026-11-15 | [`07f5bdc`](https://github.com/CHN-PYC/Kotlin-OBD2-app/commit/07f5bdc) | Android claim cards on the report screen |
+| 2026-11-15 | [`0135920`](https://github.com/CHN-PYC/Kotlin-OBD2-app/commit/0135920) | Smoke script, recorded run and this record |
+| 2026-11-15 | [`2568425`](https://github.com/CHN-PYC/Kotlin-OBD2-app/commit/2568425) | Android compile fixes and unit-test setup |
+| 2026-11-15 | [`f986d95`](https://github.com/CHN-PYC/Kotlin-OBD2-app/commit/f986d95) | Debug-only cleartext config so the emulator can reach the local server |
 | 2026-11-15 | (no code change) | Full stack run on an Android emulator: P0101 and P0420 answers captured as screenshots and raw responses for the report |
-| 2026-11-16 | `559e265` | Query rewriting no longer feeds its own output back into later turns, which had nested follow-up queries until the current question was cut off |
-| 2026-11-16 | `f1341f8` | README section pointing to the A2 work; this record completed |
+| 2026-11-16 | [`559e265`](https://github.com/CHN-PYC/Kotlin-OBD2-app/commit/559e265) | Query rewriting no longer feeds its own output back into later turns, which had nested follow-up queries until the current question was cut off |
+| 2026-11-16 | [`f1341f8`](https://github.com/CHN-PYC/Kotlin-OBD2-app/commit/f1341f8) | README section pointing to the A2 work; this record completed |
 | 2026-11-16 | (report only) | Report reviewed against the brief and the code, then revised (see "Authorship and AI use") |
 
 ## Evidence of behaviour

@@ -2,23 +2,48 @@
 
 ## IIS A2 submission: claim-level evidence (start here)
 
+README prose word count: about 1,240 (code, file paths and setup commands not counted).
+
 For the Intelligent Interactive Systems A2 project, the vehicle Q&A answer is split into short
-claims. Each claim is shown on its own card with the source passage it was linked to
-directly underneath, and the copied quote highlighted. The server, not the model, decides each
-card's citation status.
+claims. Each claim is shown on its own card with the source passage it was linked to directly
+underneath, and the copied quote highlighted. The server, not the model, decides each card's
+citation status.
+
+### Project status
+
+- **Works:** `server-v2` returns claim-level answers (hybrid retrieval, hosted model, server-side
+  citation and quote checks), and the Android report screen shows them as claim cards. If
+  retrieval, the evidence gate, the prompt budget or the model fails, the server returns a
+  rule-based answer without claim cards.
+- **Simulated:** the trips behind the A2 screenshots come from the app's demo mode, which generates
+  OBD-II data without an adapter. Bluetooth adapter recording exists from earlier work but was not
+  used for A2.
+- **Not done:** nothing checks whether a quote supports its claim or whether a passage answers the
+  question; `vehicle_data` claims are not compared with the recorded values; no user study has been
+  run. The knowledge base is small (28 chunks) and covers only a few systems.
+
+### Tech stack (A2 path)
+
+- Android: Kotlin, Room, OkHttp (existing app; claim cards added for A2).
+- Backend: Python, FastAPI, Pydantic, managed with `uv`.
+- Retrieval: BM25 plus dense vectors (`bge-m3` embeddings through Ollama, stored in Qdrant), merged
+  by reciprocal rank fusion; Redis holds recent session turns.
+- Model: `deepseek-v4-flash` through an OpenAI-compatible API with JSON output. Any compatible
+  provider can be configured in `server-v2/.env`.
 
 | | |
 |---|---|
-| **Development record and AI-use statement** | [docs/A2_DEVELOPMENT_RECORD.md](docs/A2_DEVELOPMENT_RECORD.md) |
+| **Development record** | [docs/A2_DEVELOPMENT_RECORD.md](docs/A2_DEVELOPMENT_RECORD.md): changes with commit links, what was checked, known limits |
 | Claim schema | `server-v2/app/schemas/generation.py` |
 | Server-side citation checks | `server-v2/app/services/generation/claim_citations.py` (step `claim_citation_check` in `server-v2/app/agent/nodes.py`) |
 | Android claim cards | `app/src/main/java/com/example/myapplication/data/repository/VehicleQaClaims.kt`, `app/src/main/java/com/example/myapplication/ui/history/DiagnosticReportActivity.kt` |
 | Tests | `server-v2/tests/test_claim_citations.py`; `app/src/test/java/com/example/myapplication/VehicleQaClaimParserTest.kt` |
 | Recorded smoke run | `server-v2/scripts/smoke_claim_citations.py` → `server-v2/docs/evaluation/claim_citation_smoke_20261115.json` |
 
-**Run the A2 flow locally**
+### Run the A2 flow locally
 
-1. Backend: in `server-v2/`, copy `.env.example` to `.env` and set the model provider and key, then run:
+1. Backend: in `server-v2/`, copy `.env.example` to `.env` and set the model provider and your own
+   key (no key is committed), then run:
    - `docker compose up -d` to start Qdrant and Redis
    - `uv run python -m scripts.ingest_knowledge` (embeddings use Ollama with `bge-m3`)
    - `uv run uvicorn app.main:app --host 127.0.0.1 --port 8000`
@@ -30,6 +55,31 @@ card's citation status.
    Then build the debug variant, which allows plain HTTP to `10.0.2.2` only.
 3. In the app: **Try Demo Mode** → drive for a minute → back → **View History** → **View details** →
    **Preview LLM** → **Ask Vehicle QA (RAG)**.
+
+Without the backend, the recorded outputs listed under "Additional files" can be inspected instead.
+
+### AI assistance
+
+- **Claude Code (Anthropic):** from my design, drafted the A2 schema, citation checks, Android
+  claim cards, tests and smoke script; later drafted the report text and figures and ran the
+  emulator to capture the screenshots. Commits it helped write carry a `Co-Authored-By: Claude`
+  trailer.
+- **OpenAI Codex:** helped build the earlier Android app, reviewed my hand-written `server-v2`, and
+  reviewed the A2 report against the brief and the code.
+- **What I checked or changed:** I reviewed each change against the code and the recorded outputs.
+  For example, the report's claim that every workflow step falls back was wrong (five steps do) and
+  was corrected; the report was cut back under the word limit; storyboard thoughts were marked as
+  illustrative. I wrote the query-rewrite fix (`559e265`) myself. More detail is in the
+  development record.
+
+### Additional files
+
+- `server-v2/docs/evaluation/claim_citation_smoke_20261115.json`: smoke run, with the raw model
+  proposal and the filtered response stored separately.
+- `server-v2/docs/evaluation/emulator_responses_20261115.json`: the three backend responses the
+  app stored during the emulator run used for the report's storyboards (one rule-based fallback,
+  P0101, P0420), exported from its Room database.
+- The report itself is submitted on Canvas. There is no accompanying ZIP.
 
 Citation status records whether a claim can be traced to the supplied evidence. It does not record whether the evidence supports the claim.
 
