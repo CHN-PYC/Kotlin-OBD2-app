@@ -56,8 +56,8 @@ def test_second_turn_uses_memory_and_delete_clears_it() -> None:
     assert first.status_code == second.status_code == third.status_code == 200
     assert cleared.status_code == 204
     assert "ECT" in first.json()["rewritten_query"]
-    assert "上一轮" in second.json()["rewritten_query"]
+    assert "上文话题" in second.json()["rewritten_query"]
     assert len(prompt_payloads[1]["conversationHistory"]) == 1
     assert prompt_payloads[1]["conversationHistory"][0]["question"] == "水温偏高怎么检查？"
-    assert "上一轮" not in third.json()["rewritten_query"]
+    assert "上文话题" not in third.json()["rewritten_query"]
     assert prompt_payloads[2]["conversationHistory"] == []

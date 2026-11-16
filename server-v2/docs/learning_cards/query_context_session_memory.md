@@ -24,6 +24,34 @@ recent turn. Original and rewritten queries remain separate for trace and evalua
 This first version is deterministic. It is cheap, reproducible, and cannot invent a
 new vehicle fact. Its limitation is weak handling of complex ellipsis and intent.
 
+### Fixed: recursive rewrite growth
+
+The first version built `关于上一轮 {previous rewritten_query}；当前问题：...` and then
+cut at 500 characters. The derived query was stored in memory and fed back as input,
+so each follow-up nested one more layer, and the cut removed the current question.
+
+Current rules:
+
+1. **Raw facts only.** History contributes original `question` text, never a stored
+   `rewritten_query`. Derived output stays for trace/evaluation and never feeds back.
+2. **Topic anchor.** A follow-up (referential word or <= 6 characters) uses the most
+   recent self-contained question among retained turns, so chains such as
+   "这个呢 -> 它严重吗 -> 那个要换吗" keep the original topic. A self-contained
+   question switches topic and carries no history.
+3. **Priority composition.** Current question first, then terms/DTC, then
+   `上文话题`. Only lower-priority parts are truncated to the 500-character budget.
+
+Failure cases: a long new question with no referential word but implicit ellipsis is
+treated as a topic switch; a short self-contained question (<= 6 characters) is
+treated as a follow-up. Both need labeled multi-turn cases to measure. Old Redis
+turns with grown `rewritten_query` are harmless because they are no longer read.
+
+Enterprise next steps, not implemented: retrieve with both original and rewritten
+queries and fuse with RRF so a bad rewrite cannot remove good results; add an
+LLM condense-question rewriter behind validation (must keep current entities,
+length bound, timeout, deterministic fallback); store structured slots (DTC, PID,
+component) per turn instead of free text; gate any change on multi-turn Hit@K.
+
 ## Context Policy
 
 Mandatory current-request data is admitted first. Complete evidence chunks are added

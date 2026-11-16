@@ -71,14 +71,14 @@ class RetrieveEvidenceNode:
                 "reranked_sources": list(sources),
                 "trace": [
                     *state.trace,
-                        AgentTraceStep(
-                            step="retrieval_tool",
-                            status=TraceStatus.COMPLETED,
-                            detail=(
-                                f"Retrieved {len(sources)} evidence chunks; "
-                                f"reranker={sources[0].rerank_provider if sources else 'skipped'}."
-                            ),
+                    AgentTraceStep(
+                        step="retrieval_tool",
+                        status=TraceStatus.COMPLETED,
+                        detail=(
+                            f"Retrieved {len(sources)} evidence chunks; "
+                            f"reranker={sources[0].rerank_provider if sources else 'skipped'}."
                         ),
+                    ),
                 ],
             }
         )
@@ -104,7 +104,8 @@ class RewriteQueryNode:
                         step="query_rewrite",
                         status=TraceStatus.COMPLETED,
                         detail=(
-                            f"Applied {len(result.applied_rules)} deterministic rewrite rules."
+                            "Applied deterministic rewrite rules: "
+                            f"{', '.join(result.applied_rules) or 'none'}."
                         ),
                     ),
                 ],
@@ -193,9 +194,7 @@ class BuildPromptNode:
     def run(self, state: VehicleAgentState) -> VehicleAgentState:
         # LEARNING: 阶段和数据分别校验；改了 phase 不代表 baseline 已经准备好。
         if state.phase not in {AgentPhase.BASELINE_PREPARED, AgentPhase.EVIDENCE_ACCEPTED}:
-            raise ValueError(
-                "build prompt requires phase=baseline_prepared or evidence_accepted"
-            )
+            raise ValueError("build prompt requires phase=baseline_prepared or evidence_accepted")
         if state.baseline_response is None:
             raise ValueError("build prompt requires baseline_response ")
         # LEARNING: build 只做内存中的数据转换，普通 def 即可，不需要 await。
